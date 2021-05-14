@@ -1,0 +1,25 @@
+{
+  "name": "@opyn/liquidator",
+  "version": "0.1.0",
+  "description": "An Opyn liquidator bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/opynfinance/Liquidator.git"
+  },
+  "keywords": [
+    "defi",
+    "ethereum",
+    "liquidator",
+    "options",
+    "opyn"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/opynfinance/Liquidator/issues"
+  },
+  "homepage": "https://github.com/opynfinance/Liquidator#readme"
+}
