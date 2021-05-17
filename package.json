@@ -2,15 +2,6 @@
   "name": "@opyn/liquidator",
   "version": "0.1.0",
   "description": "An Opyn liquidator bot",
-  "main": "build/src/index.js",
-  "scripts": {
-    "prepare": "husky install",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/opynfinance/Liquidator.git"
-  },
   "keywords": [
     "defi",
     "ethereum",
@@ -18,11 +9,25 @@
     "options",
     "opyn"
   ],
-  "license": "MIT",
+  "homepage": "https://github.com/opynfinance/Liquidator#readme",
   "bugs": {
     "url": "https://github.com/opynfinance/Liquidator/issues"
   },
-  "homepage": "https://github.com/opynfinance/Liquidator#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/opynfinance/Liquidator.git"
+  },
+  "license": "MIT",
+  "main": "build/src/index.js",
+  "scripts": {
+    "prepare": "husky install",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "eslint --fix"
+    ]
+  },
   "devDependencies": {
     "@types/node": "^15.3.0",
     "@typescript-eslint/eslint-plugin": "^4.24.0",
@@ -33,10 +38,5 @@
     "lint-staged": "^11.0.0",
     "prettier": "^2.3.0",
     "typescript": "^4.2.4"
-  },
-  "lint-staged": {
-    "*.{js,ts}": [
-      "eslint --fix"
-    ]
   }
 }
