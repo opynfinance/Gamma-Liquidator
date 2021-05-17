@@ -27,6 +27,7 @@ WORKDIR /
 COPY . ./
 
 RUN npm ci
+RUN npm run build
 
 # Command to run any command provided by the COMMAND env variable.
 ENTRYPOINT ["/bin/bash", "scripts/runDockerCommand.sh"]

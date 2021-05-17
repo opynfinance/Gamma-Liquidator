@@ -1,0 +1,14 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# Dependency directories
+node_modules/
+
+# dotenv environment variables file
+.env*.local
+
+# Misc
+.DS_Store
+*.pem
+
+# Production
+/build

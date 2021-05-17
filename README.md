@@ -28,14 +28,14 @@ For more information about running a liquidator bot, see the [docs]()(TODO).
 
 ### Environment Variables
 
-| ENV Variable | Description |
-| - | - |
-| BOT_MINIMUM_ETHER_BALANCE | Minimum balance of Ether the bot's wallet must have to startup and run. Denominated in wei. (Default: 0) |
-| BOT_PRIVATE_KEY | **REQUIRED** Defines the wallet the bot will use. Generate and seed with Ether before running the bot. |
+| ENV Variable                 | Description                                                                                                                                                       |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BOT_MINIMUM_ETHER_BALANCE    | Minimum balance of Ether the bot's wallet must have to startup and run. Denominated in wei. (Default: 0)                                                          |
+| BOT_PRIVATE_KEY              | **REQUIRED** Defines the wallet the bot will use. Generate and seed with Ether before running the bot.                                                            |
 | CHAINLINK_PRICE_FEED_ADDRESS | **REQUIRED** Address of the deployed Chainlink Price Feed contract to fetch vault collateral prices from. Determines which vaults the bot will be concerned with. |
-| ETHEREUM_NODE_URL | **REQUIRED** Ethereum node URL to use (i.e. an Infura url). |
-| GAMMA_CONTROLLER_ADDRESS | **REQUIRED** Address of the deployed Opyn Controller contract to monitor and liquidate vaults with. |
-| GAS_PRICE_MULTIPLIER | How much to multiply the `fast` gas price by when sending transactions. (Default: 1) |
-| LIQUIDATION_POLL_DELAY_MS | How frequently to poll for liquidatable accounts, in microseconds. (Default: 300) |
-| SLACK_WEBHOOK | Webhook for sending messages to a Slack channel. |
-| RUN_COMMAND | **REQUIRED** Entry point used when the bot's Docker container starts running. |
+| ETHEREUM_NODE_URL            | **REQUIRED** Ethereum node URL to use (i.e. an Infura url).                                                                                                       |
+| GAMMA_CONTROLLER_ADDRESS     | **REQUIRED** Address of the deployed Opyn Controller contract to monitor and liquidate vaults with.                                                               |
+| GAS_PRICE_MULTIPLIER         | How much to multiply the `fast` gas price by when sending transactions. (Default: 1)                                                                              |
+| LIQUIDATION_POLL_DELAY_MS    | How frequently to poll for liquidatable accounts, in microseconds. (Default: 300)                                                                                 |
+| SLACK_WEBHOOK                | Webhook for sending messages to a Slack channel.                                                                                                                  |
+| RUN_COMMAND                  | **REQUIRED** Entry point used when the bot's Docker container starts running.                                                                                     |
