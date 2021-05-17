@@ -11,7 +11,7 @@
 #     --env GAS_PRICE_MULTIPLIER="<decimal number>" \
 #     --env LIQUIDATION_POLL_DELAY_MS="<number in ms>" \
 #     --env SLACK_WEBHOOK="<slack webhook>" \
-#     --env RUN_COMMAND="node ./liquidator/index.js" \
+#     --env RUN_COMMAND="node ./build/src/index.js" \
 #     opynfinance/liquidator:latest
 #
 # To build the docker image locally, run the following command from the root directory:
