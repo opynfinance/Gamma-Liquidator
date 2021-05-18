@@ -1,5 +1,5 @@
-# This docker container can be pulled from opynfinance/liquidator on dockerhub.
-# To get the latest image, run: docker pull opynfinance/liquidator
+# This docker container can be pulled from opyn/liquidator on dockerhub.
+# To get the latest image, run: docker pull opyn/liquidator
 # This docker container is used to access and run Opyn liquidator bots.
 # Settings for these bots are defined via enviroment variables.
 # For example to run a liquidator bot run:
@@ -12,12 +12,12 @@
 #     --env LIQUIDATION_POLL_DELAY_MS="<number in ms>" \
 #     --env SLACK_WEBHOOK="<slack webhook>" \
 #     --env RUN_COMMAND="node ./build/src/index.js" \
-#     opynfinance/liquidator:latest
+#     opyn/liquidator:latest
 #
 # To build the docker image locally, run the following command from the root directory:
 #   docker build -t <username>/<imagename> .
 #
-# To `docker run` with your locally built image, replace `opynfinance/liquidator` with <username>/<imagename>.
+# To `docker run` with your locally built image, replace `opyn/liquidator` with <username>/<imagename>.
 
 FROM node:lts
 

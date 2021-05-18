@@ -15,7 +15,7 @@ docker run \
   --env ETHEREUM_NODE_URL=https://mainnet.infura.io/v3/YOUR_INFURA_KEY \
   --env GAMMA_CONTROLLER_ADDRESS=0x4ccc2339F87F6c59c6893E1A678c2266cA58dC72 \
   --env RUN_COMMAND="node ./build/src/index.js" \
-  opynfinance/liquidator
+  opyn/liquidator
 ```
 
 ## Overview
