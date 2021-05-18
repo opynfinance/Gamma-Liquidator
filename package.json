@@ -31,6 +31,10 @@
       "eslint --fix"
     ]
   },
+  "dependencies": {
+    "winston": "^3.3.3",
+    "winston-transport": "^4.4.0"
+  },
   "devDependencies": {
     "@types/node": "^15.3.0",
     "@typescript-eslint/eslint-plugin": "^4.24.0",
