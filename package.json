@@ -32,6 +32,8 @@
     ]
   },
   "dependencies": {
+    "dotenv": "^9.0.2",
+    "ethers": "^5.1.4",
     "winston": "^3.3.3",
     "winston-transport": "^4.4.0"
   },

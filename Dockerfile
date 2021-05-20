@@ -10,6 +10,7 @@
 #     --env GAMMA_CONTROLLER_ADDRESS="<address>" \
 #     --env GAS_PRICE_MULTIPLIER="<decimal number>" \
 #     --env LIQUIDATION_POLL_DELAY_MS="<number in ms>" \
+#     --env LOGS="<boolean>" \
 #     --env SLACK_WEBHOOK="<slack webhook>" \
 #     --env RUN_COMMAND="node ./build/src/index.js" \
 #     opyn/liquidator:latest
