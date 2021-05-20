@@ -37,5 +37,6 @@ For more information about running a liquidator bot, see the [docs]()(TODO).
 | GAMMA_CONTROLLER_ADDRESS     | **REQUIRED** Address of the deployed Opyn Controller contract to monitor and liquidate vaults with.                                                               |
 | GAS_PRICE_MULTIPLIER         | How much to multiply the `fast` gas price by when sending transactions. (Default: 1)                                                                              |
 | LIQUIDATION_POLL_DELAY_MS    | How frequently to poll for liquidatable vaults, in microseconds. (Default: 300)                                                                                   |
+| LOGS                         | Output logs to stdout. (Default: True)                                                                                                                            |
 | SLACK_WEBHOOK                | Webhook for sending messages to a Slack channel.                                                                                                                  |
 | RUN_COMMAND                  | **REQUIRED** Entry point used when the bot's Docker container starts running.                                                                                     |
