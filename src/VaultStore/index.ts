@@ -22,7 +22,7 @@ export default class VaultStore {
 
   _subscribe = async () => {
     Logger.info({
-      at: "VaultStore#_update",
+      at: "VaultStore#_subscribe",
       message: "Updating vault store...",
     });
 
@@ -42,6 +42,22 @@ export default class VaultStore {
 
   _subscribeToOpenedNakedMarginVaultEvents = async () => {
     gammaControllerProxyContract.on(
+      openedNakedMarginVaultEvents,
+      (vaultOwner, vaultId) => {
+        this.liquidatableVaults[vaultOwner]
+          ? this.liquidatableVaults[vaultOwner].push(vaultId)
+          : (this.liquidatableVaults[vaultOwner] = [vaultId]);
+
+        Logger.info({
+          at: "VaultStore#_subscribeToOpenNakedMarginVaultEvents",
+          message: "Vault store updated",
+        });
+      }
+    );
+  };
+
+  _subscribeToVaultLiquidatedEvents = async () => {
+    gammaControllerProxyContract.on(
       "VaultLiquidated",
       (
         _liquidator,
@@ -59,26 +75,10 @@ export default class VaultStore {
           this.liquidatableVaults[vaultOwner].pop();
 
           Logger.info({
-            at: "VaultStore#_update",
+            at: "VaultStore#_subscribeToVaultLiquidatedEvents",
             message: "Vault store updated",
           });
         }
-      }
-    );
-  };
-
-  _subscribeToVaultLiquidatedEvents = async () => {
-    gammaControllerProxyContract.on(
-      openedNakedMarginVaultEvents,
-      (vaultOwner, vaultId) => {
-        this.liquidatableVaults[vaultOwner]
-          ? this.liquidatableVaults[vaultOwner].push(vaultId)
-          : (this.liquidatableVaults[vaultOwner] = [vaultId]);
-
-        Logger.info({
-          at: "VaultStore#_update",
-          message: "Vault store updated",
-        });
       }
     );
   };
@@ -98,7 +98,7 @@ export default class VaultStore {
           this.liquidatableVaults[vaultOwner].splice(vaultId - 1, 1);
 
           Logger.info({
-            at: "VaultStore#_update",
+            at: "VaultStore#_subscribeToVaultSettledEvents",
             message: "Vault store updated",
           });
         }
