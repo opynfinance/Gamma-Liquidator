@@ -23,7 +23,8 @@ export default class VaultStore {
   _subscribe = async () => {
     Logger.info({
       at: "VaultStore#_subscribe",
-      message: "Updating vault store...",
+      message: "Subscribing to Gamma Controller vault events...",
+      address: gammaControllerProxyContract.address,
     });
 
     try {
