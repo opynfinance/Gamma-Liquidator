@@ -1,10 +1,17 @@
 import { ethers } from "ethers";
 
+import chainlinkAggregatorABI from "./chainlinkAggregatorABI";
 import gammaControllerABI from "./gammaControllerABI";
 import Logger from "./logger";
 
 export const provider = new ethers.providers.JsonRpcProvider(
   process.env.ETHEREUM_NODE_URL
+);
+
+export const chainlinkAggregatorProxyContract = new ethers.Contract(
+  process.env.CHAINLINK_PRICE_FEED_ADDRESS as string,
+  chainlinkAggregatorABI,
+  provider
 );
 
 export const gammaControllerProxyContract = new ethers.Contract(
