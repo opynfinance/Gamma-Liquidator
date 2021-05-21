@@ -47,7 +47,8 @@ export default class PriceFeedStore {
 
     Logger.info({
       at: "PriceFeedStore#_subscribe",
-      message: "Updating price feed store...",
+      message: "Subscribing to Chainlink Price Feed...",
+      address: chainlinkAggregatorProxyContract.address,
     });
 
     try {
@@ -79,6 +80,9 @@ export default class PriceFeedStore {
         Logger.info({
           at: "PriceFeedStore#_subscribeToAnswerUpdatedEvents",
           message: "Price feed store updated",
+          answer: answerPrice.toNumber(),
+          roundId: roundId.toString(),
+          updatedAt: updatedTimestamp.toNumber(),
         });
       }
     );
