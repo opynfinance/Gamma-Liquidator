@@ -44,10 +44,24 @@ export default class VaultStore {
   _subscribeToOpenedNakedMarginVaultEvents = async () => {
     gammaControllerProxyContract.on(
       openedNakedMarginVaultEvents,
-      (vaultOwner, vaultId) => {
+      async (vaultOwner, vaultId) => {
+        // currently only one vault per vaultId
+        const { shortAmounts, shortOtokens } =
+          await gammaControllerProxyContract.getVault(vaultOwner, vaultId)[0];
+
         this.liquidatableVaults[vaultOwner]
-          ? this.liquidatableVaults[vaultOwner].push(vaultId)
-          : (this.liquidatableVaults[vaultOwner] = [vaultId]);
+          ? this.liquidatableVaults[vaultOwner].push({
+              shortAmount: shortAmounts[0], // currently only one vault per vaultId
+              shortOtokenAddress: shortOtokens[0], // currently only one shortOtoken address per vault
+              vaultId,
+            })
+          : (this.liquidatableVaults[vaultOwner] = [
+              {
+                shortAmount: shortAmounts[0], // currently only one vault per vaultId
+                shortOtokenAddress: shortOtokens[0], // currently only one shortOtoken address per vault
+                vaultId,
+              },
+            ]);
 
         Logger.info({
           at: "VaultStore#_subscribeToOpenNakedMarginVaultEvents",
