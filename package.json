@@ -9,13 +9,13 @@
     "options",
     "opyn"
   ],
-  "homepage": "https://github.com/opynfinance/Liquidator#readme",
+  "homepage": "https://github.com/opynfinance/Gamma-Liquidator#readme",
   "bugs": {
-    "url": "https://github.com/opynfinance/Liquidator/issues"
+    "url": "https://github.com/opynfinance/Gamma-Liquidator/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/opynfinance/Liquidator.git"
+    "url": "git+https://github.com/opynfinance/Gamma-Liquidator.git"
   },
   "license": "MIT",
   "main": "build/src/index.js",
