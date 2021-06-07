@@ -1,10 +1,18 @@
+import { BigNumber } from "ethers";
+
 import { chainlinkAggregatorProxyContract, Logger } from "../helpers";
 
+export interface ILatestRoundData {
+  answer: BigNumber;
+  roundId: BigNumber;
+  updatedAt: BigNumber;
+}
+
 export default class PriceFeedStore {
-  public latestRoundData: any;
+  public latestRoundData: ILatestRoundData | null;
 
   constructor() {
-    this.latestRoundData = {};
+    this.latestRoundData = null;
   }
 
   public getLatestRoundData() {
