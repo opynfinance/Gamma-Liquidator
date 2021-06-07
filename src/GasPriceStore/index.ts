@@ -1,17 +1,23 @@
+import { BigNumber } from "ethers";
+
+import {
+  calculateGasPriceFromGasNow,
+  calculateGasPriceFromNetwork,
+} from "./helpers";
 import { Logger, provider } from "../helpers";
 
 export default class GasPriceStore {
-  public lastCalculatedGasPrice: any;
+  public lastCalculatedGasPrice: BigNumber;
 
   constructor() {
-    this.lastCalculatedGasPrice = 0;
+    this.lastCalculatedGasPrice = BigNumber.from(0);
   }
 
-  public getLastCalculatedGasPrice() {
-    return this.lastCalculatedGasPrice;
+  public getLastCalculatedGasPrice(): number {
+    return this.lastCalculatedGasPrice.toNumber();
   }
 
-  start = () => {
+  start = (): void => {
     Logger.info({
       at: "GasPriceStore#start",
       message: "Starting gas price store",
@@ -19,31 +25,29 @@ export default class GasPriceStore {
     this._subscribe();
   };
 
-  _calculateInitialGasPrice = async () => {
+  _calculateInitialGasPrice = async (): Promise<void> => {
     try {
-      this.lastCalculatedGasPrice = (await provider.getGasPrice())
-        .mul(
-          Math.round(
-            Number(process.env.GAS_PRICE_MULTIPLIER as string) * 100000000
-          )
-        )
-        .div(100000000);
-
-      Logger.info({
-        at: "GasPriceStore#_calculateInitialGasPrice",
-        message: "Gas price store initialized",
-        lastCalculatedGasPrice: this.lastCalculatedGasPrice.toString(),
-      });
+      // Calculate gasPrice from gasnow.org
+      this.lastCalculatedGasPrice = await calculateGasPriceFromGasNow();
     } catch (error) {
       Logger.error({
         at: "GasPriceStore#_calculateInitialGasPrice",
         message: error.message,
         error,
       });
+
+      // Calculate gasPrice from the network On-chain median gasPrice fallback
+      this.lastCalculatedGasPrice = await calculateGasPriceFromNetwork();
     }
+
+    Logger.info({
+      at: "GasPriceStore#_calculateInitialGasPrice",
+      message: "Gas price store initialized",
+      lastCalculatedGasPrice: this.lastCalculatedGasPrice.toString(),
+    });
   };
 
-  _subscribe = async () => {
+  _subscribe = async (): Promise<void> => {
     await this._calculateInitialGasPrice();
 
     Logger.info({
@@ -64,17 +68,24 @@ export default class GasPriceStore {
     }
   };
 
-  _subscribeToNewBlocks = async () => {
+  _subscribeToNewBlocks = async (): Promise<void> => {
     provider.on("block", async (_blockNumber) => {
-      const nextCalculatedGasPrice = (await provider.getGasPrice())
-        .mul(
-          Math.round(
-            Number(process.env.GAS_PRICE_MULTIPLIER as string) * 100000000
-          )
-        )
-        .div(100000000);
+      let nextCalculatedGasPrice;
+      try {
+        // Calculate gasPrice from gasnow.org
+        nextCalculatedGasPrice = await calculateGasPriceFromGasNow();
+      } catch (error) {
+        Logger.error({
+          at: "GasPriceStore#_subscribeToNewBlocks",
+          message: error.message,
+          error,
+        });
 
-      if (nextCalculatedGasPrice.gt(this.lastCalculatedGasPrice)) {
+        // Calculate gasPrice from the network
+        nextCalculatedGasPrice = await calculateGasPriceFromNetwork();
+      }
+
+      if (!nextCalculatedGasPrice.eq(this.lastCalculatedGasPrice)) {
         this.lastCalculatedGasPrice = nextCalculatedGasPrice;
 
         Logger.info({
