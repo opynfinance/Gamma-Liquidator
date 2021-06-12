@@ -4,11 +4,14 @@ import GasPriceStore from "./GasPriceStore";
 // import Liquidator from "./Liquidator";
 import PriceFeedStore from "./PriceFeedStore";
 import VaultStore from "./VaultStore";
-import { loadLiquidatorAccount } from "./helpers/ethers";
-
-console.log(`Starting Gamma Liquidator`);
+import { loadLiquidatorAccount, Logger } from "./helpers";
 
 async function start() {
+  Logger.info({
+    at: "main#start",
+    message: "Starting Gamma Liquidator",
+  });
+
   const gasPriceStore = new GasPriceStore();
   const priceFeedStore = new PriceFeedStore();
   const vaultStore = new VaultStore();
