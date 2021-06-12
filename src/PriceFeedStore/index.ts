@@ -10,13 +10,19 @@ export interface ILatestRoundData {
 
 export default class PriceFeedStore {
   public latestRoundData: ILatestRoundData | null;
+  public underlyingAsset: string;
 
   constructor() {
     this.latestRoundData = null;
+    this.underlyingAsset = "";
   }
 
   public getLatestRoundData() {
     return this.latestRoundData;
+  }
+
+  public getUnderlyingAsset() {
+    return this.underlyingAsset;
   }
 
   start = () => {
@@ -25,6 +31,28 @@ export default class PriceFeedStore {
       message: "Starting price feed store",
     });
     this._subscribe();
+  };
+
+  _fetchPriceFeedPair = async () => {
+    try {
+      const priceFeedPair =
+        await chainlinkAggregatorProxyContract.description();
+
+      this.underlyingAsset = priceFeedPair.match(/([^\s]+)/g)[0];
+
+      Logger.info({
+        at: "PriceFeedStore#_fetchPriceFeedPair",
+        message: "Price feed underlying asset set",
+        priceFeedPair,
+        underlyingAsset: this.underlyingAsset,
+      });
+    } catch (error) {
+      Logger.error({
+        at: "PriceFeedStore#_fetchPriceFeedPair",
+        message: error.message,
+        error,
+      });
+    }
   };
 
   _fetchLatestRoundData = async () => {
@@ -52,6 +80,7 @@ export default class PriceFeedStore {
 
   _subscribe = async () => {
     await this._fetchLatestRoundData();
+    await this._fetchPriceFeedPair();
 
     Logger.info({
       at: "PriceFeedStore#_subscribe",
