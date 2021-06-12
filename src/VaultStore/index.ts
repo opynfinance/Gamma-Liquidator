@@ -1,19 +1,21 @@
+import { BigNumber } from "ethers";
+
 import { openedNakedMarginVaultEvents } from "./eventFilters";
 import { gammaControllerProxyContract, Logger } from "../helpers";
 
-export interface ILiquidatableVaults {
-  [vaultOwnerAddress: string]: number[];
+export interface INakedMarginVaults {
+  [vaultOwnerAddress: string]: BigNumber[];
 }
 
 export default class VaultStore {
-  public liquidatableVaults: ILiquidatableVaults;
+  public nakedMarginVaults: INakedMarginVaults;
 
   constructor() {
-    this.liquidatableVaults = {};
+    this.nakedMarginVaults = {};
   }
 
-  public getLiquidatableVaults() {
-    return this.liquidatableVaults;
+  public getNakedMarginVaults() {
+    return this.nakedMarginVaults;
   }
 
   start = () => {
@@ -24,19 +26,21 @@ export default class VaultStore {
     this._subscribe();
   };
 
-  _fetchLatestMarginVaultState = async () => {
+  _fetchNakedMarginVaults = async () => {
     try {
-      // TODO: subgraph call to fetch all naked margin vaults on startup
+      // TODO: subgraph call to fetch naked margin vaults on startup
 
-      // this.liquidatableVaults = ...;
+      // this.nakedMarginVaults = ...;
 
       Logger.info({
-        at: "VaultStore#_fetchLatestMarginVaultState",
+        at: "VaultStore#_fetchNakedMarginVaults",
         message: "Vault store initialized",
+        numberOfnakedMarginVaults: Object.values(this.nakedMarginVaults).flat()
+          .length,
       });
     } catch (error) {
       Logger.error({
-        at: "VaultStore#_fetchLatestMarginVaultState",
+        at: "VaultStore#_fetchNakedMarginVaults",
         message: error.message,
         error,
       });
@@ -44,7 +48,7 @@ export default class VaultStore {
   };
 
   _subscribe = async () => {
-    await this._fetchLatestMarginVaultState();
+    await this._fetchNakedMarginVaults();
 
     Logger.info({
       at: "VaultStore#_subscribe",
@@ -68,13 +72,16 @@ export default class VaultStore {
     gammaControllerProxyContract.on(
       openedNakedMarginVaultEvents,
       async (vaultOwner, vaultId) => {
-        this.liquidatableVaults[vaultOwner]
-          ? this.liquidatableVaults[vaultOwner].push(vaultId)
-          : (this.liquidatableVaults[vaultOwner] = [vaultId]);
+        this.nakedMarginVaults[vaultOwner]
+          ? this.nakedMarginVaults[vaultOwner].push(vaultId)
+          : (this.nakedMarginVaults[vaultOwner] = [vaultId]);
 
         Logger.info({
           at: "VaultStore#_subscribeToOpenNakedMarginVaultEvents",
           message: "Vault store updated",
+          numberOfNakedMarginVaults: Object.values(
+            this.nakedMarginVaults
+          ).flat().length,
         });
       }
     );
