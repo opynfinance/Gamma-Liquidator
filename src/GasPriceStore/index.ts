@@ -13,8 +13,8 @@ export default class GasPriceStore {
     this.lastCalculatedGasPrice = BigNumber.from(0);
   }
 
-  public getLastCalculatedGasPrice(): number {
-    return this.lastCalculatedGasPrice.toNumber();
+  public getLastCalculatedGasPrice() {
+    return this.lastCalculatedGasPrice;
   }
 
   start = (): void => {
