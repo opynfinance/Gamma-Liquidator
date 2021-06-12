@@ -14,9 +14,14 @@ export const chainlinkAggregatorProxyContract = new ethers.Contract(
   provider
 );
 
-export const gammaControllerProxyContract = new ethers.Contract(
+export let gammaControllerProxyContract = new ethers.Contract(
   process.env.GAMMA_CONTROLLER_ADDRESS as string,
   gammaControllerABI,
+  provider
+);
+
+export const liquidatorAccount = new ethers.Wallet(
+  process.env.BOT_PRIVATE_KEY as string,
   provider
 );
 
@@ -30,12 +35,8 @@ export async function loadLiquidatorAccount() {
     return;
   }
 
-  const liquidatorAccount = new ethers.Wallet(
-    process.env.BOT_PRIVATE_KEY,
-    provider
-  );
-
-  gammaControllerProxyContract.connect(liquidatorAccount);
+  gammaControllerProxyContract =
+    gammaControllerProxyContract.connect(liquidatorAccount);
 
   const liquidatorAddress = liquidatorAccount.address.toLowerCase();
 

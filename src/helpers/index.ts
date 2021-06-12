@@ -2,6 +2,7 @@ export { delay } from "./delay";
 export {
   chainlinkAggregatorProxyContract,
   gammaControllerProxyContract,
+  liquidatorAccount,
   loadLiquidatorAccount,
   provider,
 } from "./ethers";
