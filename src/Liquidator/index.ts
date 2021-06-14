@@ -1,5 +1,7 @@
 import { BigNumber } from "ethers";
 
+import { attemptLiquidations, fetchLiquidatableVaults } from "./helpers";
+import { ILiquidatableVaults } from "./types";
 import GasPriceStore from "../GasPriceStore";
 import PriceFeedStore from "../PriceFeedStore";
 import VaultStore from "../VaultStore";
@@ -9,21 +11,6 @@ import {
   Logger,
   provider,
 } from "../helpers";
-import { attemptLiquidations, fetchLiquidatableVaults } from "./helpers";
-
-export interface ILiquidatableVault {
-  latestAuctionPrice: BigNumber;
-  latestUnderlyingAssetPrice: BigNumber;
-  collateralAssetAddress: string;
-  roundId: BigNumber;
-  shortAmount: BigNumber;
-  shortOtokenAddress: string;
-  vaultId: BigNumber;
-}
-
-export interface ILiquidatableVaults {
-  [vaultOwnerAddress: string]: ILiquidatableVault[];
-}
 
 export default class Liquidator {
   public gasPriceStore: GasPriceStore;
