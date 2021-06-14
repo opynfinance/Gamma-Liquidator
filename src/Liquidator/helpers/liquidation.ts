@@ -1,40 +1,17 @@
 import { ethers } from "ethers";
-import fetch from "node-fetch";
 
-import erc20ABI from "./erc20ABI";
+import { ActionType } from "./actionTypes";
+import { fetchDeribitETHIndexPrice } from "./deribit";
 import marginCalculatorABI from "./marginCalculatorABI";
-import oTokenABI from "./oTokenABI";
 import {
-  liquidatorAccount,
   gammaControllerProxyContract,
+  liquidatorAccount,
   provider,
-} from "../helpers";
-
-enum ActionType {
-  OpenVault,
-  MintShortOption,
-  BurnShortOption,
-  DepositLongOption,
-  WithdrawLongOption,
-  DepositCollateral,
-  WithdrawCollateral,
-  SettleVault,
-  Redeem,
-  Call,
-  Liquidate,
-}
+} from "../../helpers";
 
 const liquidatorAccountAddress = liquidatorAccount.address;
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
-
-const generateDeribitUrl = ({
-  expiryDate,
-  optionType,
-  strikePrice,
-  underlyingAsset,
-}: Record<string, string>) =>
-  `https://www.deribit.com/api/v2/public/get_order_book?instrument_name=${underlyingAsset}-${expiryDate}-${strikePrice}-${optionType}`;
 
 const generateMintAndLiquidateActions = ({
   collateralToDeposit,
@@ -104,76 +81,14 @@ export async function calculateLiquidationTransactionCost({
   return (
     ((
       await gammaControllerProxyContract.estimateGas.operate(
-        generateMintAndLiquidateActions
+        mintAndLiquidationActions
       )
     )
       .mul(gasPriceStore.getLastCalculatedGasPrice())
       .toNumber() /
       10 ** 18) * // Ether has 18 decimals, gas is calculated in wei
-    // TODO: change to always use ETH/USD Chainlink Price Feed or Deribit
-    // this assumes the underlying is always ETH
-    vault.latestUnderlyingAssetPrice.div(10 ** 8) // Chainlink price feed price has 8 decimal
+    (await fetchDeribitETHIndexPrice())
   );
-}
-
-export async function fetchCollateralAssetDecimals(
-  collateralAssetAddress: string
-) {
-  const collateralAssetContract = new ethers.Contract(
-    collateralAssetAddress,
-    erc20ABI,
-    provider
-  );
-
-  return collateralAssetContract.decimals();
-}
-
-export async function fetchDeribitBestAskPrice({
-  expiryDate,
-  optionType,
-  strikePrice,
-  underlyingAsset,
-}: Record<string, string>) {
-  return (
-    await (
-      await fetch(
-        generateDeribitUrl({
-          expiryDate,
-          optionType,
-          strikePrice,
-          underlyingAsset,
-        })
-      )
-    ).json()
-  ).result.best_ask_price;
-}
-
-export async function fetchShortOtokenDetails(shortOtokenAddress: string) {
-  const shortOtokenContract = new ethers.Contract(
-    shortOtokenAddress,
-    oTokenABI,
-    provider
-  );
-
-  return shortOtokenContract.getOtokenDetails();
-}
-
-export async function fetchShortOtokenInstrumentInfo(
-  shortOtokenAddress: string
-) {
-  const shortOtokenContract = new ethers.Contract(
-    shortOtokenAddress,
-    oTokenABI,
-    provider
-  );
-
-  const instrumentInfo = await shortOtokenContract.symbol();
-  const [, expiryDate, strikePriceAndOptionType] =
-    instrumentInfo.match(/([^-]+)/g);
-
-  const [strikePrice, optionType] = strikePriceAndOptionType.match(/\d+|\D+/g);
-
-  return { expiryDate, optionType, strikePrice };
 }
 
 export const marginCalculatorContract = new ethers.Contract(
