@@ -5,15 +5,18 @@ import { chainlinkAggregatorProxyContract, Logger } from "../helpers";
 export interface ILatestRoundData {
   answer: BigNumber;
   roundId: BigNumber;
-  updatedAt: BigNumber;
+  updatedAt?: BigNumber;
 }
 
 export default class PriceFeedStore {
-  public latestRoundData: ILatestRoundData | null;
+  public latestRoundData: ILatestRoundData;
   public underlyingAsset: string;
 
   constructor() {
-    this.latestRoundData = null;
+    this.latestRoundData = {
+      answer: BigNumber.from(0),
+      roundId: BigNumber.from(0),
+    };
     this.underlyingAsset = "";
   }
 

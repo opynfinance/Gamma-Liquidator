@@ -1,8 +1,10 @@
 export { fetchDeribitBestAskPrice } from "./deribit";
 export {
+  attemptLiquidations,
   calculateLiquidationTransactionCost,
   marginCalculatorContract,
-} from "./liquidation";
+  fetchLiquidatableVaults,
+} from "./liquidations";
 export {
   fetchCollateralAssetDecimals,
   fetchShortOtokenDetails,
