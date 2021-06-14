@@ -18,9 +18,18 @@ import {
   marginCalculatorContract,
 } from "./helpers";
 
+export interface ILiquidatableVault {
+  latestAuctionPrice: BigNumber;
+  latestUnderlyingAssetPrice: BigNumber;
+  collateralAssetAddress: string;
+  roundId: BigNumber;
+  shortAmount: BigNumber;
+  shortOtokenAddress: string;
+  vaultId: BigNumber;
+}
+
 export interface ILiquidatableVaults {
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  [vaultOwnerAddress: string]: Record<string, any>[];
+  [vaultOwnerAddress: string]: ILiquidatableVault[];
 }
 
 export default class Liquidator {
@@ -254,7 +263,7 @@ export default class Liquidator {
 
           if (isPutOption) {
             if (
-              vault.latestAuctionPrice.toString() / 10 ** 8 >
+              vault.latestAuctionPrice.toNumber() / 10 ** 8 >
               estimatedProfit
             ) {
               // liquidate
@@ -264,8 +273,9 @@ export default class Liquidator {
           }
 
           if (
-            ((vault.latestAuctionPrice / 10 ** collateralAssetDecimals) *
-              vault.latestUnderlyingAssetPrice.toString()) /
+            ((vault.latestAuctionPrice.toNumber() /
+              10 ** collateralAssetDecimals) *
+              vault.latestUnderlyingAssetPrice.toNumber()) /
               10 ** 8 >
             estimatedProfit
           ) {
