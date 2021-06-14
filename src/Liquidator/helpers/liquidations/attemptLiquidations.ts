@@ -1,3 +1,4 @@
+import liquidateVault from "./liquidateVault";
 import {
   calculateLiquidationTransactionCost,
   fetchCollateralAssetDecimals,
@@ -7,8 +8,9 @@ import {
   marginCalculatorContract,
 } from "../";
 import Liquidator from "../../index";
+import { Logger } from "../../../helpers";
 
-export default async function fetchLiquidatableVaults(
+export default async function attemptLiquidations(
   liquidatableVaultOwners: string[],
   Liquidator: Liquidator
 ) {
@@ -18,80 +20,97 @@ export default async function fetchLiquidatableVaults(
     await Promise.all(
       Liquidator.liquidatableVaults[liquidatableVaultOwner].map(
         async (vault) => {
-          const shortOtokenInstrumentInfo =
-            await fetchShortOtokenInstrumentInfo(vault.shortOtokenAddress);
+          try {
+            const shortOtokenInstrumentInfo =
+              await fetchShortOtokenInstrumentInfo(vault.shortOtokenAddress);
 
-          const [
-            ,
-            underlyingAssetAddress,
-            strikeAssetAddress,
-            strikePrice,
-            expiryTimestamp,
-            isPutOption,
-          ] = await fetchShortOtokenDetails(vault.shortOtokenAddress);
-
-          const collateralAssetDecimals = await fetchCollateralAssetDecimals(
-            vault.collateralAssetAddress
-          );
-
-          const deribitBestAskPrice = await fetchDeribitBestAskPrice({
-            ...shortOtokenInstrumentInfo,
-            underlyingAsset,
-          });
-
-          const collateralAssetNakedMarginRequirement =
-            await marginCalculatorContract.getNakedMarginRequired(
+            const [
+              ,
               underlyingAssetAddress,
               strikeAssetAddress,
-              vault.collateralAssetAddress,
-              vault.shortAmount,
               strikePrice,
-              vault.latestUnderlyingAssetPrice,
               expiryTimestamp,
-              collateralAssetDecimals,
-              isPutOption
+              isPutOption,
+            ] = await fetchShortOtokenDetails(vault.shortOtokenAddress);
+
+            const collateralAssetDecimals = await fetchCollateralAssetDecimals(
+              vault.collateralAssetAddress
             );
 
-          const estimatedLiquidationTransactionCost =
-            await calculateLiquidationTransactionCost({
-              collateralToDeposit: collateralAssetNakedMarginRequirement,
-              gasPriceStore: Liquidator.gasPriceStore,
-              liquidatorVaultNonce: Liquidator.liquidatorVaultNonce,
-              vault,
-              vaultOwnerAddress: liquidatableVaultOwner,
+            const deribitBestAskPrice = await fetchDeribitBestAskPrice({
+              ...shortOtokenInstrumentInfo,
+              underlyingAsset,
             });
 
-          const estimatedProfit =
-            deribitBestAskPrice +
-            estimatedLiquidationTransactionCost +
-            Math.max(
-              Number(process.env.DERIBIT_PRICE_MULTIPLIER) *
-                deribitBestAskPrice,
-              Number(process.env.MINIMUM_LIQUIDATION_PRICE)
-            );
+            const collateralAssetNakedMarginRequirement =
+              await marginCalculatorContract.getNakedMarginRequired(
+                underlyingAssetAddress,
+                strikeAssetAddress,
+                vault.collateralAssetAddress,
+                vault.shortAmount,
+                strikePrice,
+                vault.latestUnderlyingAssetPrice,
+                expiryTimestamp,
+                collateralAssetDecimals,
+                isPutOption
+              );
 
-          if (isPutOption) {
-            if (
-              vault.latestAuctionPrice.toNumber() / 10 ** 8 >
-              estimatedProfit
-            ) {
-              // liquidate
+            const estimatedLiquidationTransactionCost =
+              await calculateLiquidationTransactionCost({
+                collateralToDeposit: collateralAssetNakedMarginRequirement,
+                gasPriceStore: Liquidator.gasPriceStore,
+                liquidatorVaultNonce: Liquidator.latestLiquidatorVaultNonce,
+                vault,
+                vaultOwnerAddress: liquidatableVaultOwner,
+              });
+
+            const estimatedProfit =
+              deribitBestAskPrice +
+              estimatedLiquidationTransactionCost +
+              Math.max(
+                Number(process.env.DERIBIT_PRICE_MULTIPLIER) *
+                  deribitBestAskPrice,
+                Number(process.env.MINIMUM_LIQUIDATION_PRICE)
+              );
+
+            if (isPutOption) {
+              if (
+                vault.latestAuctionPrice.toNumber() / 10 ** 8 >
+                estimatedProfit
+              ) {
+                await liquidateVault({
+                  collateralToDeposit: collateralAssetNakedMarginRequirement,
+                  liquidatorVaultNonce: Liquidator.latestLiquidatorVaultNonce,
+                  vault,
+                  vaultOwnerAddress: liquidatableVaultOwner,
+                });
+              }
               return;
             }
-            return;
-          }
 
-          if (
-            ((vault.latestAuctionPrice.toNumber() /
-              10 ** collateralAssetDecimals) *
-              vault.latestUnderlyingAssetPrice.toNumber()) /
-              10 ** 8 >
-            estimatedProfit
-          ) {
-            // liquidate
+            if (
+              ((vault.latestAuctionPrice.toNumber() /
+                10 ** collateralAssetDecimals) *
+                vault.latestUnderlyingAssetPrice.toNumber()) /
+                10 ** 8 >
+              estimatedProfit
+            ) {
+              await liquidateVault({
+                collateralToDeposit: collateralAssetNakedMarginRequirement,
+                liquidatorVaultNonce: Liquidator.latestLiquidatorVaultNonce,
+                vault,
+                vaultOwnerAddress: liquidatableVaultOwner,
+              });
+            }
             return;
+          } catch (error) {
+            Logger.error({
+              alert: "Critical error during liquidation attempt",
+              at: "Liquidator#_attemptLiquidations",
+              message: error.message,
+              error,
+            });
           }
-          return;
         }
       )
     );
