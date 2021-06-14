@@ -1,4 +1,6 @@
 export { fetchDeribitBestAskPrice } from "./deribit";
+export { default as fetchLiquidatableVaults } from "./fetchLiquidatableVaults";
+
 export {
   calculateLiquidationTransactionCost,
   marginCalculatorContract,
