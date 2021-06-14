@@ -110,9 +110,7 @@ export async function calculateLiquidationTransactionCost({
       .mul(gasPriceStore.getLastCalculatedGasPrice())
       .toNumber() /
       10 ** 18) * // Ether has 18 decimals, gas is calculated in wei
-    // TODO: change to always use ETH/USD Chainlink Price Feed or Deribit
-    // this assumes the underlying is always ETH
-    vault.latestUnderlyingAssetPrice.div(10 ** 8) // Chainlink price feed price has 8 decimal
+    (await fetchDeribitETHIndexPrice())
   );
 }
 
@@ -146,6 +144,16 @@ export async function fetchDeribitBestAskPrice({
       )
     ).json()
   ).result.best_ask_price;
+}
+
+export async function fetchDeribitETHIndexPrice() {
+  return (
+    await (
+      await fetch(
+        `https://deribit.com/api/v2/public/get_index_price?index_name=eth_usd`
+      )
+    ).json()
+  ).result.index_price;
 }
 
 export async function fetchShortOtokenDetails(shortOtokenAddress: string) {
