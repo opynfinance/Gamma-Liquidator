@@ -88,9 +88,13 @@ export default class Liquidator {
     for (const vaultOwnerAddress of vaultOwnerAddresses) {
       await Promise.all(
         nakedMarginVaults[vaultOwnerAddress].map(async (vaultId) => {
+          let answer = BigNumber.from(0),
+            currentRoundIdCalculatedAuctionPrice = BigNumber.from(0),
+            isUnderCollateralized,
+            roundId = BigNumber.from(0),
+            vaultDetails;
           try {
-            /* eslint-disable no-var */
-            var [vaultDetails] = await gammaControllerProxyContract.getVault(
+            [vaultDetails] = await gammaControllerProxyContract.getVault(
               vaultOwnerAddress,
               vaultId
             );
@@ -116,11 +120,9 @@ export default class Liquidator {
           const shortOtokenAddress = vaultDetails.shortOtokens[0];
 
           try {
-            /* eslint-disable no-var, @typescript-eslint/no-non-null-assertion */
-            var { answer, roundId } = this.priceFeedStore.getLatestRoundData()!;
+            ({ answer, roundId } = this.priceFeedStore.getLatestRoundData());
 
-            /* eslint-disable no-var */
-            var [isUnderCollateralized, currentRoundIdCalculatedAuctionPrice] =
+            [isUnderCollateralized, currentRoundIdCalculatedAuctionPrice] =
               await gammaControllerProxyContract.isLiquidatable(
                 vaultOwnerAddress,
                 vaultId,
