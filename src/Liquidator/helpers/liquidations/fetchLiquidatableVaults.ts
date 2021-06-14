@@ -1,7 +1,7 @@
 import { BigNumber } from "ethers";
 
-import Liquidator from "../index";
-import { gammaControllerProxyContract, Logger } from "../../helpers";
+import Liquidator from "../../index";
+import { gammaControllerProxyContract, Logger } from "../../../helpers";
 
 export default async function fetchLiquidatableVaults(Liquidator: Liquidator) {
   const nakedMarginVaults = Liquidator.vaultStore.getNakedMarginVaults();

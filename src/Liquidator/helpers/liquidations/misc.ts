@@ -1,13 +1,13 @@
 import { ethers } from "ethers";
 
-import { ActionType } from "./actionTypes";
-import { fetchDeribitETHIndexPrice } from "./deribit";
-import marginCalculatorABI from "./marginCalculatorABI";
+import { ActionType } from "../actionTypes";
+import { fetchDeribitETHIndexPrice } from "../deribit";
+import marginCalculatorABI from "../marginCalculatorABI";
 import {
   gammaControllerProxyContract,
   liquidatorAccount,
   provider,
-} from "../../helpers";
+} from "../../../helpers";
 
 const liquidatorAccountAddress = liquidatorAccount.address;
 

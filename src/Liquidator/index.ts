@@ -9,15 +9,7 @@ import {
   Logger,
   provider,
 } from "../helpers";
-import {
-  calculateLiquidationTransactionCost,
-  fetchCollateralAssetDecimals,
-  fetchDeribitBestAskPrice,
-  fetchLiquidatableVaults,
-  fetchShortOtokenDetails,
-  fetchShortOtokenInstrumentInfo,
-  marginCalculatorContract,
-} from "./helpers";
+import { attemptLiquidations, fetchLiquidatableVaults } from "./helpers";
 
 export interface ILiquidatableVault {
   latestAuctionPrice: BigNumber;
@@ -95,88 +87,7 @@ export default class Liquidator {
       return;
     }
 
-    const underlyingAsset = this.priceFeedStore.getUnderlyingAsset();
-
-    for (const liquidatableVaultOwner of liquidatableVaultOwners) {
-      await Promise.all(
-        this.liquidatableVaults[liquidatableVaultOwner].map(async (vault) => {
-          const shortOtokenInstrumentInfo =
-            await fetchShortOtokenInstrumentInfo(vault.shortOtokenAddress);
-
-          const [
-            ,
-            underlyingAssetAddress,
-            strikeAssetAddress,
-            strikePrice,
-            expiryTimestamp,
-            isPutOption,
-          ] = await fetchShortOtokenDetails(vault.shortOtokenAddress);
-
-          const collateralAssetDecimals = await fetchCollateralAssetDecimals(
-            vault.collateralAssetAddress
-          );
-
-          const deribitBestAskPrice = await fetchDeribitBestAskPrice({
-            ...shortOtokenInstrumentInfo,
-            underlyingAsset,
-          });
-
-          const collateralAssetNakedMarginRequirement =
-            await marginCalculatorContract.getNakedMarginRequired(
-              underlyingAssetAddress,
-              strikeAssetAddress,
-              vault.collateralAssetAddress,
-              vault.shortAmount,
-              strikePrice,
-              vault.latestUnderlyingAssetPrice,
-              expiryTimestamp,
-              collateralAssetDecimals,
-              isPutOption
-            );
-
-          const estimatedLiquidationTransactionCost =
-            await calculateLiquidationTransactionCost({
-              collateralToDeposit: collateralAssetNakedMarginRequirement,
-              gasPriceStore: this.gasPriceStore,
-              liquidatorVaultNonce: this.liquidatorVaultNonce,
-              vault,
-              vaultOwnerAddress: liquidatableVaultOwner,
-            });
-
-          const estimatedProfit =
-            deribitBestAskPrice +
-            estimatedLiquidationTransactionCost +
-            Math.max(
-              Number(process.env.DERIBIT_PRICE_MULTIPLIER) *
-                deribitBestAskPrice,
-              Number(process.env.MINIMUM_LIQUIDATION_PRICE)
-            );
-
-          if (isPutOption) {
-            if (
-              vault.latestAuctionPrice.toNumber() / 10 ** 8 >
-              estimatedProfit
-            ) {
-              // liquidate
-              return;
-            }
-            return;
-          }
-
-          if (
-            ((vault.latestAuctionPrice.toNumber() /
-              10 ** collateralAssetDecimals) *
-              vault.latestUnderlyingAssetPrice.toNumber()) /
-              10 ** 8 >
-            estimatedProfit
-          ) {
-            // liquidate
-            return;
-          }
-          return;
-        })
-      );
-    }
+    await attemptLiquidations(liquidatableVaultOwners, this);
   };
 
   _subscribe = async (): Promise<void> => {
