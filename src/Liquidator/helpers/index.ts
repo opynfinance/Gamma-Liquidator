@@ -2,6 +2,7 @@ export { fetchDeribitBestAskPrice } from "./deribit";
 export {
   attemptLiquidations,
   calculateLiquidationTransactionCost,
+  generateMintAndLiquidateActions,
   marginCalculatorContract,
   fetchLiquidatableVaults,
 } from "./liquidations";
