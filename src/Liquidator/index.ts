@@ -14,8 +14,8 @@ import {
 
 export default class Liquidator {
   public gasPriceStore: GasPriceStore;
+  public latestLiquidatorVaultNonce: BigNumber;
   public liquidatableVaults: ILiquidatableVaults;
-  public liquidatorVaultNonce: BigNumber;
   public priceFeedStore: PriceFeedStore;
   public vaultStore: VaultStore;
 
@@ -25,8 +25,8 @@ export default class Liquidator {
     vaultStore: VaultStore
   ) {
     this.gasPriceStore = gasPriceStore;
+    this.latestLiquidatorVaultNonce = BigNumber.from(1);
     this.liquidatableVaults = {};
-    this.liquidatorVaultNonce = BigNumber.from(1);
     this.priceFeedStore = priceFeedStore;
     this.vaultStore = vaultStore;
   }
@@ -39,25 +39,26 @@ export default class Liquidator {
     this._subscribe();
   };
 
-  _fetchLiquidatorVaultNonce = async (): Promise<void> => {
+  _setLatestLiquidatorVaultNonce = async (): Promise<void> => {
     try {
-      this.liquidatorVaultNonce =
+      this.latestLiquidatorVaultNonce = (
         await gammaControllerProxyContract.getAccountVaultCounter(
           liquidatorAccount.address
-        );
+        )
+      ).add(1);
 
       Logger.info({
-        at: "Liquidator#_fetchLiquidatorVaultNonce",
-        message: "Liquidator vault nonce initialized",
-        vaultNonce: this.liquidatorVaultNonce.toString(),
+        at: "Liquidator#_setLatestLiquidatorVaultNonce",
+        message: "Latest Liquidator vault nonce initialized",
+        vaultNonce: this.latestLiquidatorVaultNonce.toString(),
       });
     } catch (error) {
       Logger.error({
-        at: "Liquidator#_fetchLiquidatorVaultNonce",
+        at: "Liquidator#_setLatestLiquidatorVaultNonce",
         message: error.message,
         error,
       });
-      this._fetchLiquidatorVaultNonce();
+      this._setLatestLiquidatorVaultNonce();
     }
   };
 
@@ -78,8 +79,8 @@ export default class Liquidator {
   };
 
   _subscribe = async (): Promise<void> => {
-    await this._fetchLiquidatorVaultNonce();
     await this._initialLiquidationAttempt();
+    await this._setLatestLiquidatorVaultNonce();
 
     Logger.info({
       at: "Liquidator#_subscribe",
@@ -88,7 +89,7 @@ export default class Liquidator {
     });
 
     try {
-      //   this._subscribeToNewBlocks();
+      // this._subscribeToNewBlocks();
     } catch (error) {
       Logger.error({
         at: "Liquidator#_subscribe",
