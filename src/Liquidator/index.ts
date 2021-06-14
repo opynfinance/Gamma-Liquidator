@@ -62,25 +62,41 @@ export default class Liquidator {
     }
   };
 
-  _initialLiquidationAttempt = async (): Promise<void> => {
-    await fetchLiquidatableVaults(this);
+  _attemptLiquidations = async (): Promise<void> => {
+    try {
+      await fetchLiquidatableVaults(this);
 
-    const liquidatableVaultOwners = Object.keys(this.liquidatableVaults);
+      const liquidatableVaultOwners = Object.keys(this.liquidatableVaults);
 
-    if (liquidatableVaultOwners.length === 0) {
+      if (liquidatableVaultOwners.length === 0) {
+        Logger.info({
+          at: "Liquidator#_attemptLiquidations",
+          message: "No liquidatable vaults",
+        });
+        return;
+      }
+
       Logger.info({
-        at: "Liquidator#_initialLiquidationAttempt",
-        message: "No liquidatable vaults",
+        at: "Liquidator#_attemptLiquidations",
+        message: "Liquidatable vaults detected",
+        numberOfLiquidatableVaults: Object.values(
+          this.liquidatableVaults
+        ).flat().length,
       });
-      return;
-    }
 
-    await attemptLiquidations(liquidatableVaultOwners, this);
+      await attemptLiquidations(liquidatableVaultOwners, this);
+    } catch (error) {
+      Logger.error({
+        at: "Liquidator#_attemptLiquidations",
+        message: error.message,
+        error,
+      });
+    }
   };
 
   _subscribe = async (): Promise<void> => {
-    await this._initialLiquidationAttempt();
     await this._setLatestLiquidatorVaultNonce();
+    await this._attemptLiquidations();
 
     Logger.info({
       at: "Liquidator#_subscribe",
