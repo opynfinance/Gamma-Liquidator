@@ -35,7 +35,7 @@ export default class VaultStore {
       Logger.info({
         at: "VaultStore#_fetchNakedMarginVaults",
         message: "Vault store initialized",
-        numberOfnakedMarginVaults: Object.values(this.nakedMarginVaults).flat()
+        numberOfNakedMarginVaults: Object.values(this.nakedMarginVaults).flat()
           .length,
       });
     } catch (error) {
