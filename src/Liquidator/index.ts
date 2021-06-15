@@ -107,7 +107,7 @@ export default class Liquidator {
     });
 
     try {
-      // this._subscribeToNewBlocks();
+      this._subscribeToNewBlocks();
     } catch (error) {
       Logger.error({
         at: "Liquidator#_subscribe",
@@ -116,5 +116,19 @@ export default class Liquidator {
       });
       this._subscribe();
     }
+  };
+
+  _subscribeToNewBlocks = async (): Promise<void> => {
+    provider.on("block", async (_blockNumber) => {
+      try {
+        await this._attemptLiquidations();
+      } catch (error) {
+        Logger.error({
+          at: "Liquidator#_subscribeToNewBlocks",
+          message: error.message,
+          error,
+        });
+      }
+    });
   };
 }
