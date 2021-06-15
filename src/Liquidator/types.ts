@@ -20,3 +20,7 @@ export interface IMintAndLiquidateArgs {
   vault: ILiquidatableVault;
   vaultOwnerAddress: string;
 }
+
+export interface ISettlementStore {
+  [shortOtokenAddress: string]: BigNumber;
+}

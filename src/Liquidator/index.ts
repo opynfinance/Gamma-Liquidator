@@ -1,7 +1,7 @@
 import { BigNumber } from "ethers";
 
 import { attemptLiquidations, fetchLiquidatableVaults } from "./helpers";
-import { ILiquidatableVaults } from "./types";
+import { ILiquidatableVaults, ISettlementStore } from "./types";
 import GasPriceStore from "../GasPriceStore";
 import PriceFeedStore from "../PriceFeedStore";
 import VaultStore from "../VaultStore";
@@ -17,6 +17,7 @@ export default class Liquidator {
   public latestLiquidatorVaultNonce: BigNumber;
   public liquidatableVaults: ILiquidatableVaults;
   public priceFeedStore: PriceFeedStore;
+  public settlementStore: ISettlementStore;
   public vaultStore: VaultStore;
 
   constructor(
@@ -25,9 +26,10 @@ export default class Liquidator {
     vaultStore: VaultStore
   ) {
     this.gasPriceStore = gasPriceStore;
-    this.latestLiquidatorVaultNonce = BigNumber.from(1);
+    this.latestLiquidatorVaultNonce = BigNumber.from(0);
     this.liquidatableVaults = {};
     this.priceFeedStore = priceFeedStore;
+    this.settlementStore = {};
     this.vaultStore = vaultStore;
   }
 
