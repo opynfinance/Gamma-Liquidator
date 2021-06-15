@@ -1,7 +1,7 @@
 import { BigNumber } from "ethers";
 
 import { attemptLiquidations, fetchLiquidatableVaults } from "./helpers";
-import { ILiquidatableVaults } from "./types";
+import { ILiquidatableVaults, ISettlementStore } from "./types";
 import GasPriceStore from "../GasPriceStore";
 import PriceFeedStore from "../PriceFeedStore";
 import VaultStore from "../VaultStore";
@@ -17,7 +17,7 @@ export default class Liquidator {
   public latestLiquidatorVaultNonce: BigNumber;
   public liquidatableVaults: ILiquidatableVaults;
   public priceFeedStore: PriceFeedStore;
-  public settlementStore: any;
+  public settlementStore: ISettlementStore;
   public vaultStore: VaultStore;
 
   constructor(
