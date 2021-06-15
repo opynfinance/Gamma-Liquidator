@@ -31,5 +31,5 @@ export interface ISettlementStore {
 }
 
 export interface ISettlementVault {
-  [liquidationVaultNonce: string]: ISettlementDetails[];
+  [liquidationVaultNonce: string]: ISettlementDetails;
 }

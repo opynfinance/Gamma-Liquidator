@@ -58,6 +58,7 @@ export default async function attemptLiquidations(
               );
 
             const liquidatorVaultNonce = setLiquidationVaultNonce(
+              expiryTimestamp,
               Liquidator,
               vault
             );
@@ -116,12 +117,11 @@ export default async function attemptLiquidations(
               vaultId: vault.vaultId.toString(),
             });
 
-            return await updateSettlementStore({
-              expiryTimestamp,
+            return await updateSettlementStore(
               Liquidator,
               liquidatorVaultNonce,
-              vault,
-            });
+              vault
+            );
           } catch (error) {
             Logger.error({
               alert: "Critical error during liquidation attempt",

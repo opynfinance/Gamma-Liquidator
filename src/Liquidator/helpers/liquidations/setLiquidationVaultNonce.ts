@@ -4,6 +4,7 @@ import Liquidator from "../../index";
 import { ILiquidatableVault } from "../../types";
 
 export default function setLiquidationVaultNonce(
+  expiryTimestamp: BigNumber,
   Liquidator: Liquidator,
   { shortOtokenAddress }: ILiquidatableVault
 ) {
@@ -16,7 +17,10 @@ export default function setLiquidationVaultNonce(
   const liquidatorVaultNonce = Liquidator.latestLiquidatorVaultNonce;
 
   Liquidator.settlementStore[shortOtokenAddress] = {
-    [`${liquidatorVaultNonce.toString()}`]: [],
+    [`${liquidatorVaultNonce.toString()}`]: {
+      expiryTimestamp,
+      shortAmount: BigNumber.from(0),
+    },
   };
 
   Liquidator.latestLiquidatorVaultNonce =
