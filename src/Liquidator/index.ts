@@ -26,7 +26,7 @@ export default class Liquidator {
     vaultStore: VaultStore
   ) {
     this.gasPriceStore = gasPriceStore;
-    this.latestLiquidatorVaultNonce = BigNumber.from(1);
+    this.latestLiquidatorVaultNonce = BigNumber.from(0);
     this.liquidatableVaults = {};
     this.priceFeedStore = priceFeedStore;
     this.settlementStore = {};
