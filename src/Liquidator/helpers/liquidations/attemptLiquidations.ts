@@ -1,5 +1,6 @@
 import liquidateVault from "./liquidateVault";
 import setLiquidationVaultNonce from "./setLiquidationVaultNonce";
+import updateSettlementStore from "./updateSettlementStore";
 import {
   calculateLiquidationTransactionCost,
   fetchCollateralAssetDecimals,
@@ -115,7 +116,12 @@ export default async function attemptLiquidations(
               vaultId: vault.vaultId.toString(),
             });
 
-            return;
+            return await updateSettlementStore({
+              expiryTimestamp,
+              Liquidator,
+              liquidatorVaultNonce,
+              vault,
+            });
           } catch (error) {
             Logger.error({
               alert: "Critical error during liquidation attempt",
