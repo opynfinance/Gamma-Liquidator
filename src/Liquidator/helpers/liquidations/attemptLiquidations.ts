@@ -91,7 +91,6 @@ export default async function attemptLiquidations(
                   vaultOwnerAddress: liquidatableVaultOwner,
                 });
               }
-              return;
             }
 
             if (
@@ -108,11 +107,19 @@ export default async function attemptLiquidations(
                 vaultOwnerAddress: liquidatableVaultOwner,
               });
             }
+
+            Logger.info({
+              at: "Liquidator#attemptLiquidations",
+              message: "Vault liquidated",
+              liquidatedVaultOwnerAddress: liquidatableVaultOwner,
+              vaultId: vault.vaultId.toString(),
+            });
+
             return;
           } catch (error) {
             Logger.error({
               alert: "Critical error during liquidation attempt",
-              at: "Liquidator#_attemptLiquidations",
+              at: "Liquidator#attemptLiquidations",
               message: error.message,
               error,
             });
