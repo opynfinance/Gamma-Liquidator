@@ -17,6 +17,7 @@ export default class Liquidator {
   public latestLiquidatorVaultNonce: BigNumber;
   public liquidatableVaults: ILiquidatableVaults;
   public priceFeedStore: PriceFeedStore;
+  public settlementStore: any;
   public vaultStore: VaultStore;
 
   constructor(
@@ -28,6 +29,7 @@ export default class Liquidator {
     this.latestLiquidatorVaultNonce = BigNumber.from(1);
     this.liquidatableVaults = {};
     this.priceFeedStore = priceFeedStore;
+    this.settlementStore = {};
     this.vaultStore = vaultStore;
   }
 
