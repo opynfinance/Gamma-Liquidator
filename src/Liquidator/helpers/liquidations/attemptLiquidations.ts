@@ -1,5 +1,6 @@
 import liquidateVault from "./liquidateVault";
 import setLiquidationVaultNonce from "./setLiquidationVaultNonce";
+import updateSettlementStore from "./updateSettlementStore";
 import {
   calculateLiquidationTransactionCost,
   fetchCollateralAssetDecimals,
@@ -57,6 +58,7 @@ export default async function attemptLiquidations(
               );
 
             const liquidatorVaultNonce = setLiquidationVaultNonce(
+              expiryTimestamp,
               Liquidator,
               vault
             );
@@ -91,7 +93,6 @@ export default async function attemptLiquidations(
                   vaultOwnerAddress: liquidatableVaultOwner,
                 });
               }
-              return;
             }
 
             if (
@@ -108,11 +109,23 @@ export default async function attemptLiquidations(
                 vaultOwnerAddress: liquidatableVaultOwner,
               });
             }
-            return;
+
+            Logger.info({
+              at: "Liquidator#attemptLiquidations",
+              message: "Vault liquidated",
+              liquidatedVaultOwnerAddress: liquidatableVaultOwner,
+              vaultId: vault.vaultId.toString(),
+            });
+
+            return await updateSettlementStore(
+              Liquidator,
+              liquidatorVaultNonce,
+              vault
+            );
           } catch (error) {
             Logger.error({
               alert: "Critical error during liquidation attempt",
-              at: "Liquidator#_attemptLiquidations",
+              at: "Liquidator#attemptLiquidations",
               message: error.message,
               error,
             });

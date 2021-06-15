@@ -98,7 +98,7 @@ export default async function fetchLiquidatableVaults(Liquidator: Liquidator) {
           }
         } catch (error) {
           Logger.error({
-            at: "Liquidator#_fetchLiquidatableVaults",
+            at: "Liquidator#fetchLiquidatableVaults",
             message: error.message,
             error,
           });

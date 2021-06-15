@@ -41,29 +41,6 @@ export default class Liquidator {
     this._subscribe();
   };
 
-  _setLatestLiquidatorVaultNonce = async (): Promise<void> => {
-    try {
-      this.latestLiquidatorVaultNonce = (
-        await gammaControllerProxyContract.getAccountVaultCounter(
-          liquidatorAccount.address
-        )
-      ).add(1);
-
-      Logger.info({
-        at: "Liquidator#_setLatestLiquidatorVaultNonce",
-        message: "Latest Liquidator vault nonce initialized",
-        vaultNonce: this.latestLiquidatorVaultNonce.toString(),
-      });
-    } catch (error) {
-      Logger.error({
-        at: "Liquidator#_setLatestLiquidatorVaultNonce",
-        message: error.message,
-        error,
-      });
-      this._setLatestLiquidatorVaultNonce();
-    }
-  };
-
   _attemptLiquidations = async (): Promise<void> => {
     try {
       await fetchLiquidatableVaults(this);
@@ -96,6 +73,29 @@ export default class Liquidator {
     }
   };
 
+  _setLatestLiquidatorVaultNonce = async (): Promise<void> => {
+    try {
+      this.latestLiquidatorVaultNonce = (
+        await gammaControllerProxyContract.getAccountVaultCounter(
+          liquidatorAccount.address
+        )
+      ).add(1);
+
+      Logger.info({
+        at: "Liquidator#_setLatestLiquidatorVaultNonce",
+        message: "Latest Liquidator vault nonce initialized",
+        vaultNonce: this.latestLiquidatorVaultNonce.toString(),
+      });
+    } catch (error) {
+      Logger.error({
+        at: "Liquidator#_setLatestLiquidatorVaultNonce",
+        message: error.message,
+        error,
+      });
+      this._setLatestLiquidatorVaultNonce();
+    }
+  };
+
   _subscribe = async (): Promise<void> => {
     await this._setLatestLiquidatorVaultNonce();
     await this._attemptLiquidations();
@@ -107,7 +107,7 @@ export default class Liquidator {
     });
 
     try {
-      // this._subscribeToNewBlocks();
+      this._subscribeToNewBlocks();
     } catch (error) {
       Logger.error({
         at: "Liquidator#_subscribe",
@@ -116,5 +116,19 @@ export default class Liquidator {
       });
       this._subscribe();
     }
+  };
+
+  _subscribeToNewBlocks = async (): Promise<void> => {
+    provider.on("block", async (_blockNumber) => {
+      try {
+        await this._attemptLiquidations();
+      } catch (error) {
+        Logger.error({
+          at: "Liquidator#_subscribeToNewBlocks",
+          message: error.message,
+          error,
+        });
+      }
+    });
   };
 }
