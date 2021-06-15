@@ -1,4 +1,5 @@
 import liquidateVault from "./liquidateVault";
+import setLiquidationVaultNonce from "./setLiquidationVaultNonce";
 import {
   calculateLiquidationTransactionCost,
   fetchCollateralAssetDecimals,
@@ -55,11 +56,16 @@ export default async function attemptLiquidations(
                 isPutOption
               );
 
+            const liquidatorVaultNonce = setLiquidationVaultNonce(
+              Liquidator,
+              vault
+            );
+
             const estimatedLiquidationTransactionCost =
               await calculateLiquidationTransactionCost({
                 collateralToDeposit: collateralAssetNakedMarginRequirement,
                 gasPriceStore: Liquidator.gasPriceStore,
-                liquidatorVaultNonce: Liquidator.latestLiquidatorVaultNonce,
+                liquidatorVaultNonce,
                 vault,
                 vaultOwnerAddress: liquidatableVaultOwner,
               });
@@ -80,7 +86,7 @@ export default async function attemptLiquidations(
               ) {
                 await liquidateVault({
                   collateralToDeposit: collateralAssetNakedMarginRequirement,
-                  liquidatorVaultNonce: Liquidator.latestLiquidatorVaultNonce,
+                  liquidatorVaultNonce,
                   vault,
                   vaultOwnerAddress: liquidatableVaultOwner,
                 });
@@ -97,7 +103,7 @@ export default async function attemptLiquidations(
             ) {
               await liquidateVault({
                 collateralToDeposit: collateralAssetNakedMarginRequirement,
-                liquidatorVaultNonce: Liquidator.latestLiquidatorVaultNonce,
+                liquidatorVaultNonce,
                 vault,
                 vaultOwnerAddress: liquidatableVaultOwner,
               });
