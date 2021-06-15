@@ -41,29 +41,6 @@ export default class Liquidator {
     this._subscribe();
   };
 
-  _setLatestLiquidatorVaultNonce = async (): Promise<void> => {
-    try {
-      this.latestLiquidatorVaultNonce = (
-        await gammaControllerProxyContract.getAccountVaultCounter(
-          liquidatorAccount.address
-        )
-      ).add(1);
-
-      Logger.info({
-        at: "Liquidator#_setLatestLiquidatorVaultNonce",
-        message: "Latest Liquidator vault nonce initialized",
-        vaultNonce: this.latestLiquidatorVaultNonce.toString(),
-      });
-    } catch (error) {
-      Logger.error({
-        at: "Liquidator#_setLatestLiquidatorVaultNonce",
-        message: error.message,
-        error,
-      });
-      this._setLatestLiquidatorVaultNonce();
-    }
-  };
-
   _attemptLiquidations = async (): Promise<void> => {
     try {
       await fetchLiquidatableVaults(this);
@@ -93,6 +70,29 @@ export default class Liquidator {
         message: error.message,
         error,
       });
+    }
+  };
+
+  _setLatestLiquidatorVaultNonce = async (): Promise<void> => {
+    try {
+      this.latestLiquidatorVaultNonce = (
+        await gammaControllerProxyContract.getAccountVaultCounter(
+          liquidatorAccount.address
+        )
+      ).add(1);
+
+      Logger.info({
+        at: "Liquidator#_setLatestLiquidatorVaultNonce",
+        message: "Latest Liquidator vault nonce initialized",
+        vaultNonce: this.latestLiquidatorVaultNonce.toString(),
+      });
+    } catch (error) {
+      Logger.error({
+        at: "Liquidator#_setLatestLiquidatorVaultNonce",
+        message: error.message,
+        error,
+      });
+      this._setLatestLiquidatorVaultNonce();
     }
   };
 
