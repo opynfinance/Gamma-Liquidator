@@ -20,21 +20,20 @@ export let gammaControllerProxyContract = new ethers.Contract(
   provider
 );
 
+if (!process.env.BOT_PRIVATE_KEY) {
+  Logger.error({
+    at: "ethers#loadLiquidatorAccount",
+    message: "BOT_PRIVATE_KEY is not provided",
+    error: Error("BOT_PRIVATE_KEY is not provided"),
+  });
+}
+
 export const liquidatorAccount = new ethers.Wallet(
   process.env.BOT_PRIVATE_KEY as string,
   provider
 );
 
 export async function loadLiquidatorAccount() {
-  if (!process.env.BOT_PRIVATE_KEY) {
-    Logger.error({
-      at: "ethers#loadLiquidatorAccount",
-      message: "BOT_PRIVATE_KEY is not provided",
-      error: new Error("BOT_PRIVATE_KEY is not provided"),
-    });
-    return;
-  }
-
   gammaControllerProxyContract =
     gammaControllerProxyContract.connect(liquidatorAccount);
 
