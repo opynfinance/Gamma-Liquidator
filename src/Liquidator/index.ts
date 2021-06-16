@@ -147,6 +147,7 @@ export default class Liquidator {
 
     try {
       this._subscribeToNewBlocks();
+      this._subscribeToChainlinkTimestampUpdate();
     } catch (error) {
       Logger.error({
         at: "Liquidator#_subscribe",
@@ -155,6 +156,23 @@ export default class Liquidator {
       });
       this._subscribe();
     }
+  };
+
+  _subscribeToChainlinkTimestampUpdate = async (): Promise<void> => {
+    process.on(
+      "chainlinkTimestampUpdate",
+      async (updatedTimestamp: BigNumber) => {
+        try {
+          await this._attemptSettlements(updatedTimestamp);
+        } catch (error) {
+          Logger.error({
+            at: "Liquidator#_subscribeToChainlinkTimestampUpdate",
+            message: error.message,
+            error,
+          });
+        }
+      }
+    );
   };
 
   _subscribeToNewBlocks = async (): Promise<void> => {
