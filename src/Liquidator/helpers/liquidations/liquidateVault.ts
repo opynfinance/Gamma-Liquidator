@@ -2,7 +2,7 @@ import { generateMintAndLiquidateActions } from "../";
 import { IMintAndLiquidateArgs } from "../../types";
 import { gammaControllerProxyContract } from "../../../helpers";
 
-export default async function liquidateVaults({
+export default async function liquidateVault({
   collateralToDeposit,
   liquidatorVaultNonce,
   vault,
