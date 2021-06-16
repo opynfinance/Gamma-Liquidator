@@ -21,6 +21,10 @@ export interface IMintAndLiquidateArgs {
   vaultOwnerAddress: string;
 }
 
+export interface ISettleableVaults {
+  [liquidationVaultNonce: string]: ILiquidatableVault["shortAmount"];
+}
+
 export interface ISettlementDetails {
   expiryTimestamp: BigNumber;
   shortAmount: ILiquidatableVault["shortAmount"];

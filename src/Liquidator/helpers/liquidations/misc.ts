@@ -1,5 +1,6 @@
 import { ethers } from "ethers";
 
+import { liquidatorAccountAddress, ZERO_ADDRESS } from "../";
 import { ActionType } from "../actionTypes";
 import { fetchDeribitETHIndexPrice } from "../deribit";
 import marginCalculatorABI from "../marginCalculatorABI";
@@ -10,10 +11,6 @@ import {
   liquidatorAccount,
   provider,
 } from "../../../helpers";
-
-const liquidatorAccountAddress = liquidatorAccount.address;
-
-const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 export const generateMintAndLiquidateActions = ({
   collateralToDeposit,

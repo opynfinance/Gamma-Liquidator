@@ -1,6 +1,11 @@
 import { BigNumber } from "ethers";
 
-import { attemptLiquidations, fetchLiquidatableVaults } from "./helpers";
+import {
+  attemptLiquidations,
+  attemptSettlements,
+  calculateSettleableVaults,
+  fetchLiquidatableVaults,
+} from "./helpers";
 import { ILiquidatableVaults, ISettlementStore } from "./types";
 import GasPriceStore from "../GasPriceStore";
 import PriceFeedStore from "../PriceFeedStore";
@@ -73,6 +78,37 @@ export default class Liquidator {
     }
   };
 
+  _attemptSettlements = async (updatedTimestamp: BigNumber): Promise<void> => {
+    try {
+      const settleableVaults = await calculateSettleableVaults(
+        this,
+        updatedTimestamp
+      );
+
+      if (Object.keys(settleableVaults).length === 0) {
+        Logger.info({
+          at: "Liquidator#_attemptSettlements",
+          message: "No settleable vaults",
+        });
+        return;
+      }
+
+      Logger.info({
+        at: "Liquidator#_attemptSettlements",
+        message: "Settleable vaults detected",
+        numberOfSettleableVaults: Object.values(settleableVaults).flat().length,
+      });
+
+      await attemptSettlements(settleableVaults);
+    } catch (error) {
+      Logger.error({
+        at: "Liquidator#_attemptSettlements",
+        message: error.message,
+        error,
+      });
+    }
+  };
+
   _setLatestLiquidatorVaultNonce = async (): Promise<void> => {
     try {
       this.latestLiquidatorVaultNonce = (
@@ -99,6 +135,9 @@ export default class Liquidator {
   _subscribe = async (): Promise<void> => {
     await this._setLatestLiquidatorVaultNonce();
     await this._attemptLiquidations();
+    await this._attemptSettlements(
+      this.priceFeedStore.getLatestRoundData().updatedAt
+    );
 
     Logger.info({
       at: "Liquidator#_subscribe",
@@ -108,6 +147,7 @@ export default class Liquidator {
 
     try {
       this._subscribeToNewBlocks();
+      this._subscribeToChainlinkTimestampUpdate();
     } catch (error) {
       Logger.error({
         at: "Liquidator#_subscribe",
@@ -116,6 +156,23 @@ export default class Liquidator {
       });
       this._subscribe();
     }
+  };
+
+  _subscribeToChainlinkTimestampUpdate = async (): Promise<void> => {
+    process.on(
+      "chainlinkTimestampUpdate",
+      async (updatedTimestamp: BigNumber) => {
+        try {
+          await this._attemptSettlements(updatedTimestamp);
+        } catch (error) {
+          Logger.error({
+            at: "Liquidator#_subscribeToChainlinkTimestampUpdate",
+            message: error.message,
+            error,
+          });
+        }
+      }
+    );
   };
 
   _subscribeToNewBlocks = async (): Promise<void> => {

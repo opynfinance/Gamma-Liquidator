@@ -1,6 +1,5 @@
 import liquidateVault from "./liquidateVault";
 import setLiquidationVaultNonce from "./setLiquidationVaultNonce";
-import updateSettlementStore from "./updateSettlementStore";
 import {
   calculateLiquidationTransactionCost,
   fetchCollateralAssetDecimals,
@@ -9,6 +8,7 @@ import {
   fetchShortOtokenInstrumentInfo,
   marginCalculatorContract,
 } from "../";
+import { updateSettlementStore } from "../settlements";
 import Liquidator from "../../index";
 import { Logger } from "../../../helpers";
 
