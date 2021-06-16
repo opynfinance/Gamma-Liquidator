@@ -5,7 +5,7 @@ import { chainlinkAggregatorProxyContract, Logger } from "../helpers";
 export interface ILatestRoundData {
   answer: BigNumber;
   roundId: BigNumber;
-  updatedAt?: BigNumber;
+  updatedAt: BigNumber;
 }
 
 export default class PriceFeedStore {
@@ -16,6 +16,7 @@ export default class PriceFeedStore {
     this.latestRoundData = {
       answer: BigNumber.from(0),
       roundId: BigNumber.from(0),
+      updatedAt: BigNumber.from(0),
     };
     this.underlyingAsset = "";
   }
@@ -116,6 +117,11 @@ export default class PriceFeedStore {
           roundId,
           updatedAt: updatedTimestamp,
         };
+
+        (process.emit as NodeJS.EventEmitter["emit"])(
+          "chainlinkTimestampUpdate",
+          updatedTimestamp
+        );
 
         Logger.info({
           at: "PriceFeedStore#_subscribeToAnswerUpdatedEvents",
