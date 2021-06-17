@@ -1,4 +1,5 @@
 import winston from "winston";
+import SlackHook from "winston-slack-webhook-transport";
 import Transport from "winston-transport";
 
 class StackTransport extends Transport {
@@ -41,6 +42,20 @@ if (process.env.LOGS === "true") {
       handleExceptions: true,
       format: alignedWithColorsAndTime,
     }) as any
+  );
+}
+
+if (process.env.SLACK_WEBHOOK) {
+  transports.push(
+    new SlackHook({
+      level: "error",
+      formatter: (info) => {
+        const stringifiedInfo = JSON.stringify(info, null, " ");
+        const formattedInfo = stringifiedInfo.replace(/["{}]/g, "");
+        return { text: formattedInfo };
+      },
+      webhookUrl: process.env.SLACK_WEBHOOK,
+    }) as StackTransport
   );
 }
 

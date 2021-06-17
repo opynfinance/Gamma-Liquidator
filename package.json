@@ -38,6 +38,7 @@
     "ethers": "^5.1.4",
     "node-fetch": "^2.6.1",
     "winston": "^3.3.3",
+    "winston-slack-webhook-transport": "^2.0.1",
     "winston-transport": "^4.4.0"
   },
   "devDependencies": {
