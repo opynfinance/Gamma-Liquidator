@@ -34,7 +34,7 @@ const transports = [
   }),
 ];
 
-if (process.env.LOGS) {
+if (process.env.LOGS === "true") {
   transports.push(
     new winston.transports.Console({
       level: "debug",

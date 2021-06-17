@@ -3,17 +3,10 @@
 # This docker container is used to access and run Opyn liquidator bots.
 # Settings for these bots are defined via enviroment variables.
 # For example to run a liquidator bot run:
-# docker run --env BOT_MINIMUM_ETHER_BALANCE="<balance in wei>" \
-#     --env BOT_PRIVATE_KEY="<private key>" \
-#     --env CHAINLINK_PRICE_FEED_ADDRESS="<address>" \
+# docker run --env BOT_PRIVATE_KEY="<private key>" \
 #     --env ETHEREUM_NODE_URL="<url>" \
-#     --env GAMMA_CONTROLLER_ADDRESS="<address>" \
-#     --env GAS_PRICE_MULTIPLIER="<decimal number>" \
-#     --env LIQUIDATION_POLL_DELAY_MS="<number in ms>" \
-#     --env LOGS="<boolean>" \
-#     --env SLACK_WEBHOOK="<slack webhook>" \
 #     --env RUN_COMMAND="node ./build/src/index.js" \
-#     opyn/liquidator:latest
+#     opyn/liquidator
 #
 # To build the docker image locally, run the following command from the root directory:
 #   docker build -t <username>/<imagename> .
