@@ -4,6 +4,7 @@ import {
   attemptLiquidations,
   attemptSettlements,
   calculateSettleableVaults,
+  checkEtherBalance,
   fetchLiquidatableVaults,
 } from "./helpers";
 import { ILiquidatableVaults, ISettlementStore } from "./types";
@@ -109,6 +110,8 @@ export default class Liquidator {
     }
   };
 
+  _checkEtherBalance = async (): Promise<void> => checkEtherBalance();
+
   _setLatestLiquidatorVaultNonce = async (): Promise<void> => {
     try {
       this.latestLiquidatorVaultNonce = (
@@ -133,6 +136,7 @@ export default class Liquidator {
   };
 
   _subscribe = async (): Promise<void> => {
+    await this._checkEtherBalance();
     await this._setLatestLiquidatorVaultNonce();
     await this._attemptLiquidations();
     await this._attemptSettlements(
@@ -178,6 +182,7 @@ export default class Liquidator {
   _subscribeToNewBlocks = async (): Promise<void> => {
     provider.on("block", async (_blockNumber) => {
       try {
+        await this._checkEtherBalance();
         await this._attemptLiquidations();
       } catch (error) {
         Logger.error({
