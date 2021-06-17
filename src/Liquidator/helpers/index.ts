@@ -1,5 +1,6 @@
 import { liquidatorAccount } from "../../helpers";
 
+export { default as checkEtherBalance } from "./checkEtherBalance";
 export { fetchDeribitBestAskPrice } from "./deribit";
 export {
   attemptLiquidations,
