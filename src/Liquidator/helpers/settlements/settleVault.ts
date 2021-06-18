@@ -1,13 +1,16 @@
 import { BigNumber } from "ethers";
 
-import { liquidatorAccountAddress, ZERO_ADDRESS } from "../";
+import { ZERO_ADDRESS } from "../";
 import { ActionType } from "../actionTypes";
-import { gammaControllerProxyContract } from "../../../helpers";
+import {
+  liquidatorAccountAddress,
+  gammaControllerProxyContract,
+} from "../../../helpers";
 
 export default async function settleVault(
   settleableVaultNonce: string,
   shortAmount: BigNumber
-) {
+): Promise<void> {
   const settleAction = [
     {
       actionType: ActionType.SettleVault,

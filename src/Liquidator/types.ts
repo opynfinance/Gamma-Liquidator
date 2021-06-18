@@ -22,18 +22,5 @@ export interface IMintAndLiquidateArgs {
 }
 
 export interface ISettleableVaults {
-  [liquidationVaultNonce: string]: ILiquidatableVault["shortAmount"];
-}
-
-export interface ISettlementDetails {
-  expiryTimestamp: BigNumber;
-  shortAmount: ILiquidatableVault["shortAmount"];
-}
-
-export interface ISettlementStore {
-  [shortOtokenAddress: string]: ISettlementVault;
-}
-
-export interface ISettlementVault {
-  [liquidationVaultNonce: string]: ISettlementDetails;
+  [settleableVaultNonce: string]: BigNumber;
 }

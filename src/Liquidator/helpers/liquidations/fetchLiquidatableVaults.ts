@@ -39,41 +39,41 @@ export default async function fetchLiquidatableVaults(Liquidator: Liquidator) {
 
           if (!isUnderCollateralized) return;
 
-          if (Liquidator.liquidatableVaults[vaultOwnerAddress]) {
+          const liquidatableVaults = Liquidator.getLiquidatableVaults();
+
+          if (liquidatableVaults[vaultOwnerAddress]) {
             let vaultPresent = false;
             await Promise.all(
-              Liquidator.liquidatableVaults[vaultOwnerAddress].map(
-                async (vault) => {
-                  if (vaultId.eq(vault.vaultId)) {
-                    vaultPresent = true;
+              liquidatableVaults[vaultOwnerAddress].map(async (vault) => {
+                if (vaultId.eq(vault.vaultId)) {
+                  vaultPresent = true;
 
-                    if (!roundId.eq(vault.roundId)) {
-                      const [, oldRoundIdRecalculatedAuctionPrice] =
-                        await gammaControllerProxyContract.isLiquidatable(
-                          vaultOwnerAddress,
-                          vaultId,
-                          vault.roundId
-                        );
+                  if (!roundId.eq(vault.roundId)) {
+                    const [, oldRoundIdRecalculatedAuctionPrice] =
+                      await gammaControllerProxyContract.isLiquidatable(
+                        vaultOwnerAddress,
+                        vaultId,
+                        vault.roundId
+                      );
 
-                      if (
-                        currentRoundIdCalculatedAuctionPrice.gt(
-                          oldRoundIdRecalculatedAuctionPrice
-                        )
-                      ) {
-                        vault.latestAuctionPrice =
-                          currentRoundIdCalculatedAuctionPrice;
-                        vault.roundId = roundId;
-                      } else {
-                        vault.latestAuctionPrice =
-                          oldRoundIdRecalculatedAuctionPrice;
-                      }
+                    if (
+                      currentRoundIdCalculatedAuctionPrice.gt(
+                        oldRoundIdRecalculatedAuctionPrice
+                      )
+                    ) {
+                      vault.latestAuctionPrice =
+                        currentRoundIdCalculatedAuctionPrice;
+                      vault.roundId = roundId;
+                    } else {
+                      vault.latestAuctionPrice =
+                        oldRoundIdRecalculatedAuctionPrice;
                     }
                   }
                 }
-              )
+              })
             );
             if (!vaultPresent) {
-              Liquidator.liquidatableVaults[vaultOwnerAddress].push({
+              liquidatableVaults[vaultOwnerAddress].push({
                 latestAuctionPrice: currentRoundIdCalculatedAuctionPrice,
                 latestUnderlyingAssetPrice: answer,
                 collateralAssetAddress,
@@ -84,7 +84,7 @@ export default async function fetchLiquidatableVaults(Liquidator: Liquidator) {
               });
             }
           } else {
-            Liquidator.liquidatableVaults[vaultOwnerAddress] = [
+            liquidatableVaults[vaultOwnerAddress] = [
               {
                 latestAuctionPrice: currentRoundIdCalculatedAuctionPrice,
                 latestUnderlyingAssetPrice: answer,

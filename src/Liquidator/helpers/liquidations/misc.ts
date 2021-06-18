@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 
-import { liquidatorAccountAddress, ZERO_ADDRESS } from "../";
+import { ZERO_ADDRESS } from "../";
 import { ActionType } from "../actionTypes";
 import { fetchDeribitETHIndexPrice } from "../deribit";
 import marginCalculatorABI from "../marginCalculatorABI";
@@ -9,6 +9,7 @@ import GasPriceStore from "../../../GasPriceStore";
 import {
   gammaControllerProxyContract,
   liquidatorAccount,
+  liquidatorAccountAddress,
   provider,
 } from "../../../helpers";
 
@@ -69,7 +70,7 @@ export async function calculateLiquidationTransactionCost({
   liquidatorVaultNonce,
   vault,
   vaultOwnerAddress,
-}: IMintAndLiquidateArgs & { gasPriceStore: GasPriceStore }) {
+}: IMintAndLiquidateArgs & { gasPriceStore: GasPriceStore }): Promise<number> {
   const mintAndLiquidationActions = generateMintAndLiquidateActions({
     collateralToDeposit,
     liquidatorVaultNonce,

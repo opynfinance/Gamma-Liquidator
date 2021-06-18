@@ -7,7 +7,7 @@ import {
   checkEtherBalance,
   fetchLiquidatableVaults,
 } from "./helpers";
-import { ILiquidatableVaults, ISettlementStore } from "./types";
+import { ILiquidatableVaults, ISettleableVaults } from "./types";
 import GasPriceStore from "../GasPriceStore";
 import PriceFeedStore from "../PriceFeedStore";
 import VaultStore from "../VaultStore";
@@ -23,7 +23,7 @@ export default class Liquidator {
   public latestLiquidatorVaultNonce: BigNumber;
   public liquidatableVaults: ILiquidatableVaults;
   public priceFeedStore: PriceFeedStore;
-  public settlementStore: ISettlementStore;
+  public settleableVaults: ISettleableVaults;
   public vaultStore: VaultStore;
 
   constructor(
@@ -35,7 +35,7 @@ export default class Liquidator {
     this.latestLiquidatorVaultNonce = BigNumber.from(0);
     this.liquidatableVaults = {};
     this.priceFeedStore = priceFeedStore;
-    this.settlementStore = {};
+    this.settleableVaults = {};
     this.vaultStore = vaultStore;
   }
 
@@ -47,11 +47,20 @@ export default class Liquidator {
     this._subscribe();
   };
 
+  public getLiquidatableVaults(): ILiquidatableVaults {
+    return this.liquidatableVaults;
+  }
+
+  public getSettleableVaults(): ISettleableVaults {
+    return this.settleableVaults;
+  }
+
   _attemptLiquidations = async (): Promise<void> => {
     try {
       await fetchLiquidatableVaults(this);
 
-      const liquidatableVaultOwners = Object.keys(this.liquidatableVaults);
+      const liquidatableVaults = this.getLiquidatableVaults();
+      const liquidatableVaultOwners = Object.keys(liquidatableVaults);
 
       if (liquidatableVaultOwners.length === 0) {
         Logger.info({
@@ -69,7 +78,11 @@ export default class Liquidator {
         ).flat().length,
       });
 
-      await attemptLiquidations(liquidatableVaultOwners, this);
+      await attemptLiquidations(
+        liquidatableVaultOwners,
+        liquidatableVaults,
+        this
+      );
     } catch (error) {
       Logger.error({
         at: "Liquidator#_attemptLiquidations",
@@ -110,7 +123,9 @@ export default class Liquidator {
     }
   };
 
-  _checkEtherBalance = async (): Promise<void> => checkEtherBalance();
+  _checkEtherBalance = async (): Promise<void> => {
+    return checkEtherBalance();
+  };
 
   _setLatestLiquidatorVaultNonce = async (): Promise<void> => {
     try {
