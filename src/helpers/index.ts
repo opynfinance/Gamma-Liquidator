@@ -1,4 +1,3 @@
-export { delay } from "./delay";
 export {
   chainlinkAggregatorProxyContract,
   gammaControllerProxyContract,
