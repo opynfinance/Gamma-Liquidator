@@ -36,12 +36,14 @@
   "dependencies": {
     "dotenv": "^9.0.2",
     "ethers": "^5.1.4",
+    "level": "^7.0.0",
     "node-fetch": "^2.6.1",
     "winston": "^3.3.3",
     "winston-slack-webhook-transport": "^2.0.1",
     "winston-transport": "^4.4.0"
   },
   "devDependencies": {
+    "@types/level": "^6.0.0",
     "@types/node": "^15.3.0",
     "@types/node-fetch": "^2.5.10",
     "@typescript-eslint/eslint-plugin": "^4.24.0",
