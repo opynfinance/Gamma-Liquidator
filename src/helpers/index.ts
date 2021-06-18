@@ -3,6 +3,7 @@ export {
   chainlinkAggregatorProxyContract,
   gammaControllerProxyContract,
   liquidatorAccount,
+  liquidatorAccountAddress,
   loadLiquidatorAccount,
   provider,
 } from "./ethers";
