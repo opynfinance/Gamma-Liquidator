@@ -1,17 +1,17 @@
 import { BigNumber } from "ethers";
 
 import Liquidator from "../../index";
-import { ISettleableVaults } from "../../types";
 
 export default function calculateSettleableVaults(
   Liquidator: Liquidator,
   updatedTimestamp: BigNumber
-) {
-  const settleableVaults: ISettleableVaults = {};
-  const settledShortOtokens = Object.keys(Liquidator.settlementStore);
+): Liquidator["settleableVaults"] {
+  const settlementVaults = Liquidator.vaultStore.getSettlementVaults();
+  const settledShortOtokens = Object.keys(settlementVaults);
+  const settleableVaults = Liquidator.getSettleableVaults();
 
   for (const settledShortOtoken of settledShortOtokens) {
-    const settlementVault = Liquidator.settlementStore[settledShortOtoken];
+    const settlementVault = settlementVaults[settledShortOtoken];
     const settlementVaultNonce = Object.keys(settlementVault)[0];
     const settlementDetails = settlementVault[settlementVaultNonce];
 

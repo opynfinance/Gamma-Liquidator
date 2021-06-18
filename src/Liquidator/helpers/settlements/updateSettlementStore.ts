@@ -4,11 +4,11 @@ import Liquidator from "../../index";
 import { ILiquidatableVault } from "../../types";
 
 export default function updateSettlementStore(
-  Liquidator: Liquidator,
+  { vaultStore: { settlementVaults } }: Liquidator,
   liquidatorVaultNonce: BigNumber,
   { shortAmount, shortOtokenAddress }: ILiquidatableVault
 ) {
-  return Liquidator.settlementStore[shortOtokenAddress][
+  return settlementVaults[shortOtokenAddress][
     liquidatorVaultNonce.toString()
   ].shortAmount.add(shortAmount);
 }
