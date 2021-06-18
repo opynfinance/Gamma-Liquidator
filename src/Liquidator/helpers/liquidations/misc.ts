@@ -70,7 +70,7 @@ export async function calculateLiquidationTransactionCost({
   liquidatorVaultNonce,
   vault,
   vaultOwnerAddress,
-}: IMintAndLiquidateArgs & { gasPriceStore: GasPriceStore }) {
+}: IMintAndLiquidateArgs & { gasPriceStore: GasPriceStore }): Promise<number> {
   const mintAndLiquidationActions = generateMintAndLiquidateActions({
     collateralToDeposit,
     liquidatorVaultNonce,

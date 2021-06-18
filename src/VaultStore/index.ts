@@ -14,7 +14,7 @@ export default class VaultStore {
     this.nakedMarginVaults = {};
   }
 
-  public getNakedMarginVaults() {
+  public getNakedMarginVaults(): INakedMarginVaults {
     return this.nakedMarginVaults;
   }
 
@@ -26,7 +26,7 @@ export default class VaultStore {
     this._subscribe();
   };
 
-  _fetchNakedMarginVaults = async () => {
+  _fetchNakedMarginVaults = async (): Promise<void> => {
     try {
       // TODO: subgraph call to fetch naked margin vaults on startup
 
@@ -68,7 +68,7 @@ export default class VaultStore {
     }
   };
 
-  _subscribeToOpenedNakedMarginVaultEvents = async () => {
+  _subscribeToOpenedNakedMarginVaultEvents = async (): Promise<void> => {
     gammaControllerProxyContract.on(
       openedNakedMarginVaultEvents,
       async (vaultOwner, vaultId) => {

@@ -4,7 +4,7 @@ import { Logger } from "../../../helpers";
 
 export default async function attemptSettlements(
   settleableVaults: ISettleableVaults
-) {
+): Promise<void> {
   const settleableVaultNonces = Object.keys(settleableVaults);
 
   for (

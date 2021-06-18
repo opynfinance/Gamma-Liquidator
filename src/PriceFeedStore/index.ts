@@ -21,15 +21,15 @@ export default class PriceFeedStore {
     this.underlyingAsset = "";
   }
 
-  public getLatestRoundData() {
+  public getLatestRoundData(): ILatestRoundData {
     return this.latestRoundData;
   }
 
-  public getUnderlyingAsset() {
+  public getUnderlyingAsset(): string {
     return this.underlyingAsset;
   }
 
-  start = () => {
+  start = (): void => {
     Logger.info({
       at: "PriceFeedStore#start",
       message: "Starting price feed store",
@@ -37,7 +37,7 @@ export default class PriceFeedStore {
     this._subscribe();
   };
 
-  _fetchPriceFeedPair = async () => {
+  _fetchPriceFeedPair = async (): Promise<void> => {
     try {
       const priceFeedPair =
         await chainlinkAggregatorProxyContract.description();
@@ -59,7 +59,7 @@ export default class PriceFeedStore {
     }
   };
 
-  _fetchLatestRoundData = async () => {
+  _fetchLatestRoundData = async (): Promise<void> => {
     try {
       const { answer, roundId, updatedAt } =
         await chainlinkAggregatorProxyContract.latestRoundData();
@@ -82,7 +82,7 @@ export default class PriceFeedStore {
     }
   };
 
-  _subscribe = async () => {
+  _subscribe = async (): Promise<void> => {
     await this._fetchLatestRoundData();
     await this._fetchPriceFeedPair();
 
@@ -104,7 +104,7 @@ export default class PriceFeedStore {
     }
   };
 
-  _subscribeToAnswerUpdatedEvents = async () => {
+  _subscribeToAnswerUpdatedEvents = async (): Promise<void> => {
     const chainlinkAggregatorContract = chainlinkAggregatorProxyContract.attach(
       await chainlinkAggregatorProxyContract.aggregator()
     );

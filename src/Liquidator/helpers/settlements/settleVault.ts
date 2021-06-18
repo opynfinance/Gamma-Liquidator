@@ -10,7 +10,7 @@ import {
 export default async function settleVault(
   settleableVaultNonce: string,
   shortAmount: BigNumber
-) {
+): Promise<void> {
   const settleAction = [
     {
       actionType: ActionType.SettleVault,

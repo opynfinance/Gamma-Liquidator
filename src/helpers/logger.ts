@@ -41,7 +41,7 @@ if (process.env.LOGS === "true") {
       level: "debug",
       handleExceptions: true,
       format: alignedWithColorsAndTime,
-    }) as any
+    }) as StackTransport
   );
 }
 
