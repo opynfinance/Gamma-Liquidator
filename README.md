@@ -9,7 +9,7 @@ A liquidation bot to automatically liquidate undercollateralized Opyn naked marg
 Requires a running [docker](https://docker.com) engine.
 
 ```
-docker run \
+docker run -v db:/db \
   --env BOT_PRIVATE_KEY=0xd89d228bb0fe8bd9b28de542827d7e5eccd26cbeb159ce263488a6a54b88bdcf \
   --env ETHEREUM_NODE_URL=https://mainnet.infura.io/v3/YOUR_INFURA_KEY \
   --env RUN_COMMAND="node ./build/src/index.js" \
