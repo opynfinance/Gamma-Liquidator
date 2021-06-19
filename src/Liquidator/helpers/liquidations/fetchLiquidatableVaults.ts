@@ -86,6 +86,10 @@ export default async function fetchLiquidatableVaults(
                 shortOtokenAddress,
                 vaultId,
               });
+
+              await Liquidator.vaultStore.writeLiquidatableVaultsToDisk(
+                liquidatableVaults
+              );
             }
           } else {
             liquidatableVaults[vaultOwnerAddress] = [
@@ -99,6 +103,10 @@ export default async function fetchLiquidatableVaults(
                 vaultId,
               },
             ];
+
+            await Liquidator.vaultStore.writeLiquidatableVaultsToDisk(
+              liquidatableVaults
+            );
           }
         } catch (error) {
           Logger.error({
