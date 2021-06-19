@@ -9,6 +9,7 @@ import {
   ISettleableVaults,
   ISettlementVaults,
 } from "./types";
+import writeLiquidatableVaultsToDisk from "./writeLiquidatableVaultsToDisk";
 
 export default class VaultStore {
   public liquidatableVaults: ILiquidatableVaults;
@@ -46,6 +47,12 @@ export default class VaultStore {
     });
     this._subscribe();
   };
+
+  public async writeLiquidatableVaultsToDisk(
+    liquidatableVaults: ILiquidatableVaults
+  ): Promise<void> {
+    return writeLiquidatableVaultsToDisk(liquidatableVaults);
+  }
 
   _fetchNakedMarginVaults = async (): Promise<void> => {
     try {
