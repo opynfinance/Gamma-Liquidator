@@ -3,7 +3,7 @@
 # This docker container is used to access and run Opyn liquidator bots.
 # Settings for these bots are defined via enviroment variables.
 # For example to run a liquidator bot run:
-# docker run --env BOT_PRIVATE_KEY="<private key>" \
+# docker run -v db:/db --env BOT_PRIVATE_KEY="<private key>" \
 #     --env ETHEREUM_NODE_URL="<url>" \
 #     --env RUN_COMMAND="node ./build/src/index.js" \
 #     opyn/liquidator

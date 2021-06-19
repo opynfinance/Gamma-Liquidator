@@ -1,9 +1,9 @@
 import settleVault from "./settleVault";
-import { ISettleableVaults } from "../../types";
+import Liquidator from "../../";
 import { Logger } from "../../../helpers";
 
 export default async function attemptSettlements(
-  settleableVaults: ISettleableVaults
+  settleableVaults: Liquidator["vaultStore"]["settleableVaults"]
 ): Promise<void> {
   const settleableVaultNonces = Object.keys(settleableVaults);
 

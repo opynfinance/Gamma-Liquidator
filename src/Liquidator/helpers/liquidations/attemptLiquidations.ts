@@ -11,11 +11,10 @@ import {
 import { updateSettlementStore } from "../settlements";
 import Liquidator from "../../index";
 import { Logger } from "../../../helpers";
-import { ILiquidatableVaults } from "../../types";
 
 export default async function attemptLiquidations(
   liquidatableVaultOwners: string[],
-  liquidatableVaults: ILiquidatableVaults,
+  liquidatableVaults: Liquidator["vaultStore"]["liquidatableVaults"],
   Liquidator: Liquidator
 ): Promise<void> {
   const settlementVaults = Liquidator.vaultStore.getSettlementVaults();

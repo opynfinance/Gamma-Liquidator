@@ -1,13 +1,14 @@
 import { BigNumber } from "ethers";
 
 import Liquidator from "../../index";
-import { ILiquidatableVault } from "../../types";
 
 export default function setLiquidationVaultNonce(
   expiryTimestamp: BigNumber,
   Liquidator: Liquidator,
   settlementVaults: Liquidator["vaultStore"]["settlementVaults"],
-  { shortOtokenAddress }: ILiquidatableVault
+  {
+    shortOtokenAddress,
+  }: Liquidator["vaultStore"]["liquidatableVaults"][string][number]
 ): BigNumber {
   if (settlementVaults[shortOtokenAddress]) {
     return BigNumber.from(Object.keys(settlementVaults[shortOtokenAddress])[0]);

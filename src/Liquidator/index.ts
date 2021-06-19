@@ -7,7 +7,6 @@ import {
   checkEtherBalance,
   fetchLiquidatableVaults,
 } from "./helpers";
-import { ILiquidatableVaults, ISettleableVaults } from "./types";
 import GasPriceStore from "../GasPriceStore";
 import PriceFeedStore from "../PriceFeedStore";
 import VaultStore from "../VaultStore";
@@ -21,9 +20,7 @@ import {
 export default class Liquidator {
   public gasPriceStore: GasPriceStore;
   public latestLiquidatorVaultNonce: BigNumber;
-  public liquidatableVaults: ILiquidatableVaults;
   public priceFeedStore: PriceFeedStore;
-  public settleableVaults: ISettleableVaults;
   public vaultStore: VaultStore;
 
   constructor(
@@ -33,9 +30,7 @@ export default class Liquidator {
   ) {
     this.gasPriceStore = gasPriceStore;
     this.latestLiquidatorVaultNonce = BigNumber.from(0);
-    this.liquidatableVaults = {};
     this.priceFeedStore = priceFeedStore;
-    this.settleableVaults = {};
     this.vaultStore = vaultStore;
   }
 
@@ -47,19 +42,11 @@ export default class Liquidator {
     this._subscribe();
   };
 
-  public getLiquidatableVaults(): ILiquidatableVaults {
-    return this.liquidatableVaults;
-  }
-
-  public getSettleableVaults(): ISettleableVaults {
-    return this.settleableVaults;
-  }
-
   _attemptLiquidations = async (): Promise<void> => {
     try {
       await fetchLiquidatableVaults(this);
 
-      const liquidatableVaults = this.getLiquidatableVaults();
+      const liquidatableVaults = this.vaultStore.getLiquidatableVaults();
       const liquidatableVaultOwners = Object.keys(liquidatableVaults);
 
       if (liquidatableVaultOwners.length === 0) {
@@ -73,9 +60,8 @@ export default class Liquidator {
       Logger.info({
         at: "Liquidator#_attemptLiquidations",
         message: "Liquidatable vaults detected",
-        numberOfLiquidatableVaults: Object.values(
-          this.liquidatableVaults
-        ).flat().length,
+        numberOfLiquidatableVaults:
+          Object.values(liquidatableVaults).flat().length,
       });
 
       await attemptLiquidations(

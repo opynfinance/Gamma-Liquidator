@@ -1,13 +1,15 @@
 import { BigNumber } from "ethers";
 
 import Liquidator from "../../index";
-import { ILiquidatableVault } from "../../types";
 
 export default function updateSettlementStore(
   { vaultStore: { settlementVaults } }: Liquidator,
   liquidatorVaultNonce: BigNumber,
-  { shortAmount, shortOtokenAddress }: ILiquidatableVault
-) {
+  {
+    shortAmount,
+    shortOtokenAddress,
+  }: Liquidator["vaultStore"]["liquidatableVaults"][string][number]
+): BigNumber {
   return settlementVaults[shortOtokenAddress][
     liquidatorVaultNonce.toString()
   ].shortAmount.add(shortAmount);
