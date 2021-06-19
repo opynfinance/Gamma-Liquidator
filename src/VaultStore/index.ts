@@ -2,6 +2,7 @@ import { gammaControllerProxyContract, Logger } from "../helpers";
 import { openedNakedMarginVaultEvents } from "./eventFilters";
 import fetchNakedMarginVaults from "./fetchNakedMarginVaults";
 import fetchSettlementVaults from "./fetchSettlementVaults";
+import readLiquidatableVaultsFromDisk from "./readLiquidatableVaultsFromDisk";
 import {
   ILiquidatableVaults,
   INakedMarginVaults,
@@ -84,7 +85,19 @@ export default class VaultStore {
     }
   };
 
+  _readLiquidatableVaultsFromDisk = async (): Promise<void> => {
+    this.liquidatableVaults = await readLiquidatableVaultsFromDisk();
+
+    Logger.info({
+      at: "VaultStore#_readLiquidatableVaultsFromDisk",
+      message: "Liquidatable vault store initialized",
+      numberOfLiquidatableVaults: Object.values(this.liquidatableVaults).flat()
+        .length,
+    });
+  };
+
   _subscribe = async (): Promise<void> => {
+    await this._readLiquidatableVaultsFromDisk();
     await this._fetchNakedMarginVaults();
     await this._fetchSettlementVaults();
 
