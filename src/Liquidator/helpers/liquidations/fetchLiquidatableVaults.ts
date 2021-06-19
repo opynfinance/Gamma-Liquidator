@@ -1,7 +1,9 @@
 import Liquidator from "../../index";
 import { gammaControllerProxyContract, Logger } from "../../../helpers";
 
-export default async function fetchLiquidatableVaults(Liquidator: Liquidator) {
+export default async function fetchLiquidatableVaults(
+  Liquidator: Liquidator
+): Promise<void> {
   const nakedMarginVaults = Liquidator.vaultStore.getNakedMarginVaults();
   const vaultOwnerAddresses = Object.keys(nakedMarginVaults);
 
@@ -39,7 +41,8 @@ export default async function fetchLiquidatableVaults(Liquidator: Liquidator) {
 
           if (!isUnderCollateralized) return;
 
-          const liquidatableVaults = Liquidator.getLiquidatableVaults();
+          const liquidatableVaults =
+            Liquidator.vaultStore.getLiquidatableVaults();
 
           if (liquidatableVaults[vaultOwnerAddress]) {
             let vaultPresent = false;
@@ -72,6 +75,7 @@ export default async function fetchLiquidatableVaults(Liquidator: Liquidator) {
                 }
               })
             );
+
             if (!vaultPresent) {
               liquidatableVaults[vaultOwnerAddress].push({
                 latestAuctionPrice: currentRoundIdCalculatedAuctionPrice,

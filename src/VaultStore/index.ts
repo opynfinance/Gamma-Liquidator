@@ -1,20 +1,37 @@
+import { gammaControllerProxyContract, Logger } from "../helpers";
 import { openedNakedMarginVaultEvents } from "./eventFilters";
 import fetchNakedMarginVaults from "./fetchNakedMarginVaults";
 import fetchSettlementVaults from "./fetchSettlementVaults";
-import { gammaControllerProxyContract, Logger } from "../helpers";
-import { INakedMarginVaults, ISettlementVaults } from "./types";
+import {
+  ILiquidatableVaults,
+  INakedMarginVaults,
+  ISettleableVaults,
+  ISettlementVaults,
+} from "./types";
 
 export default class VaultStore {
+  public liquidatableVaults: ILiquidatableVaults;
   public nakedMarginVaults: INakedMarginVaults;
+  public settleableVaults: ISettleableVaults;
   public settlementVaults: ISettlementVaults;
 
   constructor() {
+    this.liquidatableVaults = {};
     this.nakedMarginVaults = {};
+    this.settleableVaults = {};
     this.settlementVaults = {};
+  }
+
+  public getLiquidatableVaults(): ILiquidatableVaults {
+    return this.liquidatableVaults;
   }
 
   public getNakedMarginVaults(): INakedMarginVaults {
     return this.nakedMarginVaults;
+  }
+
+  public getSettleableVaults(): ISettleableVaults {
+    return this.settleableVaults;
   }
 
   public getSettlementVaults(): ISettlementVaults {
