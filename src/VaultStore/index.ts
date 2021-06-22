@@ -1,15 +1,17 @@
-import { gammaControllerProxyContract, Logger } from "../helpers";
-import { openedNakedMarginVaultEvents } from "./eventFilters";
-import fetchNakedMarginVaults from "./fetchNakedMarginVaults";
-import fetchSettlementVaults from "./fetchSettlementVaults";
-import readLiquidatableVaultsFromDisk from "./readLiquidatableVaultsFromDisk";
+import {
+  fetchNakedMarginVaults,
+  fetchSettlementVaults,
+  openedNakedMarginVaultEvents,
+  readLiquidatableVaultsFromDisk,
+  writeLiquidatableVaultsToDisk,
+} from "./helpers";
 import {
   ILiquidatableVaults,
   INakedMarginVaults,
   ISettleableVaults,
   ISettlementVaults,
 } from "./types";
-import writeLiquidatableVaultsToDisk from "./writeLiquidatableVaultsToDisk";
+import { gammaControllerProxyContract, Logger } from "../helpers";
 
 export default class VaultStore {
   public liquidatableVaults: ILiquidatableVaults;

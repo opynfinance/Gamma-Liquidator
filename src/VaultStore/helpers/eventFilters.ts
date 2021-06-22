@@ -1,4 +1,4 @@
-import { gammaControllerProxyContract } from "../helpers";
+import { gammaControllerProxyContract } from "../../helpers";
 
 // Filter for listing opened naked margin vault events
 export const openedNakedMarginVaultEvents =

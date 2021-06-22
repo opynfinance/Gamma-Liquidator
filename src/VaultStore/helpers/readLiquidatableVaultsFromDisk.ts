@@ -1,5 +1,5 @@
-import { ILiquidatableVaults } from "./types";
-import { Logger } from "../helpers";
+import { ILiquidatableVaults } from "../types";
+import { Logger } from "../../helpers";
 import db from "./database";
 
 export default async function readLiquidatableVaultsFromDisk(): Promise<ILiquidatableVaults> {
