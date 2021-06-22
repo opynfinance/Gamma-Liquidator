@@ -20,7 +20,7 @@ docker run -v db:/db \
 
 This service will automatically liquidate undercollateralized naked margin vaults on Opyn.
 
-For more information about running a liquidator bot, see the [docs]()(TODO).
+For more information about running a liquidator bot, see the [docs]() (TODO).
 
 ## Configuration
 
@@ -38,5 +38,5 @@ For more information about running a liquidator bot, see the [docs]()(TODO).
 | LOGS                         | Output logs to stdout. (Default: True)                                                                                                                                                                                                                                                |
 | MARGIN_CALCULATOR_ADDRESS    | Address of the deployed Opyn Margin Calculator contract used to calculate margin requirements for partially collateralized vaults. (Default: [0x7A48d10f372b3D7c60f6c9770B91398e4ccfd3C7](https://etherscan.io/address/0x7a48d10f372b3d7c60f6c9770b91398e4ccfd3c7))                   |
 | MINIMUM_LIQUIDATION_PRICE    | Lowest liquidation price the bot will liquidate for. Denominated and formatted as USD. (Default: 1.00)                                                                                                                                                                                |
-| SLACK_WEBHOOK                | Webhook for sending messages to a Slack channel.                                                                                                                                                                                                                                      |
+| SLACK_WEBHOOK                | Webhook for sending error messages to a Slack channel.                                                                                                                                                                                                                                |
 | RUN_COMMAND                  | **REQUIRED** Entry point used by the bot's Docker container on startup.                                                                                                                                                                                                               |
