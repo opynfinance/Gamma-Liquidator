@@ -2,7 +2,7 @@ import { BigNumber } from "ethers";
 
 import { liquidatorAccount, Logger } from "../../helpers";
 
-export default async function checkEtherBalance() {
+export default async function checkEtherBalance(): Promise<void> {
   const liquidatorAccountBalance = await liquidatorAccount.getBalance();
   if (
     liquidatorAccountBalance.lt(
