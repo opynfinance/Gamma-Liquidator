@@ -1,9 +1,6 @@
 import { BigNumber } from "ethers";
 
-import {
-  calculateGasPriceFromGasNow,
-  calculateGasPriceFromNetwork,
-} from "./helpers";
+import { calculateInitialGasPrice, calculateNextGasPrice } from "./helpers";
 import { Logger, provider } from "../helpers";
 
 export default class GasPriceStore {
@@ -13,8 +10,12 @@ export default class GasPriceStore {
     this.lastCalculatedGasPrice = BigNumber.from(0);
   }
 
-  public getLastCalculatedGasPrice() {
+  public getLastCalculatedGasPrice(): BigNumber {
     return this.lastCalculatedGasPrice;
+  }
+
+  public setLastCalculatedGasPrice(nextCalculatedGasPrice: BigNumber): void {
+    this.lastCalculatedGasPrice = nextCalculatedGasPrice;
   }
 
   start = (): void => {
@@ -26,25 +27,7 @@ export default class GasPriceStore {
   };
 
   _calculateInitialGasPrice = async (): Promise<void> => {
-    try {
-      // Calculate gasPrice from gasnow.org
-      this.lastCalculatedGasPrice = await calculateGasPriceFromGasNow();
-    } catch (error) {
-      Logger.error({
-        at: "GasPriceStore#_calculateInitialGasPrice",
-        message: error.message,
-        error,
-      });
-
-      // Calculate gasPrice from the network On-chain median gasPrice fallback
-      this.lastCalculatedGasPrice = await calculateGasPriceFromNetwork();
-    }
-
-    Logger.info({
-      at: "GasPriceStore#_calculateInitialGasPrice",
-      message: "Gas price store initialized",
-      lastCalculatedGasPrice: this.lastCalculatedGasPrice.toString(),
-    });
+    return calculateInitialGasPrice(this);
   };
 
   _subscribe = async (): Promise<void> => {
@@ -70,30 +53,7 @@ export default class GasPriceStore {
 
   _subscribeToNewBlocks = async (): Promise<void> => {
     provider.on("block", async (_blockNumber) => {
-      let nextCalculatedGasPrice;
-      try {
-        // Calculate gasPrice from gasnow.org
-        nextCalculatedGasPrice = await calculateGasPriceFromGasNow();
-      } catch (error) {
-        Logger.error({
-          at: "GasPriceStore#_subscribeToNewBlocks",
-          message: error.message,
-          error,
-        });
-
-        // Calculate gasPrice from the network
-        nextCalculatedGasPrice = await calculateGasPriceFromNetwork();
-      }
-
-      if (!nextCalculatedGasPrice.eq(this.lastCalculatedGasPrice)) {
-        this.lastCalculatedGasPrice = nextCalculatedGasPrice;
-
-        Logger.info({
-          at: "GasPriceStore#_subscribeToNewBlocks",
-          message: "Gas price updated",
-          lastCalculatedGasPrice: this.lastCalculatedGasPrice.toString(),
-        });
-      }
+      return await calculateNextGasPrice(this);
     });
   };
 }
