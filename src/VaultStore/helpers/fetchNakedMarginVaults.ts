@@ -2,8 +2,8 @@ import { BigNumber } from "ethers";
 import fetch from "node-fetch";
 
 import supportedNetworkSubgraphs from "./supportedNetworkSubgraphs";
-import { INakedMarginVaults } from "./types";
-import { liquidatorAccountAddress, Logger, provider } from "../helpers";
+import { INakedMarginVaults } from "../types";
+import { liquidatorAccountAddress, Logger, provider } from "../../helpers";
 
 export default async function fetchNakedMarginVaults(): Promise<INakedMarginVaults> {
   const networkChainId = (await provider.getNetwork()).chainId.toString();

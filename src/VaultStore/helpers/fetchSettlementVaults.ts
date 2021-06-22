@@ -2,8 +2,8 @@ import { BigNumber } from "ethers";
 import fetch from "node-fetch";
 
 import supportedNetworkSubgraphs from "./supportedNetworkSubgraphs";
-import { ISettlementVaults } from "./types";
-import { liquidatorAccountAddress, Logger, provider } from "../helpers";
+import { ISettlementVaults } from "../types";
+import { liquidatorAccountAddress, Logger, provider } from "../../helpers";
 
 export default async function fetchSettlementVaults(): Promise<ISettlementVaults> {
   const networkChainId = (await provider.getNetwork()).chainId.toString();
