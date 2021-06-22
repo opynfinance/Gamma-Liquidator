@@ -26,12 +26,8 @@ export default class GasPriceStore {
     this._subscribe();
   };
 
-  _calculateInitialGasPrice = async (): Promise<void> => {
-    return calculateInitialGasPrice(this);
-  };
-
   _subscribe = async (): Promise<void> => {
-    await this._calculateInitialGasPrice();
+    await calculateInitialGasPrice(this);
 
     Logger.info({
       at: "GasPriceStore#_subscribe",
@@ -53,7 +49,7 @@ export default class GasPriceStore {
 
   _subscribeToNewBlocks = async (): Promise<void> => {
     provider.on("block", async (_blockNumber) => {
-      return await calculateNextGasPrice(this);
+      await calculateNextGasPrice(this);
     });
   };
 }
