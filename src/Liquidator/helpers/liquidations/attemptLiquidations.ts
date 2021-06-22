@@ -8,7 +8,6 @@ import {
   fetchShortOtokenInstrumentInfo,
   marginCalculatorContract,
 } from "../";
-import { updateSettlementStore } from "../settlements";
 import Liquidator from "../../index";
 import { Logger } from "../../../helpers";
 
@@ -40,10 +39,28 @@ export default async function attemptLiquidations(
             vault.collateralAssetAddress
           );
 
-          const deribitBestAskPrice = await fetchDeribitBestAskPrice({
-            ...shortOtokenInstrumentInfo,
-            underlyingAsset,
-          });
+          let aggressiveLiquidationMode = false,
+            deribitBestAskPrice = 0;
+
+          try {
+            deribitBestAskPrice = await fetchDeribitBestAskPrice({
+              ...shortOtokenInstrumentInfo,
+              underlyingAsset,
+            });
+          } catch (error) {
+            if (error.message.includes("best_ask_price")) {
+              aggressiveLiquidationMode = true;
+            } else {
+              Logger.error({
+                alert: "Critical error when fetching Deribit best ask price",
+                at: "Liquidator#attemptLiquidations",
+                message: error.message,
+                underlyingAsset,
+                error,
+              });
+              return;
+            }
+          }
 
           const collateralAssetNakedMarginRequirement =
             await marginCalculatorContract.getNakedMarginRequired(
@@ -64,6 +81,15 @@ export default async function attemptLiquidations(
             settlementVaults,
             vault
           );
+
+          if (aggressiveLiquidationMode) {
+            return await liquidateVault(Liquidator, {
+              collateralToDeposit: collateralAssetNakedMarginRequirement,
+              liquidatorVaultNonce,
+              vault,
+              vaultOwnerAddress: liquidatableVaultOwner,
+            });
+          }
 
           const estimatedLiquidationTransactionCost =
             await calculateLiquidationTransactionCost({
@@ -88,13 +114,15 @@ export default async function attemptLiquidations(
               vault.latestAuctionPrice.toNumber() / 10 ** 8 >
               estimatedProfit
             ) {
-              await liquidateVault({
+              return await liquidateVault(Liquidator, {
                 collateralToDeposit: collateralAssetNakedMarginRequirement,
                 liquidatorVaultNonce,
                 vault,
                 vaultOwnerAddress: liquidatableVaultOwner,
               });
             }
+
+            return;
           }
 
           if (
@@ -104,7 +132,7 @@ export default async function attemptLiquidations(
               10 ** 8 >
             estimatedProfit
           ) {
-            await liquidateVault({
+            return await liquidateVault(Liquidator, {
               collateralToDeposit: collateralAssetNakedMarginRequirement,
               liquidatorVaultNonce,
               vault,
@@ -112,18 +140,7 @@ export default async function attemptLiquidations(
             });
           }
 
-          Logger.info({
-            at: "Liquidator#attemptLiquidations",
-            message: "Vault liquidated",
-            liquidatedVaultOwnerAddress: liquidatableVaultOwner,
-            vaultId: vault.vaultId.toString(),
-          });
-
-          return await updateSettlementStore(
-            Liquidator,
-            liquidatorVaultNonce,
-            vault
-          );
+          return;
         } catch (error) {
           Logger.error({
             alert: "Critical error during liquidation attempt",

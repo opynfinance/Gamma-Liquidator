@@ -1,13 +1,18 @@
 import { generateMintAndLiquidateActions } from "../";
+import { updateSettlementStore } from "../settlements";
+import Liquidator from "../..";
 import { IMintAndLiquidateArgs } from "../../types";
-import { gammaControllerProxyContract } from "../../../helpers";
+import { gammaControllerProxyContract, Logger } from "../../../helpers";
 
-export default async function liquidateVault({
-  collateralToDeposit,
-  liquidatorVaultNonce,
-  vault,
-  vaultOwnerAddress,
-}: IMintAndLiquidateArgs) {
+export default async function liquidateVault(
+  Liquidator: Liquidator,
+  {
+    collateralToDeposit,
+    liquidatorVaultNonce,
+    vault,
+    vaultOwnerAddress,
+  }: IMintAndLiquidateArgs
+): Promise<any> {
   const mintAndLiquidationActions = generateMintAndLiquidateActions({
     collateralToDeposit,
     liquidatorVaultNonce,
@@ -15,5 +20,14 @@ export default async function liquidateVault({
     vaultOwnerAddress,
   });
 
-  return gammaControllerProxyContract.operate(mintAndLiquidationActions);
+  await gammaControllerProxyContract.operate(mintAndLiquidationActions);
+
+  Logger.info({
+    at: "Liquidator#attemptLiquidations",
+    message: "Vault liquidated",
+    liquidatedVaultOwnerAddress: vaultOwnerAddress,
+    vaultId: vault.vaultId.toString(),
+  });
+
+  return updateSettlementStore(Liquidator, liquidatorVaultNonce, vault);
 }
