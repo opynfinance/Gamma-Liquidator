@@ -1,9 +1,9 @@
 import { ethers } from "ethers";
 
 import { ZERO_ADDRESS } from "../";
+import { marginCalculatorABI } from "../abis";
 import { ActionType } from "../actionTypes";
 import { fetchDeribitETHIndexPrice } from "../deribit";
-import marginCalculatorABI from "../marginCalculatorABI";
 import { IMintAndLiquidateArgs } from "../../types";
 import GasPriceStore from "../../../GasPriceStore";
 import {
