@@ -49,7 +49,7 @@ export default class GasPriceStore {
 
   _subscribeToNewBlocks = async (): Promise<void> => {
     provider.on("block", async (_blockNumber) => {
-      return await calculateNextGasPrice(this);
+      await calculateNextGasPrice(this);
     });
   };
 }
