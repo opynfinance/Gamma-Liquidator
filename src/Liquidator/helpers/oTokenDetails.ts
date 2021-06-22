@@ -1,12 +1,11 @@
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 
-import erc20ABI from "./erc20ABI";
-import oTokenABI from "./oTokenABI";
+import { erc20ABI, oTokenABI } from "./abis";
 import { provider } from "../../helpers";
 
 export async function fetchCollateralAssetDecimals(
   collateralAssetAddress: string
-) {
+): Promise<BigNumber> {
   const collateralAssetContract = new ethers.Contract(
     collateralAssetAddress,
     erc20ABI,
@@ -16,7 +15,7 @@ export async function fetchCollateralAssetDecimals(
   return collateralAssetContract.decimals();
 }
 
-export async function fetchShortOtokenDetails(shortOtokenAddress: string) {
+export async function fetchShortOtokenDetails(shortOtokenAddress: string): Promise<any> {
   const shortOtokenContract = new ethers.Contract(
     shortOtokenAddress,
     oTokenABI,
@@ -28,7 +27,7 @@ export async function fetchShortOtokenDetails(shortOtokenAddress: string) {
 
 export async function fetchShortOtokenInstrumentInfo(
   shortOtokenAddress: string
-) {
+): Promise<any> {
   const shortOtokenContract = new ethers.Contract(
     shortOtokenAddress,
     oTokenABI,

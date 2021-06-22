@@ -6,13 +6,12 @@ import {
   calculateSettleableVaults,
   checkEtherBalance,
   fetchLiquidatableVaults,
+  setInitialLiquidatorVaultNonce
 } from "./helpers";
 import GasPriceStore from "../GasPriceStore";
 import PriceFeedStore from "../PriceFeedStore";
 import VaultStore from "../VaultStore";
 import {
-  gammaControllerProxyContract,
-  liquidatorAccount,
   Logger,
   provider,
 } from "../helpers";
@@ -32,6 +31,14 @@ export default class Liquidator {
     this.latestLiquidatorVaultNonce = BigNumber.from(0);
     this.priceFeedStore = priceFeedStore;
     this.vaultStore = vaultStore;
+  }
+
+  public getLatestLiquidatorVaultNonce(): BigNumber {
+    return this.latestLiquidatorVaultNonce;
+  }
+  
+  public setLatestLiquidatorVaultNonce(nextLatestLiquidatorVaultNonce: BigNumber): void {
+    this.latestLiquidatorVaultNonce = nextLatestLiquidatorVaultNonce;
   }
 
   start = (): void => {
@@ -109,36 +116,9 @@ export default class Liquidator {
     }
   };
 
-  _checkEtherBalance = async (): Promise<void> => {
-    return checkEtherBalance();
-  };
-
-  _setLatestLiquidatorVaultNonce = async (): Promise<void> => {
-    try {
-      this.latestLiquidatorVaultNonce = (
-        await gammaControllerProxyContract.getAccountVaultCounter(
-          liquidatorAccount.address
-        )
-      ).add(1);
-
-      Logger.info({
-        at: "Liquidator#_setLatestLiquidatorVaultNonce",
-        message: "Latest Liquidator vault nonce initialized",
-        vaultNonce: this.latestLiquidatorVaultNonce.toString(),
-      });
-    } catch (error) {
-      Logger.error({
-        at: "Liquidator#_setLatestLiquidatorVaultNonce",
-        message: error.message,
-        error,
-      });
-      this._setLatestLiquidatorVaultNonce();
-    }
-  };
-
   _subscribe = async (): Promise<void> => {
-    await this._checkEtherBalance();
-    await this._setLatestLiquidatorVaultNonce();
+    await checkEtherBalance();
+    await setInitialLiquidatorVaultNonce(this);
     await this._attemptLiquidations();
     await this._attemptSettlements(
       this.priceFeedStore.getLatestRoundData().updatedAt
@@ -183,7 +163,7 @@ export default class Liquidator {
   _subscribeToNewBlocks = async (): Promise<void> => {
     provider.on("block", async (_blockNumber) => {
       try {
-        await this._checkEtherBalance();
+        await checkEtherBalance();
         await this._attemptLiquidations();
       } catch (error) {
         Logger.error({

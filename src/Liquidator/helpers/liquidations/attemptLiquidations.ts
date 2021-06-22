@@ -99,7 +99,7 @@ export default async function attemptLiquidations(
 
           if (
             ((vault.latestAuctionPrice.toNumber() /
-              10 ** collateralAssetDecimals) *
+              10 ** collateralAssetDecimals.toNumber()) *
               vault.latestUnderlyingAssetPrice.toNumber()) /
               10 ** 8 >
             estimatedProfit

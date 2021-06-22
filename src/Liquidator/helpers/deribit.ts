@@ -13,7 +13,7 @@ export async function fetchDeribitBestAskPrice({
   optionType,
   strikePrice,
   underlyingAsset,
-}: Record<string, string>) {
+}: Record<string, string>): Promise<number> {
   return (
     await (
       await fetch(
@@ -28,7 +28,7 @@ export async function fetchDeribitBestAskPrice({
   ).result.best_ask_price;
 }
 
-export async function fetchDeribitETHIndexPrice() {
+export async function fetchDeribitETHIndexPrice(): Promise<number> {
   return (
     await (
       await fetch(
