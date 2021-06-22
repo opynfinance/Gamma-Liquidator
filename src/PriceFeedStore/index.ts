@@ -29,6 +29,14 @@ export default class PriceFeedStore {
     return this.underlyingAsset;
   }
 
+  public setLatestRoundData(nextLatestRoundData: ILatestRoundData): void {
+    this.latestRoundData = nextLatestRoundData;
+  }
+
+  public setUnderlyingAsset(underlyingAsset: string): void {
+    this.underlyingAsset = underlyingAsset;
+  }
+
   start = (): void => {
     Logger.info({
       at: "PriceFeedStore#start",
