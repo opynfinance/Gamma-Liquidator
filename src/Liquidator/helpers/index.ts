@@ -12,6 +12,7 @@ export {
   fetchShortOtokenDetails,
   fetchShortOtokenInstrumentInfo,
 } from "./oTokenDetails";
+export { default as setInitialLiquidatorVaultNonce } from "./setInitialLiquidatorVaultNonce";
 export { attemptSettlements, calculateSettleableVaults } from "./settlements";
 
 export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
