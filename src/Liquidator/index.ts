@@ -34,6 +34,14 @@ export default class Liquidator {
     this.vaultStore = vaultStore;
   }
 
+  public getLatestLiquidatorVaultNonce(): BigNumber {
+    return this.latestLiquidatorVaultNonce;
+  }
+  
+  public setLatestLiquidatorVaultNonce(nextLatestLiquidatorVaultNonce: BigNumber): void {
+    this.latestLiquidatorVaultNonce = nextLatestLiquidatorVaultNonce;
+  }
+
   start = (): void => {
     Logger.info({
       at: "Liquidator#start",
