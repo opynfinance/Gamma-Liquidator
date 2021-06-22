@@ -6,13 +6,12 @@ import {
   calculateSettleableVaults,
   checkEtherBalance,
   fetchLiquidatableVaults,
+  setInitialLiquidatorVaultNonce
 } from "./helpers";
 import GasPriceStore from "../GasPriceStore";
 import PriceFeedStore from "../PriceFeedStore";
 import VaultStore from "../VaultStore";
 import {
-  gammaControllerProxyContract,
-  liquidatorAccount,
   Logger,
   provider,
 } from "../helpers";
@@ -117,32 +116,9 @@ export default class Liquidator {
     }
   };
 
-  _setLatestLiquidatorVaultNonce = async (): Promise<void> => {
-    try {
-      this.latestLiquidatorVaultNonce = (
-        await gammaControllerProxyContract.getAccountVaultCounter(
-          liquidatorAccount.address
-        )
-      ).add(1);
-
-      Logger.info({
-        at: "Liquidator#_setLatestLiquidatorVaultNonce",
-        message: "Latest Liquidator vault nonce initialized",
-        vaultNonce: this.latestLiquidatorVaultNonce.toString(),
-      });
-    } catch (error) {
-      Logger.error({
-        at: "Liquidator#_setLatestLiquidatorVaultNonce",
-        message: error.message,
-        error,
-      });
-      this._setLatestLiquidatorVaultNonce();
-    }
-  };
-
   _subscribe = async (): Promise<void> => {
     await checkEtherBalance();
-    await this._setLatestLiquidatorVaultNonce();
+    await setInitialLiquidatorVaultNonce(this);
     await this._attemptLiquidations();
     await this._attemptSettlements(
       this.priceFeedStore.getLatestRoundData().updatedAt
