@@ -4,17 +4,15 @@ import {
   attemptLiquidations,
   attemptSettlements,
   calculateSettleableVaults,
+  checkAssetAllowances,
   checkEtherBalance,
   fetchLiquidatableVaults,
-  setInitialLiquidatorVaultNonce
+  setInitialLiquidatorVaultNonce,
 } from "./helpers";
 import GasPriceStore from "../GasPriceStore";
 import PriceFeedStore from "../PriceFeedStore";
 import VaultStore from "../VaultStore";
-import {
-  Logger,
-  provider,
-} from "../helpers";
+import { Logger, provider } from "../helpers";
 
 export default class Liquidator {
   public gasPriceStore: GasPriceStore;
@@ -36,8 +34,10 @@ export default class Liquidator {
   public getLatestLiquidatorVaultNonce(): BigNumber {
     return this.latestLiquidatorVaultNonce;
   }
-  
-  public setLatestLiquidatorVaultNonce(nextLatestLiquidatorVaultNonce: BigNumber): void {
+
+  public setLatestLiquidatorVaultNonce(
+    nextLatestLiquidatorVaultNonce: BigNumber
+  ): void {
     this.latestLiquidatorVaultNonce = nextLatestLiquidatorVaultNonce;
   }
 
@@ -117,6 +117,7 @@ export default class Liquidator {
   };
 
   _subscribe = async (): Promise<void> => {
+    await checkAssetAllowances();
     await checkEtherBalance();
     await setInitialLiquidatorVaultNonce(this);
     await this._attemptLiquidations();
