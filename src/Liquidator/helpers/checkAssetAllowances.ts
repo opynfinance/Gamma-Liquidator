@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 
 import { erc20ABI } from "./abis";
-import { liquidatorAccount, Logger, provider } from "../../helpers";
+import { collateralCustodianAddress, Logger, provider } from "../../helpers";
 
 export default async function checkAssetAllowances(): Promise<void> {
   const underlyingAssetContract = new ethers.Contract(
@@ -12,7 +12,7 @@ export default async function checkAssetAllowances(): Promise<void> {
 
   const underlyingAssetMarginPoolAllowance =
     await underlyingAssetContract.allowance(
-      liquidatorAccount.address,
+      collateralCustodianAddress,
       process.env.MARGIN_POOL_ADDRESS
     );
 
@@ -20,8 +20,9 @@ export default async function checkAssetAllowances(): Promise<void> {
     Logger.error({
       at: "Liquidator#checkAssetAllowances",
       message: "Underlying asset margin pool allowance less than or equal to 0",
+      underlyingAssetAddress: process.env.UNDERLYING_ASSET_ADDRESS,
       error: Error(
-        "Underlying asset margin pool allowance less than or equal to 0"
+        "Underlying asset margin pool allowance less than or equal to 0."
       ),
     });
 
@@ -36,7 +37,7 @@ export default async function checkAssetAllowances(): Promise<void> {
 
   const strikePriceAssetMarginPoolAllowance =
     await strikePriceAssetContract.allowance(
-      liquidatorAccount.address,
+      collateralCustodianAddress,
       process.env.MARGIN_POOL_ADDRESS
     );
 
@@ -45,8 +46,9 @@ export default async function checkAssetAllowances(): Promise<void> {
       at: "Liquidator#checkAssetAllowances",
       message:
         "Strike price asset margin pool allowance less than or equal to 0",
+      strikePriceAssetAddress: process.env.STRIKE_PRICE_ASSET_ADDRESS,
       error: Error(
-        "Strike price asset margin pool allowance less than or equal to 0"
+        "Strike price asset margin pool allowance less than or equal to 0."
       ),
     });
 
