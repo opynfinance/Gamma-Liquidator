@@ -1,6 +1,7 @@
+import { abi as erc20ABI } from "@studydefi/money-legos/erc20";
 import { BigNumber, ethers } from "ethers";
 
-import { erc20ABI, oTokenABI } from "./abis";
+import { oTokenABI } from "./abis";
 import { provider } from "../../helpers";
 
 export async function fetchCollateralAssetDecimals(
@@ -15,7 +16,9 @@ export async function fetchCollateralAssetDecimals(
   return collateralAssetContract.decimals();
 }
 
-export async function fetchShortOtokenDetails(shortOtokenAddress: string): Promise<any> {
+export async function fetchShortOtokenDetails(
+  shortOtokenAddress: string
+): Promise<any> {
   const shortOtokenContract = new ethers.Contract(
     shortOtokenAddress,
     oTokenABI,

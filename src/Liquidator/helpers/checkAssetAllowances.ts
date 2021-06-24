@@ -1,6 +1,6 @@
+import { abi as erc20ABI } from "@studydefi/money-legos/erc20";
 import { ethers } from "ethers";
 
-import { erc20ABI } from "./abis";
 import { collateralCustodianAddress, Logger, provider } from "../../helpers";
 
 export default async function checkAssetAllowances(): Promise<void> {
