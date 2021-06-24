@@ -1,5 +1,6 @@
 export {
   chainlinkAggregatorProxyContract,
+  collateralCustodianAddress,
   gammaControllerProxyContract,
   liquidatorAccount,
   liquidatorAccountAddress,

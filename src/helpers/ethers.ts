@@ -35,6 +35,11 @@ export const liquidatorAccount = new ethers.Wallet(
 
 export const liquidatorAccountAddress = liquidatorAccount.address;
 
+export const collateralCustodianAddress = process.env
+  .COLLATERAL_CUSTODIAN_ADDRESS
+  ? process.env.COLLATERAL_CUSTODIAN_ADDRESS
+  : liquidatorAccountAddress;
+
 export async function loadLiquidatorAccount(): Promise<void> {
   gammaControllerProxyContract =
     gammaControllerProxyContract.connect(liquidatorAccount);

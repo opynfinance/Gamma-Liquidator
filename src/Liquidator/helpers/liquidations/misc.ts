@@ -7,8 +7,8 @@ import { fetchDeribitETHIndexPrice } from "../deribit";
 import { IMintAndLiquidateArgs } from "../../types";
 import GasPriceStore from "../../../GasPriceStore";
 import {
+  collateralCustodianAddress,
   gammaControllerProxyContract,
-  liquidatorAccount,
   liquidatorAccountAddress,
   provider,
 } from "../../../helpers";
@@ -42,7 +42,7 @@ export const generateMintAndLiquidateActions = ({
   {
     actionType: ActionType.Liquidate,
     owner: vaultOwnerAddress,
-    secondAddress: liquidatorAccount.address,
+    secondAddress: liquidatorAccountAddress,
     asset: ZERO_ADDRESS,
     vaultId: vault.vaultId,
     amount: vault.shortAmount,
@@ -54,8 +54,8 @@ export const generateMintAndLiquidateActions = ({
   },
   {
     actionType: ActionType.DepositCollateral,
-    owner: liquidatorAccount.address,
-    secondAddress: liquidatorAccount.address,
+    owner: liquidatorAccountAddress,
+    secondAddress: collateralCustodianAddress,
     asset: vault.collateralAssetAddress,
     vaultId: liquidatorVaultNonce,
     amount: collateralToDeposit,

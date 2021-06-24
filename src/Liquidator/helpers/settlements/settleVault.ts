@@ -3,6 +3,7 @@ import { BigNumber } from "ethers";
 import { ZERO_ADDRESS } from "../";
 import { ActionType } from "../actionTypes";
 import {
+  collateralCustodianAddress,
   liquidatorAccountAddress,
   gammaControllerProxyContract,
 } from "../../../helpers";
@@ -15,7 +16,7 @@ export default async function settleVault(
     {
       actionType: ActionType.SettleVault,
       owner: liquidatorAccountAddress,
-      secondAddress: liquidatorAccountAddress,
+      secondAddress: collateralCustodianAddress,
       asset: ZERO_ADDRESS,
       vaultId: BigNumber.from(settleableVaultNonce),
       amount: shortAmount,
