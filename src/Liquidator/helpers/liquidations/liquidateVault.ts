@@ -20,7 +20,9 @@ export default async function liquidateVault(
     vaultOwnerAddress,
   });
 
-  await gammaControllerProxyContract.operate(mintAndLiquidationActions);
+  await gammaControllerProxyContract.operate(mintAndLiquidationActions, {
+    gasPrice: Liquidator.gasPriceStore.getLastCalculatedGasPrice(),
+  });
 
   Logger.info({
     at: "Liquidator#attemptLiquidations",
