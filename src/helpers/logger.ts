@@ -1,6 +1,7 @@
 import winston from "winston";
 import SlackHook from "winston-slack-webhook-transport";
 import Transport from "winston-transport";
+import Sentry from "winston-transport-sentry-node";
 
 class StackTransport extends Transport {
   log(info: any, callback: any) {
@@ -56,6 +57,15 @@ if (process.env.SLACK_WEBHOOK) {
       },
       webhookUrl: process.env.SLACK_WEBHOOK,
     }) as StackTransport
+  );
+}
+
+if (process.env.SENTRY_DSN) {
+  transports.push(
+    new Sentry({
+      sentry: { dsn: process.env.SENTRY_DSN },
+      level: "error",
+    })
   );
 }
 
