@@ -14,6 +14,7 @@ export default async function fetchSettlementVaults(): Promise<ISettlementVaults
     Logger.error({
       at: "VaultStore#fetchSettlementVaults",
       message: "Warning: No subgraph for detected Ethereum network",
+      supportedNetworkSubgraphChainIds: Object.keys(supportedNetworkSubgraphs),
     });
     return {};
   }
@@ -73,6 +74,8 @@ export default async function fetchSettlementVaults(): Promise<ISettlementVaults
     Logger.error({
       at: "VaultStore#fetchSettlementVaults",
       message: error.message,
+      subgraphUrl,
+      settlementVaultQuery,
       error,
     });
     return {};

@@ -11,6 +11,7 @@ export default async function readLiquidatableVaultsFromDisk(): Promise<ILiquida
     }
 
     Logger.error({
+      alert: "Critical error when reading liquidatable vaults from disk",
       at: "VaultStore#readLiquidatableVaultsFromDisk",
       message: error.message,
       error,

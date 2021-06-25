@@ -56,6 +56,7 @@ export default async function attemptLiquidations(
                 alert: "Critical error when fetching Deribit best ask price",
                 at: "Liquidator#attemptLiquidations",
                 message: error.message,
+                ...shortOtokenInstrumentInfo,
                 underlyingAsset,
                 error,
               });
@@ -172,6 +173,17 @@ export default async function attemptLiquidations(
             alert: "Critical error during liquidation attempt",
             at: "Liquidator#attemptLiquidations",
             message: error.message,
+            liquidatableVaultOwner,
+            vault: {
+              latestAuctionPrice: vault.latestAuctionPrice.toString(),
+              latestUnderlyingAssetPrice:
+                vault.latestUnderlyingAssetPrice.toString(),
+              collateralAssetAddress: vault.collateralAssetAddress,
+              roundId: vault.roundId.toString(),
+              shortAmount: vault.shortAmount.toString(),
+              shortOtokenAddress: vault.shortOtokenAddress,
+              vaultId: vault.vaultId.toString(),
+            },
             error,
           });
         }

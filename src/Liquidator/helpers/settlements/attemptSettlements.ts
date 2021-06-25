@@ -21,6 +21,10 @@ export default async function attemptSettlements(
       Logger.error({
         at: "Liquidator#attemptSettlements",
         message: error.message,
+        numberOfSettleableVaults: Object.values(settleableVaults).flat().length,
+        settleableVaultNonce: settleableVaultNonces[nonceIndex],
+        shortAmount:
+          settleableVaults[settleableVaultNonces[nonceIndex]].toString(),
         error,
       });
     }

@@ -66,6 +66,8 @@ export default class PriceFeedStore {
       Logger.error({
         at: "PriceFeedStore#_subscribe",
         message: error.message,
+        chainlinkAggregatorProxyContractAddress:
+          chainlinkAggregatorProxyContract.address,
         error,
       });
       this._subscribe();

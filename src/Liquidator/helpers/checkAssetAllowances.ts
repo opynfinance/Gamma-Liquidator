@@ -26,6 +26,8 @@ export default async function checkAssetAllowances(): Promise<void> {
     Logger.error({
       at: "Liquidator#checkAssetAllowances",
       message: "Underlying asset margin pool allowance less than or equal to 0",
+      collateralCustodianAddress,
+      marginPoolAddress: process.env.MARGIN_POOL_ADDRESS,
       underlyingAssetAddress: process.env.UNDERLYING_ASSET_ADDRESS,
       error: Error(
         "Underlying asset margin pool allowance less than or equal to 0."
@@ -52,6 +54,8 @@ export default async function checkAssetAllowances(): Promise<void> {
       at: "Liquidator#checkAssetAllowances",
       message:
         "Strike price asset margin pool allowance less than or equal to 0",
+      collateralCustodianAddress,
+      marginPoolAddress: process.env.MARGIN_POOL_ADDRESS,
       strikePriceAssetAddress: process.env.STRIKE_PRICE_ASSET_ADDRESS,
       error: Error(
         "Strike price asset margin pool allowance less than or equal to 0."
@@ -76,6 +80,8 @@ export default async function checkAssetAllowances(): Promise<void> {
         at: "Liquidator#checkAssetAllowances",
         message:
           "Strike price asset liquidator account allowance less than or equal to 0",
+        collateralCustodianAddress,
+        liquidatorAccountAddress,
         strikePriceAssetAddress: process.env.STRIKE_PRICE_ASSET_ADDRESS,
         error: Error(
           "Strike price asset liquidator account allowance less than or equal to 0."
@@ -96,6 +102,8 @@ export default async function checkAssetAllowances(): Promise<void> {
         at: "Liquidator#checkAssetAllowances",
         message:
           "Strike price asset Uniswap V2 Router02 allowance less than or equal to 0",
+        liquidatorAccountAddress,
+        uniswapV2Router02Address: uniswapV2Router02.address,
         strikePriceAssetAddress: process.env.STRIKE_PRICE_ASSET_ADDRESS,
         error: Error(
           "Strike price asset Uniswap V2 Router02 allowance less than or equal to 0."

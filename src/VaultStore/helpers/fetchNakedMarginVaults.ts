@@ -14,6 +14,7 @@ export default async function fetchNakedMarginVaults(): Promise<INakedMarginVaul
     Logger.error({
       at: "VaultStore#fetchNakedMarginVaults",
       message: "Warning: No subgraph for detected Ethereum network",
+      supportedNetworkSubgraphChainIds: Object.keys(supportedNetworkSubgraphs),
     });
     return {};
   }
@@ -65,6 +66,8 @@ export default async function fetchNakedMarginVaults(): Promise<INakedMarginVaul
     Logger.error({
       at: "VaultStore#fetchNakedMarginVaults",
       message: error.message,
+      subgraphUrl,
+      nakedMarginVaultQuery,
       error,
     });
     return {};

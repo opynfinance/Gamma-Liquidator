@@ -80,6 +80,9 @@ export default class Liquidator {
       Logger.error({
         at: "Liquidator#_attemptLiquidations",
         message: error.message,
+        numberOfLiquidatableVaults: Object.values(
+          this.vaultStore.getLiquidatableVaults()
+        ).flat().length,
         error,
       });
     }
@@ -111,6 +114,9 @@ export default class Liquidator {
       Logger.error({
         at: "Liquidator#_attemptSettlements",
         message: error.message,
+        numberOfSettleableVaults: Object.values(
+          this.vaultStore.getSettleableVaults()
+        ).flat().length,
         error,
       });
     }
@@ -154,6 +160,7 @@ export default class Liquidator {
           Logger.error({
             at: "Liquidator#_subscribeToChainlinkTimestampUpdate",
             message: error.message,
+            updatedTimestamp: updatedTimestamp.toString(),
             error,
           });
         }
@@ -162,7 +169,7 @@ export default class Liquidator {
   };
 
   _subscribeToNewBlocks = async (): Promise<void> => {
-    provider.on("block", async (_blockNumber) => {
+    provider.on("block", async (blockNumber: BigNumber) => {
       try {
         await checkEtherBalance();
         await this._attemptLiquidations();
@@ -170,6 +177,7 @@ export default class Liquidator {
         Logger.error({
           at: "Liquidator#_subscribeToNewBlocks",
           message: error.message,
+          blockNumber: blockNumber.toString(),
           error,
         });
       }

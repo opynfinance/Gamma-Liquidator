@@ -112,6 +112,8 @@ export default async function fetchLiquidatableVaults(
           Logger.error({
             at: "Liquidator#fetchLiquidatableVaults",
             message: error.message,
+            vaultOwnerAddress,
+            vaultId: vaultId.toString(),
             error,
           });
         }

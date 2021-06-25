@@ -14,10 +14,10 @@ export default async function prepareCallCollateral(
   Liquidator: Liquidator,
   {
     collateralAssetDecimals,
-    collateralAssetNakedMarginRequirement: collateralAmountToPurchase,
+    collateralAssetNakedMarginRequirement: collateralAmountNeededToPurchase,
     vaultLatestUnderlyingPrice,
   }: Record<string, BigNumber>
-): Promise<any> {
+): Promise<void> {
   if (
     process.env.PURCHASE_CALL_COLLATERAL &&
     collateralCustodianAddress !== liquidatorAccountAddress
@@ -35,7 +35,7 @@ export default async function prepareCallCollateral(
       const safetyBuffer = 1.5;
 
       const calculatedAmountToTransferAndPurchaseCallCollateral =
-        (((collateralAmountToPurchase.toNumber() /
+        (((collateralAmountNeededToPurchase.toNumber() /
           10 ** collateralAssetDecimals.toNumber()) *
           vaultLatestUnderlyingPrice.toNumber()) /
           10 ** 8) *
@@ -70,12 +70,18 @@ export default async function prepareCallCollateral(
           { gasPrice: Liquidator.gasPriceStore.getLastCalculatedGasPrice() }
         );
 
-      if (collateralAmountReceived.lt(collateralAmountToPurchase)) {
+      if (collateralAmountReceived.lt(collateralAmountNeededToPurchase)) {
         Logger.error({
           alert: "Critical error during collateral purchase",
           at: "Liquidator#prepareCallCollateral",
           message:
             "collateral amount received from swap less than collateral needed to liquidate",
+          collateralAmountNeededToPurchase:
+            collateralAmountNeededToPurchase.toNumber() /
+            10 ** collateralAssetDecimals.toNumber(),
+          collateralAmountReceived:
+            collateralAmountReceived.toNumber() /
+            10 ** collateralAssetDecimals.toNumber(),
           error: Error("Critical error during collateral purchase."),
         });
       }
@@ -86,6 +92,15 @@ export default async function prepareCallCollateral(
         alert: "Critical error during collateral purchase attempt",
         at: "Liquidator#prepareCallCollateral",
         message: error.message,
+        collateralAmountNeededToPurchase:
+          collateralAmountNeededToPurchase.toNumber() /
+          10 ** collateralAssetDecimals.toNumber(),
+        purchaseCollateralSwapPath: [
+          process.env.STRIKE_PRICE_ASSET_ADDRESS,
+          process.env.UNDERLYING_ASSET_ADDRESS,
+        ],
+        uniswapV2Router02Address: uniswapV2Router02.address,
+        vaultLatestUnderlyingPrice: vaultLatestUnderlyingPrice.toString(),
         error,
       });
     }

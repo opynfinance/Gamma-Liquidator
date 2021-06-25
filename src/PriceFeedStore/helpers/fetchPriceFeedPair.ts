@@ -21,6 +21,8 @@ export default async function fetchPriceFeedPair(
     Logger.error({
       at: "PriceFeedStore#fetchLatestRoundData",
       message: error.message,
+      chainlinkAggregatorProxyContractAddress:
+        chainlinkAggregatorProxyContract.address,
       error,
     });
   }

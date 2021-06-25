@@ -11,14 +11,28 @@ export default async function calculateNextGasPrice(
     // Calculate gasPrice from gasnow.org
     nextCalculatedGasPrice = await calculateGasPriceFromGasNow();
   } catch (error) {
-    Logger.error({
+    Logger.info({
       at: "GasPriceStore#calculateNextGasPrice",
       message: error.message,
       error,
     });
 
-    // Calculate gasPrice from the network
-    nextCalculatedGasPrice = await calculateGasPriceFromNetwork();
+    try {
+      // Calculate gasPrice from the network
+      nextCalculatedGasPrice = await calculateGasPriceFromNetwork();
+    } catch (error) {
+      Logger.error({
+        alert: "Critical error when fetching and calculating latest gas price",
+        at: "GasPriceStore#calculateNextGasPrice",
+        context: "gasnow.org API and on-chain gasPrice call failed",
+        message: error.message,
+        error,
+      });
+
+      return;
+    }
+
+    return;
   }
 
   if (!nextCalculatedGasPrice.eq(GasPriceStore.getLastCalculatedGasPrice())) {
