@@ -4,6 +4,14 @@ import chainlinkAggregatorABI from "./chainlinkAggregatorABI";
 import gammaControllerABI from "./gammaControllerABI";
 import Logger from "./logger";
 
+if (!process.env.BOT_PRIVATE_KEY) {
+  Logger.error({
+    at: "ethers#loadLiquidatorAccount",
+    message: "BOT_PRIVATE_KEY is not provided",
+    error: Error("BOT_PRIVATE_KEY is not provided."),
+  });
+}
+
 export const provider = new ethers.providers.JsonRpcProvider(
   process.env.ETHEREUM_NODE_URL
 );
@@ -19,14 +27,6 @@ export let gammaControllerProxyContract = new ethers.Contract(
   gammaControllerABI,
   provider
 );
-
-if (!process.env.BOT_PRIVATE_KEY) {
-  Logger.error({
-    at: "ethers#loadLiquidatorAccount",
-    message: "BOT_PRIVATE_KEY is not provided",
-    error: Error("BOT_PRIVATE_KEY is not provided"),
-  });
-}
 
 export const liquidatorAccount = new ethers.Wallet(
   process.env.BOT_PRIVATE_KEY as string,

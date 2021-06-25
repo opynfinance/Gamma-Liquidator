@@ -1,7 +1,13 @@
+import { abi as erc20ABI } from "@studydefi/money-legos/erc20";
+import { router02 as uniswapV2Router02 } from "@studydefi/money-legos/uniswapV2";
 import { ethers } from "ethers";
 
-import { erc20ABI } from "./abis";
-import { collateralCustodianAddress, Logger, provider } from "../../helpers";
+import {
+  collateralCustodianAddress,
+  liquidatorAccountAddress,
+  Logger,
+  provider,
+} from "../../helpers";
 
 export default async function checkAssetAllowances(): Promise<void> {
   const underlyingAssetContract = new ethers.Contract(
@@ -53,6 +59,51 @@ export default async function checkAssetAllowances(): Promise<void> {
     });
 
     return;
+  }
+
+  if (
+    process.env.PURCHASE_CALL_COLLATERAL &&
+    collateralCustodianAddress !== liquidatorAccountAddress
+  ) {
+    const strikePriceAssetLiquidatorAccountAllowance =
+      await strikePriceAssetContract.allowance(
+        collateralCustodianAddress,
+        liquidatorAccountAddress
+      );
+
+    if (strikePriceAssetLiquidatorAccountAllowance.lte(0)) {
+      Logger.error({
+        at: "Liquidator#checkAssetAllowances",
+        message:
+          "Strike price asset liquidator account allowance less than or equal to 0",
+        strikePriceAssetAddress: process.env.STRIKE_PRICE_ASSET_ADDRESS,
+        error: Error(
+          "Strike price asset liquidator account allowance less than or equal to 0."
+        ),
+      });
+
+      return;
+    }
+
+    const strikePriceAssetUniswapV2Router02Allowance =
+      await strikePriceAssetContract.allowance(
+        liquidatorAccountAddress,
+        uniswapV2Router02.address
+      );
+
+    if (strikePriceAssetUniswapV2Router02Allowance.lte(0)) {
+      Logger.error({
+        at: "Liquidator#checkAssetAllowances",
+        message:
+          "Strike price asset Uniswap V2 Router02 allowance less than or equal to 0",
+        strikePriceAssetAddress: process.env.STRIKE_PRICE_ASSET_ADDRESS,
+        error: Error(
+          "Strike price asset Uniswap V2 Router02 allowance less than or equal to 0."
+        ),
+      });
+
+      return;
+    }
   }
 
   return;

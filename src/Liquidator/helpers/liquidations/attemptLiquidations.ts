@@ -1,4 +1,5 @@
 import liquidateVault from "./liquidateVault";
+import prepareCallCollateral from "./prepareCallCollateral";
 import setLiquidationVaultNonce from "./setLiquidationVaultNonce";
 import {
   calculateLiquidationTransactionCost,
@@ -58,6 +59,7 @@ export default async function attemptLiquidations(
                 underlyingAsset,
                 error,
               });
+
               return;
             }
           }
@@ -83,12 +85,29 @@ export default async function attemptLiquidations(
           );
 
           if (aggressiveLiquidationMode) {
-            return await liquidateVault(Liquidator, {
-              collateralToDeposit: collateralAssetNakedMarginRequirement,
-              liquidatorVaultNonce,
-              vault,
-              vaultOwnerAddress: liquidatableVaultOwner,
-            });
+            if (isPutOption) {
+              return await liquidateVault(Liquidator, {
+                collateralToDeposit: collateralAssetNakedMarginRequirement,
+                liquidatorVaultNonce,
+                vault,
+                vaultOwnerAddress: liquidatableVaultOwner,
+              });
+            } else {
+              // call option
+              await prepareCallCollateral(Liquidator, {
+                collateralAssetDecimals,
+                collateralAssetNakedMarginRequirement,
+                vaultLatestUnderlyingAssetPrice:
+                  vault.latestUnderlyingAssetPrice,
+              });
+
+              return await liquidateVault(Liquidator, {
+                collateralToDeposit: collateralAssetNakedMarginRequirement,
+                liquidatorVaultNonce,
+                vault,
+                vaultOwnerAddress: liquidatableVaultOwner,
+              });
+            }
           }
 
           const estimatedLiquidationTransactionCost =
@@ -100,7 +119,7 @@ export default async function attemptLiquidations(
               vaultOwnerAddress: liquidatableVaultOwner,
             });
 
-          const estimatedProfit =
+          const estimatedProfitInUSD =
             deribitBestAskPrice +
             estimatedLiquidationTransactionCost +
             Math.max(
@@ -112,7 +131,7 @@ export default async function attemptLiquidations(
           if (isPutOption) {
             if (
               vault.latestAuctionPrice.toNumber() / 10 ** 8 >
-              estimatedProfit
+              estimatedProfitInUSD
             ) {
               return await liquidateVault(Liquidator, {
                 collateralToDeposit: collateralAssetNakedMarginRequirement,
@@ -125,13 +144,20 @@ export default async function attemptLiquidations(
             return;
           }
 
+          // call option
           if (
             ((vault.latestAuctionPrice.toNumber() /
               10 ** collateralAssetDecimals.toNumber()) *
               vault.latestUnderlyingAssetPrice.toNumber()) /
               10 ** 8 >
-            estimatedProfit
+            estimatedProfitInUSD
           ) {
+            await prepareCallCollateral(Liquidator, {
+              collateralAssetDecimals,
+              collateralAssetNakedMarginRequirement,
+              vaultLatestUnderlyingAssetPrice: vault.latestUnderlyingAssetPrice,
+            });
+
             return await liquidateVault(Liquidator, {
               collateralToDeposit: collateralAssetNakedMarginRequirement,
               liquidatorVaultNonce,

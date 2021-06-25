@@ -13,7 +13,7 @@ export default async function checkEtherBalance(): Promise<void> {
       at: "Liquidator#checkEtherBalance",
       message: "Liquidator account balance less than BOT_MINIMUM_ETHER_BALANCE",
       error: Error(
-        "Liquidator account balance less than BOT_MINIMUM_ETHER_BALANCE"
+        "Liquidator account balance less than BOT_MINIMUM_ETHER_BALANCE."
       ),
     });
   }
