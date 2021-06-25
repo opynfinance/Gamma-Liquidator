@@ -19,6 +19,8 @@ export default async function fetchPriceFeedPair(
     Logger.error({
       at: "PriceFeedStore#fetchPriceFeedPair",
       message: error.message,
+      chainlinkAggregatorProxyContractAddress:
+        chainlinkAggregatorProxyContract.address,
       error,
     });
   }

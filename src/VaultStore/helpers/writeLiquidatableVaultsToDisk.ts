@@ -17,8 +17,13 @@ export default async function writeLiquidatableVaultsToDisk(
     });
   } catch (error) {
     Logger.error({
+      alert: "Critical error when saving liquidatable vaults to disk",
       at: "VaultStore#writeLiquidatableVaultsToDisk",
       message: error.message,
+      liquidatableVaults: JSON.stringify(liquidatableVaults),
+      numberOfliquidatableVaults:
+        Object.values(liquidatableVaults).flat().length,
+      path: vaultStorePath,
       error,
     });
   }

@@ -70,6 +70,8 @@ export default class VaultStore {
       Logger.error({
         at: "VaultStore#_fetchNakedMarginVaults",
         message: error.message,
+        numberOfNakedMarginVaults: Object.values(this.nakedMarginVaults).flat()
+          .length,
         error,
       });
     }
@@ -89,6 +91,8 @@ export default class VaultStore {
       Logger.error({
         at: "VaultStore#_fetchSettlementVaults",
         message: error.message,
+        numberOfSettlementVaults: Object.values(this.settlementVaults).flat()
+          .length,
         error,
       });
     }
@@ -122,6 +126,8 @@ export default class VaultStore {
       Logger.error({
         at: "VaultStore#_subscribe",
         message: error.message,
+        gammaControllerProxyContractAddress:
+          gammaControllerProxyContract.address,
         error,
       });
       this._subscribe();
