@@ -11,10 +11,11 @@ export default async function fetchLiquidatableVaults(
     await Promise.all(
       nakedMarginVaults[vaultOwnerAddress].map(async (vaultId) => {
         try {
-          const [vaultDetails] = await gammaControllerProxyContract.getVault(
-            vaultOwnerAddress,
-            vaultId
-          );
+          const [vaultDetails] =
+            await gammaControllerProxyContract.getVaultWithDetails(
+              vaultOwnerAddress,
+              vaultId
+            );
 
           if (!vaultDetails) return;
 
