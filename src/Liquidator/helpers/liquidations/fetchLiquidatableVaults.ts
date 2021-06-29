@@ -19,9 +19,12 @@ export default async function fetchLiquidatableVaults(
 
           if (!vaultDetails) return;
 
-          // currently only one vault per vaultId
-          // here we check if the vault is no longer short
-          if (vaultDetails.shortAmounts[0].eq(0)) return;
+          if (!vaultDetails.shortAmounts[0]) return;
+
+          if (vaultDetails.shortAmounts[0].eq(0))
+            // currently only one vault per vaultId
+            // here we check if the vault is no longer short
+            return;
 
           // currently only one collateralAsset address per vault
           const collateralAssetAddress = vaultDetails.collateralAssets[0];
