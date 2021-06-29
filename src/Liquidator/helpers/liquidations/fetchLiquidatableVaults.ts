@@ -1,3 +1,5 @@
+import { BigNumber } from "ethers";
+
 import Liquidator from "../../index";
 import { gammaControllerProxyContract, Logger } from "../../../helpers";
 
@@ -36,12 +38,20 @@ export default async function fetchLiquidatableVaults(
           const { answer, roundId } =
             Liquidator.priceFeedStore.getLatestRoundData();
 
-          const [isUnderCollateralized, currentRoundIdCalculatedAuctionPrice] =
-            await gammaControllerProxyContract.isLiquidatable(
-              vaultOwnerAddress,
-              vaultId,
-              roundId
-            );
+          let isUnderCollateralized = false,
+            currentRoundIdCalculatedAuctionPrice = BigNumber.from(0);
+
+          try {
+            [isUnderCollateralized, currentRoundIdCalculatedAuctionPrice] =
+              await gammaControllerProxyContract.isLiquidatable(
+                vaultOwnerAddress,
+                vaultId,
+                roundId
+              );
+          } catch (error) {
+            // assume false
+            return;
+          }
 
           if (!isUnderCollateralized) return;
 
