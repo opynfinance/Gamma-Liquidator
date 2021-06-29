@@ -38,8 +38,12 @@ export async function fetchShortOtokenInstrumentInfo(
   );
 
   const instrumentInfo = await shortOtokenContract.symbol();
-  const [, expiryDate, strikePriceAndOptionType] =
+  const [, rawExpiryDate, strikePriceAndOptionType] =
     instrumentInfo.match(/([^-]+)/g);
+
+  const parsedExpiryDate = /^0(.*)/g.exec(rawExpiryDate);
+
+  const expiryDate = parsedExpiryDate ? parsedExpiryDate[1] : rawExpiryDate;
 
   const [strikePrice, optionType] = strikePriceAndOptionType.match(/\d+|\D+/g);
 
