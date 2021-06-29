@@ -1,3 +1,5 @@
+import { BigNumber } from "ethers";
+
 import Liquidator from "../../index";
 import { gammaControllerProxyContract, Logger } from "../../../helpers";
 
@@ -19,9 +21,12 @@ export default async function fetchLiquidatableVaults(
 
           if (!vaultDetails) return;
 
-          // currently only one vault per vaultId
-          // here we check if the vault is no longer short
-          if (vaultDetails.shortAmounts[0].eq(0)) return;
+          if (!vaultDetails.shortAmounts[0]) return;
+
+          if (vaultDetails.shortAmounts[0].eq(0))
+            // currently only one vault per vaultId
+            // here we check if the vault is no longer short
+            return;
 
           // currently only one collateralAsset address per vault
           const collateralAssetAddress = vaultDetails.collateralAssets[0];
@@ -33,12 +38,20 @@ export default async function fetchLiquidatableVaults(
           const { answer, roundId } =
             Liquidator.priceFeedStore.getLatestRoundData();
 
-          const [isUnderCollateralized, currentRoundIdCalculatedAuctionPrice] =
-            await gammaControllerProxyContract.isLiquidatable(
-              vaultOwnerAddress,
-              vaultId,
-              roundId
-            );
+          let isUnderCollateralized = false,
+            currentRoundIdCalculatedAuctionPrice = BigNumber.from(0);
+
+          try {
+            [isUnderCollateralized, currentRoundIdCalculatedAuctionPrice] =
+              await gammaControllerProxyContract.isLiquidatable(
+                vaultOwnerAddress,
+                vaultId,
+                roundId
+              );
+          } catch (error) {
+            // assume false
+            return;
+          }
 
           if (!isUnderCollateralized) return;
 
