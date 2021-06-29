@@ -5,21 +5,19 @@ export default async function fetchPriceFeedPair(
   PriceFeedStore: PriceFeedStore
 ): Promise<void> {
   try {
-    const { answer, roundId, updatedAt } =
-      await chainlinkAggregatorProxyContract.latestRoundData();
+    const priceFeedPair = await chainlinkAggregatorProxyContract.description();
 
-    PriceFeedStore.setLatestRoundData({ answer, roundId, updatedAt });
+    PriceFeedStore.setUnderlyingAsset(priceFeedPair.match(/([^\s]+)/g)[0]);
 
     Logger.info({
-      at: "PriceFeedStore#fetchLatestRoundData",
-      message: "Price feed store initialized",
-      answer: answer.toNumber(),
-      roundId: roundId.toString(),
-      updatedAt: updatedAt.toNumber(),
+      at: "PriceFeedStore#fetchPriceFeedPair",
+      message: "Price feed underlying asset set",
+      priceFeedPair,
+      underlyingAsset: PriceFeedStore.getUnderlyingAsset(),
     });
   } catch (error) {
     Logger.error({
-      at: "PriceFeedStore#fetchLatestRoundData",
+      at: "PriceFeedStore#fetchPriceFeedPair",
       message: error.message,
       chainlinkAggregatorProxyContractAddress:
         chainlinkAggregatorProxyContract.address,
