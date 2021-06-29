@@ -47,10 +47,7 @@ export const generateMintAndLiquidateActions = ({
     vaultId: vault.vaultId,
     amount: vault.shortAmount,
     index: "0",
-    data: ethers.utils.defaultAbiCoder.encode(
-      ["uint256"],
-      [vault.roundId.toString()]
-    ),
+    data: ethers.utils.defaultAbiCoder.encode(["uint256"], [vault.roundId]),
   },
   {
     actionType: ActionType.DepositCollateral,
@@ -79,13 +76,12 @@ export async function calculateLiquidationTransactionCost({
   });
 
   return (
-    ((
+    (((
       await gammaControllerProxyContract.estimateGas.operate(
         mintAndLiquidationActions
       )
-    )
-      .mul(gasPriceStore.getLastCalculatedGasPrice())
-      .toNumber() /
+    ).toNumber() *
+      gasPriceStore.getLastCalculatedGasPrice().toNumber()) /
       10 ** 18) * // Ether has 18 decimals, gas is calculated in wei
     (await fetchDeribitETHIndexPrice())
   );
