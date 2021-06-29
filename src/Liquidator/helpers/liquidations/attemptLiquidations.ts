@@ -1,3 +1,5 @@
+import { BigNumber } from "ethers";
+
 import liquidateVault from "./liquidateVault";
 import prepareCallCollateral from "./prepareCallCollateral";
 import setLiquidationVaultNonce from "./setLiquidationVaultNonce";
@@ -64,6 +66,14 @@ export default async function attemptLiquidations(
               return;
             }
           }
+
+          vault.latestAuctionPrice = BigNumber.from(vault.latestAuctionPrice);
+          vault.latestUnderlyingAssetPrice = BigNumber.from(
+            vault.latestUnderlyingAssetPrice
+          );
+          vault.roundId = BigNumber.from(vault.roundId);
+          vault.shortAmount = BigNumber.from(vault.shortAmount);
+          vault.vaultId = BigNumber.from(vault.vaultId);
 
           const collateralAssetNakedMarginRequirement =
             await marginCalculatorContract.getNakedMarginRequired(
