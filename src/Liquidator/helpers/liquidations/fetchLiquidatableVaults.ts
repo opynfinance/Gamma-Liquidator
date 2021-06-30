@@ -91,6 +91,15 @@ export default async function fetchLiquidatableVaults(
                       vault.latestAuctionPrice =
                         oldRoundIdRecalculatedAuctionPrice;
                     }
+                  } else {
+                    if (
+                      currentRoundIdCalculatedAuctionPrice.gt(
+                        vault.latestAuctionPrice
+                      )
+                    ) {
+                      vault.latestAuctionPrice =
+                        currentRoundIdCalculatedAuctionPrice;
+                    }
                   }
                 }
               })
@@ -107,10 +116,14 @@ export default async function fetchLiquidatableVaults(
                 vaultId,
               });
 
-              await Liquidator.vaultStore.writeLiquidatableVaultsToDisk(
+              return await Liquidator.vaultStore.writeLiquidatableVaultsToDisk(
                 liquidatableVaults
               );
             }
+
+            return await Liquidator.vaultStore.writeLiquidatableVaultsToDisk(
+              liquidatableVaults
+            );
           } else {
             liquidatableVaults[vaultOwnerAddress] = [
               {
@@ -124,7 +137,7 @@ export default async function fetchLiquidatableVaults(
               },
             ];
 
-            await Liquidator.vaultStore.writeLiquidatableVaultsToDisk(
+            return await Liquidator.vaultStore.writeLiquidatableVaultsToDisk(
               liquidatableVaults
             );
           }
