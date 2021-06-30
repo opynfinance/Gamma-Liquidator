@@ -55,8 +55,10 @@ export default class Liquidator {
 
       const liquidatableVaults = this.vaultStore.getLiquidatableVaults();
       const liquidatableVaultOwners = Object.keys(liquidatableVaults);
+      const numberOfLiquidatableVaults =
+        Object.values(liquidatableVaults).flat().length;
 
-      if (liquidatableVaultOwners.length === 0) {
+      if (numberOfLiquidatableVaults === 0) {
         Logger.info({
           at: "Liquidator#_attemptLiquidations",
           message: "No liquidatable vaults",
@@ -67,8 +69,7 @@ export default class Liquidator {
       Logger.info({
         at: "Liquidator#_attemptLiquidations",
         message: "Liquidatable vaults detected",
-        numberOfLiquidatableVaults:
-          Object.values(liquidatableVaults).flat().length,
+        numberOfLiquidatableVaults,
       });
 
       await attemptLiquidations(
