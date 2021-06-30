@@ -164,7 +164,7 @@ export default async function attemptLiquidations(
 
           // call option
           if (
-            ((vault.latestAuctionPrice.toNumber() /
+            (((vault.latestAuctionPrice.toString() as any) /
               10 ** collateralAssetDecimals) *
               vault.latestUnderlyingAssetPrice.toNumber()) /
               10 ** 8 >
