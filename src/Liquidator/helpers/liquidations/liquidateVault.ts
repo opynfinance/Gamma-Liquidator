@@ -42,5 +42,13 @@ export default async function liquidateVault(
     vaultId: vault.vaultId.toString(),
   });
 
+  const liquidatableVaults = Liquidator.vaultStore.getLiquidatableVaults();
+
+  liquidatableVaults[vaultOwnerAddress] = liquidatableVaults[
+    vaultOwnerAddress
+  ].filter((storedVault) => !storedVault.vaultId.eq(vault.vaultId));
+
+  await Liquidator.vaultStore.writeLiquidatableVaultsToDisk(liquidatableVaults);
+
   return updateSettlementStore(Liquidator, liquidatorVaultNonce, vault);
 }
