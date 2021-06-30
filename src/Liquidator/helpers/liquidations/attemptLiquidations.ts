@@ -53,10 +53,16 @@ export default async function attemptLiquidations(
             deribitBestAskPrice = 0;
 
           try {
+            // returned in underlying
             deribitBestAskPrice = await fetchDeribitBestAskPrice({
               ...shortOtokenInstrumentInfo,
               underlyingAsset,
             });
+
+            deribitBestAskPrice =
+              (deribitBestAskPrice *
+                vault.latestUnderlyingAssetPrice.toNumber()) /
+              10 ** 8;
           } catch (error) {
             if (error.message.includes("best_ask_price")) {
               aggressiveLiquidationMode = true;
