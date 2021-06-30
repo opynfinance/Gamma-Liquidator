@@ -24,7 +24,7 @@ export const generateMintAndLiquidateActions = ({
     owner: liquidatorAccountAddress,
     secondAddress: liquidatorAccountAddress,
     asset: ZERO_ADDRESS,
-    vaultId: liquidatorVaultNonce,
+    vaultId: liquidatorVaultNonce.toString(),
     amount: "0",
     index: "0",
     data: ethers.utils.defaultAbiCoder.encode(["uint256"], [1]),
@@ -34,8 +34,8 @@ export const generateMintAndLiquidateActions = ({
     owner: liquidatorAccountAddress,
     secondAddress: liquidatorAccountAddress,
     asset: vault.shortOtokenAddress,
-    vaultId: liquidatorVaultNonce,
-    amount: vault.shortAmount,
+    vaultId: liquidatorVaultNonce.toString(),
+    amount: vault.shortAmount.toString(),
     index: "0",
     data: ZERO_ADDRESS,
   },
@@ -44,21 +44,18 @@ export const generateMintAndLiquidateActions = ({
     owner: vaultOwnerAddress,
     secondAddress: liquidatorAccountAddress,
     asset: ZERO_ADDRESS,
-    vaultId: vault.vaultId,
-    amount: vault.shortAmount,
+    vaultId: vault.vaultId.toString(),
+    amount: vault.shortAmount.toString(),
     index: "0",
-    data: ethers.utils.defaultAbiCoder.encode(
-      ["uint256"],
-      [vault.roundId.toString()]
-    ),
+    data: ethers.utils.defaultAbiCoder.encode(["uint256"], [vault.roundId]),
   },
   {
     actionType: ActionType.DepositCollateral,
     owner: liquidatorAccountAddress,
     secondAddress: collateralCustodianAddress,
     asset: vault.collateralAssetAddress,
-    vaultId: liquidatorVaultNonce,
-    amount: collateralToDeposit,
+    vaultId: liquidatorVaultNonce.toString(),
+    amount: collateralToDeposit.toString(),
     index: "0",
     data: ZERO_ADDRESS,
   },
@@ -79,13 +76,12 @@ export async function calculateLiquidationTransactionCost({
   });
 
   return (
-    ((
+    (((
       await gammaControllerProxyContract.estimateGas.operate(
         mintAndLiquidationActions
       )
-    )
-      .mul(gasPriceStore.getLastCalculatedGasPrice())
-      .toNumber() /
+    ).toNumber() *
+      gasPriceStore.getLastCalculatedGasPrice().toNumber()) /
       10 ** 18) * // Ether has 18 decimals, gas is calculated in wei
     (await fetchDeribitETHIndexPrice())
   );
