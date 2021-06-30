@@ -81,10 +81,9 @@ export default class PriceFeedStore {
 
     chainlinkAggregatorContract.on(
       "AnswerUpdated",
-      (answerPrice, roundId, updatedTimestamp) => {
+      (answerPrice, _roundId, updatedTimestamp) => {
         updateLatestRoundData(this, {
           answer: answerPrice,
-          roundId,
           updatedAt: updatedTimestamp,
         });
       }

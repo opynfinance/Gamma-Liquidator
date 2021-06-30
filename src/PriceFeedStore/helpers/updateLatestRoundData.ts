@@ -1,10 +1,14 @@
-import PriceFeedStore, { ILatestRoundData } from "..";
-import { Logger } from "../../helpers";
+import { BigNumber } from "ethers";
 
-export default function updateLatestRoundData(
+import PriceFeedStore from "..";
+import { chainlinkAggregatorProxyContract, Logger } from "../../helpers";
+
+export default async function updateLatestRoundData(
   PriceFeedStore: PriceFeedStore,
-  { answer, roundId, updatedAt }: ILatestRoundData
-): void {
+  { answer, updatedAt }: Record<string, BigNumber>
+): Promise<void> {
+  const { roundId } = await chainlinkAggregatorProxyContract.latestRoundData();
+
   PriceFeedStore.setLatestRoundData({
     answer,
     roundId,
@@ -19,8 +23,8 @@ export default function updateLatestRoundData(
   Logger.info({
     at: "PriceFeedStore#_subscribeToAnswerUpdatedEvents",
     message: "Price feed store updated",
-    answer: answer.toNumber(),
+    answer: answer.toString(),
     roundId: roundId.toString(),
-    updatedAt: updatedAt.toNumber(),
+    updatedAt: updatedAt.toString(),
   });
 }
