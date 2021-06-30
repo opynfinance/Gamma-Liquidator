@@ -38,9 +38,16 @@ export default async function attemptLiquidations(
             isPutOption,
           ] = await fetchShortOtokenDetails(vault.shortOtokenAddress);
 
-          const collateralAssetDecimals = await fetchCollateralAssetDecimals(
-            vault.collateralAssetAddress
+          const collateralAssetDecimals: any =
+            await fetchCollateralAssetDecimals(vault.collateralAssetAddress);
+
+          vault.latestAuctionPrice = BigNumber.from(vault.latestAuctionPrice);
+          vault.latestUnderlyingAssetPrice = BigNumber.from(
+            vault.latestUnderlyingAssetPrice
           );
+          vault.roundId = BigNumber.from(vault.roundId);
+          vault.shortAmount = BigNumber.from(vault.shortAmount);
+          vault.vaultId = BigNumber.from(vault.vaultId);
 
           let aggressiveLiquidationMode = false,
             deribitBestAskPrice = 0;
@@ -67,13 +74,6 @@ export default async function attemptLiquidations(
             }
           }
 
-          vault.latestAuctionPrice = BigNumber.from(vault.latestAuctionPrice);
-          vault.latestUnderlyingAssetPrice = BigNumber.from(
-            vault.latestUnderlyingAssetPrice
-          );
-          vault.roundId = BigNumber.from(vault.roundId);
-          vault.shortAmount = BigNumber.from(vault.shortAmount);
-          vault.vaultId = BigNumber.from(vault.vaultId);
 
           const collateralAssetNakedMarginRequirement =
             await marginCalculatorContract.getNakedMarginRequired(
