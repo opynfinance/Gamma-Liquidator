@@ -81,8 +81,8 @@ export default async function attemptLiquidations(
           }
 
 
-          const collateralAssetNakedMarginRequirement =
-            await marginCalculatorContract.getNakedMarginRequired(
+          const collateralAssetNakedMarginRequirement: any =
+            (await marginCalculatorContract.getNakedMarginRequired(
               underlyingAssetAddress,
               strikeAssetAddress,
               vault.collateralAssetAddress,
@@ -92,7 +92,7 @@ export default async function attemptLiquidations(
               expiryTimestamp,
               collateralAssetDecimals,
               isPutOption
-            );
+            )) * 2;
 
           const liquidatorVaultNonce = setLiquidationVaultNonce(
             expiryTimestamp,
