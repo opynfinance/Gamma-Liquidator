@@ -1,32 +1,26 @@
-import PriceFeedStore from "..";
-import { chainlinkAggregatorProxyContract, Logger } from "../../helpers";
+import PriceFeedStore, { ILatestRoundData } from "..";
+import { Logger } from "../../helpers";
 
-export default async function updateLatestRoundData(
-  PriceFeedStore: PriceFeedStore
-): Promise<void> {
-  const { answer, roundId, updatedAt } =
-    await chainlinkAggregatorProxyContract.latestRoundData();
+export default function updateLatestRoundData(
+  PriceFeedStore: PriceFeedStore,
+  { answer, roundId, updatedAt }: ILatestRoundData
+): void {
+  PriceFeedStore.setLatestRoundData({
+    answer,
+    roundId,
+    updatedAt,
+  });
 
-  if (!roundId.eq(PriceFeedStore.getLatestRoundData().roundId)) {
-    PriceFeedStore.setLatestRoundData({
-      answer,
-      roundId,
-      updatedAt,
-    });
+  (process.emit as NodeJS.EventEmitter["emit"])(
+    "chainlinkTimestampUpdate",
+    updatedAt
+  );
 
-    (process.emit as NodeJS.EventEmitter["emit"])(
-      "chainlinkTimestampUpdate",
-      updatedAt
-    );
-
-    Logger.info({
-      at: "PriceFeedStore#_subscribeToAnswerUpdatedEvents",
-      message: "Price feed store updated",
-      answer: answer.toNumber(),
-      roundId: roundId.toString(),
-      updatedAt: updatedAt.toNumber(),
-    });
-  }
-
-  return;
+  Logger.info({
+    at: "PriceFeedStore#_subscribeToAnswerUpdatedEvents",
+    message: "Price feed store updated",
+    answer: answer.toNumber(),
+    roundId: roundId.toString(),
+    updatedAt: updatedAt.toNumber(),
+  });
 }
