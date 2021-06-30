@@ -20,9 +20,19 @@ export default async function liquidateVault(
     vaultOwnerAddress,
   });
 
-  await gammaControllerProxyContract.operate(mintAndLiquidationActions, {
-    gasPrice: Liquidator.gasPriceStore.getLastCalculatedGasPrice(),
-  });
+  try {
+    await gammaControllerProxyContract.operate(mintAndLiquidationActions, {
+      gasPrice: Liquidator.gasPriceStore.getLastCalculatedGasPrice(),
+    });
+  } catch (error) {
+    Logger.error({
+      alert: "Critical error during liquidation attempt",
+      at: "Liquidator#liquidateVault",
+      message: error.message,
+      undercollateralizedVaultOwner: vaultOwnerAddress,
+      vaultId: vault.vaultId.toString(),
+    });
+  }
 
   Logger.info({
     at: "Liquidator#attemptLiquidations",
