@@ -62,6 +62,12 @@ export default async function fetchLiquidatableVaults(
             let vaultPresent = false;
             await Promise.all(
               liquidatableVaults[vaultOwnerAddress].map(async (vault) => {
+                vault.latestAuctionPrice = BigNumber.from(
+                  vault.latestAuctionPrice
+                );
+                vault.roundId = BigNumber.from(vault.roundId);
+                vault.vaultId = BigNumber.from(vault.vaultId);
+
                 if (vaultId.eq(vault.vaultId)) {
                   vaultPresent = true;
 
