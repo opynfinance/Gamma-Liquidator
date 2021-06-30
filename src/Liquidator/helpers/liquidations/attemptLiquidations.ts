@@ -147,7 +147,8 @@ export default async function attemptLiquidations(
 
           if (isPutOption) {
             if (
-              vault.latestAuctionPrice.toNumber() / 10 ** 8 >
+              vault.latestAuctionPrice.toNumber() /
+                10 ** collateralAssetDecimals >
               estimatedCostToLiquidateInUSD
             ) {
               return await liquidateVault(Liquidator, {
@@ -164,7 +165,7 @@ export default async function attemptLiquidations(
           // call option
           if (
             ((vault.latestAuctionPrice.toNumber() /
-              10 ** collateralAssetDecimals.toNumber()) *
+              10 ** collateralAssetDecimals) *
               vault.latestUnderlyingAssetPrice.toNumber()) /
               10 ** 8 >
             estimatedCostToLiquidateInUSD
