@@ -41,7 +41,7 @@ export default async function liquidateVault(
   }
 
   Logger.info({
-    at: "Liquidator#attemptLiquidations",
+    at: "Liquidator#liquidateVault",
     message: "Vault liquidated",
     liquidatedVaultOwnerAddress: vaultOwnerAddress,
     vaultId: vault.vaultId.toString(),
