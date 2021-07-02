@@ -1,8 +1,4 @@
-export {
-  checkEtherBalance,
-  checkStrikePriceAssetBalance,
-  checkUnderlyingAssetBalance,
-} from "./balances";
+export { checkAssetBalances } from "./balances";
 export { default as checkAssetAllowances } from "./checkAssetAllowances";
 export { fetchDeribitBestAskPrice } from "./deribit";
 export {
