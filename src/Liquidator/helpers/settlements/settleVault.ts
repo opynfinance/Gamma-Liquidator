@@ -25,5 +25,7 @@ export default async function settleVault(
     },
   ];
 
-  return gammaControllerProxyContract.operate(settleAction);
+  const transaction = await gammaControllerProxyContract.operate(settleAction);
+
+  return transaction.wait(5);
 }

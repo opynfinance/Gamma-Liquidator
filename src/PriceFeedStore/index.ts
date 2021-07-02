@@ -5,7 +5,7 @@ import {
   fetchPriceFeedPair,
   updateLatestRoundData,
 } from "./helpers";
-import { chainlinkAggregatorProxyContract, Logger, provider } from "../helpers";
+import { chainlinkAggregatorProxyContract, Logger } from "../helpers";
 
 export interface ILatestRoundData {
   answer: BigNumber;
@@ -61,7 +61,7 @@ export default class PriceFeedStore {
     });
 
     try {
-      this._subscribeToNewBlocks();
+      this._subscribeToAnswerUpdatedEvents();
     } catch (error) {
       Logger.error({
         at: "PriceFeedStore#_subscribe",
@@ -74,9 +74,19 @@ export default class PriceFeedStore {
     }
   };
 
-  _subscribeToNewBlocks = async (): Promise<void> => {
-    provider.on("block", async (_blockNumber) => {
-      await updateLatestRoundData(this);
-    });
+  _subscribeToAnswerUpdatedEvents = async (): Promise<void> => {
+    const chainlinkAggregatorContract = chainlinkAggregatorProxyContract.attach(
+      await chainlinkAggregatorProxyContract.aggregator()
+    );
+
+    chainlinkAggregatorContract.on(
+      "AnswerUpdated",
+      (answerPrice, _roundId, updatedTimestamp) => {
+        updateLatestRoundData(this, {
+          answer: answerPrice,
+          updatedAt: updatedTimestamp,
+        });
+      }
+    );
   };
 }

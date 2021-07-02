@@ -21,9 +21,14 @@ export default async function liquidateVault(
   });
 
   try {
-    await gammaControllerProxyContract.operate(mintAndLiquidationActions, {
-      gasPrice: Liquidator.gasPriceStore.getLastCalculatedGasPrice(),
-    });
+    const transaction = await gammaControllerProxyContract.operate(
+      mintAndLiquidationActions,
+      {
+        gasPrice: Liquidator.gasPriceStore.getLastCalculatedGasPrice(),
+      }
+    );
+
+    await transaction.wait(5);
   } catch (error) {
     Logger.error({
       alert: "Critical error during liquidation attempt",
@@ -36,7 +41,7 @@ export default async function liquidateVault(
   }
 
   Logger.info({
-    at: "Liquidator#attemptLiquidations",
+    at: "Liquidator#liquidateVault",
     message: "Vault liquidated",
     liquidatedVaultOwnerAddress: vaultOwnerAddress,
     vaultId: vault.vaultId.toString(),
