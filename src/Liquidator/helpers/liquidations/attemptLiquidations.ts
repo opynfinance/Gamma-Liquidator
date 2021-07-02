@@ -10,6 +10,7 @@ import {
   fetchShortOtokenDetails,
   fetchShortOtokenInstrumentInfo,
   marginCalculatorContract,
+  setLatestLiquidatorVaultNonce,
 } from "../";
 import Liquidator from "../../index";
 import { Logger } from "../../../helpers";

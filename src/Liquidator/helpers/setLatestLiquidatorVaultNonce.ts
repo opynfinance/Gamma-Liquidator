@@ -6,7 +6,7 @@ import {
   Logger,
 } from "../../helpers";
 
-export default async function setInitialLiquidatorVaultNonce(
+export default async function setLatestLiquidatorVaultNonce(
   Liquidator: Liquidator
 ): Promise<void> {
   try {
@@ -19,16 +19,16 @@ export default async function setInitialLiquidatorVaultNonce(
     );
 
     Logger.info({
-      at: "Liquidator#setInitialLiquidatorVaultNonce",
-      message: "Latest Liquidator vault nonce initialized",
+      at: "Liquidator#setLatestLiquidatorVaultNonce",
+      message: "Latest Liquidator vault nonce set",
       vaultNonce: Liquidator.getLatestLiquidatorVaultNonce().toString(),
     });
   } catch (error) {
     Logger.error({
-      at: "Liquidator#setInitialLiquidatorVaultNonce",
+      at: "Liquidator#setLatestLiquidatorVaultNonce",
       message: error.message,
       error,
     });
-    setInitialLiquidatorVaultNonce(Liquidator);
+    setLatestLiquidatorVaultNonce(Liquidator);
   }
 }

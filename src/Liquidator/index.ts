@@ -7,7 +7,7 @@ import {
   checkAssetAllowances,
   checkEtherBalance,
   fetchLiquidatableVaults,
-  setInitialLiquidatorVaultNonce,
+  setLatestLiquidatorVaultNonce,
 } from "./helpers";
 import GasPriceStore from "../GasPriceStore";
 import PriceFeedStore from "../PriceFeedStore";
@@ -126,7 +126,7 @@ export default class Liquidator {
   _subscribe = async (): Promise<void> => {
     await checkAssetAllowances();
     await checkEtherBalance();
-    await setInitialLiquidatorVaultNonce(this);
+    await setLatestLiquidatorVaultNonce(this);
     await this._attemptLiquidations();
     await this._attemptSettlements(
       this.priceFeedStore.getLatestRoundData().updatedAt
