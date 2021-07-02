@@ -1,6 +1,6 @@
 import { BigNumber, utils } from "ethers";
 
-import { liquidatorAccount, Logger } from "../../helpers";
+import { liquidatorAccount, Logger } from "../../../helpers";
 
 export default async function checkEtherBalance(): Promise<void> {
   const liquidatorAccountBalance = await liquidatorAccount.getBalance();
