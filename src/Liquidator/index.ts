@@ -15,6 +15,7 @@ import VaultStore from "../VaultStore";
 import { Logger, provider } from "../helpers";
 
 export default class Liquidator {
+  public activeLiquidationState: boolean;
   public gasPriceStore: GasPriceStore;
   public latestLiquidatorVaultNonce: BigNumber;
   public priceFeedStore: PriceFeedStore;
@@ -25,6 +26,7 @@ export default class Liquidator {
     priceFeedStore: PriceFeedStore,
     vaultStore: VaultStore
   ) {
+    this.activeLiquidationState = false;
     this.gasPriceStore = gasPriceStore;
     this.latestLiquidatorVaultNonce = BigNumber.from(0);
     this.priceFeedStore = priceFeedStore;
@@ -35,10 +37,18 @@ export default class Liquidator {
     return this.latestLiquidatorVaultNonce;
   }
 
+  public getActiveLiquidationState(): boolean {
+    return this.activeLiquidationState;
+  }
+
   public setLatestLiquidatorVaultNonce(
     nextLatestLiquidatorVaultNonce: BigNumber
   ): void {
     this.latestLiquidatorVaultNonce = nextLatestLiquidatorVaultNonce;
+  }
+
+  public setActiveLiquidationState(activeLiquidationState: boolean): void {
+    this.activeLiquidationState = activeLiquidationState;
   }
 
   start = (): void => {
@@ -50,6 +60,8 @@ export default class Liquidator {
   };
 
   _attemptLiquidations = async (): Promise<void> => {
+    this.setActiveLiquidationState(true);
+
     try {
       await fetchLiquidatableVaults(this);
 
@@ -63,7 +75,8 @@ export default class Liquidator {
           at: "Liquidator#_attemptLiquidations",
           message: "No liquidatable vaults",
         });
-        return;
+
+        return this.setActiveLiquidationState(false);
       }
 
       Logger.info({
@@ -87,6 +100,8 @@ export default class Liquidator {
         error,
       });
     }
+
+    this.setActiveLiquidationState(false);
   };
 
   _attemptSettlements = async (updatedTimestamp: BigNumber): Promise<void> => {
@@ -173,7 +188,10 @@ export default class Liquidator {
     provider.on("block", async (blockNumber: BigNumber) => {
       try {
         await checkEtherBalance();
-        await this._attemptLiquidations();
+
+        if (this.getActiveLiquidationState() === false) {
+          await this._attemptLiquidations();
+        }
       } catch (error) {
         Logger.error({
           at: "Liquidator#_subscribeToNewBlocks",
