@@ -10,21 +10,24 @@ export default function setLiquidationVaultNonce(
     shortOtokenAddress,
   }: Liquidator["vaultStore"]["liquidatableVaults"][string][number]
 ): BigNumber {
+  const liquidatorVaultNonce = Liquidator.getLatestLiquidatorVaultNonce();
+
   if (settlementVaults[shortOtokenAddress]) {
-    return BigNumber.from(Object.keys(settlementVaults[shortOtokenAddress])[0]);
+    settlementVaults[shortOtokenAddress][`${liquidatorVaultNonce.toString()}`] =
+      {
+        expiryTimestamp,
+        shortAmount: BigNumber.from(0),
+      };
+  } else {
+    settlementVaults[shortOtokenAddress] = {
+      [`${liquidatorVaultNonce.toString()}`]: {
+        expiryTimestamp,
+        shortAmount: BigNumber.from(0),
+      },
+    };
   }
 
-  const liquidatorVaultNonce = Liquidator.latestLiquidatorVaultNonce;
-
-  settlementVaults[shortOtokenAddress] = {
-    [`${liquidatorVaultNonce.toString()}`]: {
-      expiryTimestamp,
-      shortAmount: BigNumber.from(0),
-    },
-  };
-
-  Liquidator.latestLiquidatorVaultNonce =
-    Liquidator.latestLiquidatorVaultNonce.add(1);
+  Liquidator.setLatestLiquidatorVaultNonce(liquidatorVaultNonce.add(1));
 
   return liquidatorVaultNonce;
 }
