@@ -5,7 +5,7 @@ import {
   attemptSettlements,
   calculateSettleableVaults,
   checkAssetAllowances,
-  checkEtherBalance,
+  checkAssetBalances,
   fetchLiquidatableVaults,
   setLatestLiquidatorVaultNonce,
 } from "./helpers";
@@ -140,7 +140,7 @@ export default class Liquidator {
 
   _subscribe = async (): Promise<void> => {
     await checkAssetAllowances();
-    await checkEtherBalance();
+    await checkAssetBalances();
     await setLatestLiquidatorVaultNonce(this);
     await this._attemptLiquidations();
     await this._attemptSettlements(
@@ -187,7 +187,7 @@ export default class Liquidator {
   _subscribeToNewBlocks = async (): Promise<void> => {
     provider.on("block", async (blockNumber: BigNumber) => {
       try {
-        await checkEtherBalance();
+        await checkAssetBalances();
 
         if (this.getActiveLiquidationState() === false) {
           await this._attemptLiquidations();

@@ -1,5 +1,5 @@
+export { checkAssetBalances } from "./balances";
 export { default as checkAssetAllowances } from "./checkAssetAllowances";
-export { default as checkEtherBalance } from "./checkEtherBalance";
 export { fetchDeribitBestAskPrice } from "./deribit";
 export {
   attemptLiquidations,

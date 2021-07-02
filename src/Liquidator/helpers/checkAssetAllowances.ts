@@ -1,21 +1,14 @@
-import { abi as erc20ABI } from "@studydefi/money-legos/erc20";
 import { router02 as uniswapV2Router02 } from "@studydefi/money-legos/uniswapV2";
-import { ethers } from "ethers";
 
 import {
   collateralCustodianAddress,
   liquidatorAccountAddress,
   Logger,
-  provider,
+  strikePriceAssetContract,
+  underlyingAssetContract,
 } from "../../helpers";
 
 export default async function checkAssetAllowances(): Promise<void> {
-  const underlyingAssetContract = new ethers.Contract(
-    process.env.UNDERLYING_ASSET_ADDRESS as string,
-    erc20ABI,
-    provider
-  );
-
   const underlyingAssetMarginPoolAllowance =
     await underlyingAssetContract.allowance(
       collateralCustodianAddress,
@@ -36,12 +29,6 @@ export default async function checkAssetAllowances(): Promise<void> {
 
     return;
   }
-
-  const strikePriceAssetContract = new ethers.Contract(
-    process.env.STRIKE_PRICE_ASSET_ADDRESS as string,
-    erc20ABI,
-    provider
-  );
 
   const strikePriceAssetMarginPoolAllowance =
     await strikePriceAssetContract.allowance(

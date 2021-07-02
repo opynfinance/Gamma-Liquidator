@@ -1,3 +1,4 @@
+import { abi as erc20ABI } from "@studydefi/money-legos/erc20";
 import { ethers } from "ethers";
 
 import chainlinkAggregatorABI from "./chainlinkAggregatorABI";
@@ -25,6 +26,18 @@ export const chainlinkAggregatorProxyContract = new ethers.Contract(
 export let gammaControllerProxyContract = new ethers.Contract(
   process.env.GAMMA_CONTROLLER_ADDRESS as string,
   gammaControllerABI,
+  provider
+);
+
+export const strikePriceAssetContract = new ethers.Contract(
+  process.env.STRIKE_PRICE_ASSET_ADDRESS as string,
+  erc20ABI,
+  provider
+);
+
+export const underlyingAssetContract = new ethers.Contract(
+  process.env.UNDERLYING_ASSET_ADDRESS as string,
+  erc20ABI,
   provider
 );
 
