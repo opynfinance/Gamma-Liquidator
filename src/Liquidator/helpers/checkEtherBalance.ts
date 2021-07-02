@@ -13,7 +13,9 @@ export default async function checkEtherBalance(): Promise<void> {
     Logger.error({
       at: "Liquidator#checkEtherBalance",
       message: "Liquidator account balance less than BOT_MINIMUM_ETHER_BALANCE",
-      BOT_MINIMUM_ETHER_BALANCE: process.env.BOT_MINIMUM_ETHER_BALANCE,
+      BOT_MINIMUM_ETHER_BALANCE: utils.formatUnits(
+        process.env.BOT_MINIMUM_ETHER_BALANCE as string
+      ),
       liquidatorAccountBalance: utils.formatUnits(liquidatorAccountBalance),
       error: Error(
         "Liquidator account balance less than BOT_MINIMUM_ETHER_BALANCE."
