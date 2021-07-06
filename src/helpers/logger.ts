@@ -50,7 +50,18 @@ if (process.env.SLACK_WEBHOOK) {
   transports.push(
     new SlackHook({
       level: "error",
-      formatter: (info) => {
+      formatter: (info: any) => {
+        delete info.level;
+        let filteredInfo = info;
+
+        if ((info.status && info.status === 503) || info.status === 504) {
+          const { message, ...rest } = filteredInfo;
+          filteredInfo = { at: filteredInfo.at, message };
+          filteredInfo = {
+            error: "Infura server error. Check https://status.infura.io/.",
+          };
+        }
+
         const stringifiedInfo = JSON.stringify(info, null, " ");
         const formattedInfo = stringifiedInfo.replace(/["{}]/g, "");
         return { text: formattedInfo };
