@@ -1,6 +1,10 @@
 import { BigNumber, utils } from "ethers";
 
-import { liquidatorAccount, Logger } from "../../../helpers";
+import {
+  liquidatorAccount,
+  liquidatorAccountAddress,
+  Logger,
+} from "../../../helpers";
 
 export default async function checkEtherBalance(): Promise<void> {
   const liquidatorAccountBalance = await liquidatorAccount.getBalance();
@@ -16,6 +20,7 @@ export default async function checkEtherBalance(): Promise<void> {
       BOT_MINIMUM_ETHER_BALANCE: utils.formatUnits(
         process.env.BOT_MINIMUM_ETHER_BALANCE as string
       ),
+      liquidatorAccountAddress,
       liquidatorAccountBalance: utils.formatUnits(liquidatorAccountBalance),
       error: Error(
         "Liquidator account balance less than BOT_MINIMUM_ETHER_BALANCE."
