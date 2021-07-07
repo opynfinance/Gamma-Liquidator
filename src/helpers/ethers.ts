@@ -1,16 +1,21 @@
 import { abi as erc20ABI } from "@studydefi/money-legos/erc20";
 import { ethers } from "ethers";
+import { existsSync, readFileSync } from "fs";
 
 import chainlinkAggregatorABI from "./chainlinkAggregatorABI";
 import gammaControllerABI from "./gammaControllerABI";
 import Logger from "./logger";
 
 if (!process.env.BOT_PRIVATE_KEY) {
-  Logger.error({
-    at: "ethers#loadLiquidatorAccount",
-    message: "BOT_PRIVATE_KEY is not provided",
-    error: Error("BOT_PRIVATE_KEY is not provided."),
-  });
+  if (!existsSync("./.privateKey")) {
+    Logger.error({
+      at: "ethers#loadLiquidatorAccount",
+      message: "BOT_PRIVATE_KEY is not provided",
+      error: Error("BOT_PRIVATE_KEY is not provided."),
+    });
+  }
+
+  process.env.BOT_PRIVATE_KEY = readFileSync("./.privateKey", "utf-8");
 }
 
 export const provider = new ethers.providers.JsonRpcProvider(
