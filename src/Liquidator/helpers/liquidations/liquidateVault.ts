@@ -34,8 +34,8 @@ export default async function liquidateVault(
       alert: "Critical error during liquidation attempt",
       at: "Liquidator#liquidateVault",
       message: error.message,
+      liquidatableVaultOwner: vaultOwnerAddress,
       roundId: vault.roundId.toString(),
-      undercollateralizedVaultOwner: vaultOwnerAddress,
       vaultId: vault.vaultId.toString(),
     });
   }

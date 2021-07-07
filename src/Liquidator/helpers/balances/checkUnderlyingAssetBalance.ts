@@ -25,10 +25,12 @@ export default async function checkUnderlyingAssetBalance(): Promise<void> {
         process.env.BOT_MINIMUM_UNDERLYING_ASSET_BALANCE as string,
         underlyingAssetDecimals
       ),
+      liquidatorAccountAddress,
       liquidatorAccountBalance: utils.formatUnits(
         liquidatorAccountUnderlyingAssetBalance,
         underlyingAssetDecimals
       ),
+      underlyingAssetAddress: process.env.UNDERLYING_ASSET_ADDRESS,
       error: Error(
         "Liquidator account underyling asset balance less than BOT_MINIMUM_UNDERLYING_ASSET_BALANCE."
       ),

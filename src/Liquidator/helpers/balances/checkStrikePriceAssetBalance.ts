@@ -25,10 +25,12 @@ export default async function checkStrikePriceAssetBalance(): Promise<void> {
         process.env.BOT_MINIMUM_STRIKE_PRICE_ASSET_BALANCE as string,
         strikePriceAssetDecimals
       ),
+      liquidatorAccountAddress,
       liquidatorAccountBalance: utils.formatUnits(
         liquidatorAccountStrikePriceAssetBalance,
         strikePriceAssetDecimals
       ),
+      strikePriceAssetAddress: process.env.STRIKE_PRICE_ASSET_ADDRESS,
       error: Error(
         "Liquidator account balance less than BOT_MINIMUM_STRIKE_PRICE_ASSET_BALANCE."
       ),
