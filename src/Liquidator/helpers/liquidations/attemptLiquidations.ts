@@ -12,6 +12,7 @@ import {
   marginCalculatorContract,
   setLatestLiquidatorVaultNonce,
 } from "../";
+import { checkCollateralAssetBalance } from "../balances";
 import Liquidator from "../../index";
 import { Logger } from "../../../helpers";
 
@@ -94,6 +95,12 @@ export default async function attemptLiquidations(
             collateralAssetDecimals,
             isPutOption
           )) * 2;
+
+        await checkCollateralAssetBalance(
+          collateralAssetNakedMarginRequirement,
+          liquidatableVaultOwner,
+          vault
+        );
 
         const liquidatorVaultNonce = await setLiquidationVaultNonce(
           expiryTimestamp,
