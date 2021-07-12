@@ -1,5 +1,6 @@
 import { BigNumber } from "ethers";
 
+import slackWebhook from "./slackWebhook";
 import Liquidator from "../../index";
 import { gammaControllerProxyContract, Logger } from "../../../helpers";
 
@@ -50,10 +51,7 @@ export default async function fetchLiquidatableVaults(
               );
           } catch (error) {
             // assume false
-            return;
           }
-
-          if (!isUnderCollateralized) return;
 
           const liquidatableVaults =
             Liquidator.vaultStore.getLiquidatableVaults();
@@ -66,10 +64,39 @@ export default async function fetchLiquidatableVaults(
                   vault.latestAuctionPrice
                 );
                 vault.roundId = BigNumber.from(vault.roundId);
+                vault.undercollateralizedTimestamp = BigNumber.from(
+                  vault.undercollateralizedTimestamp
+                );
                 vault.vaultId = BigNumber.from(vault.vaultId);
 
                 if (vaultId.eq(vault.vaultId)) {
                   vaultPresent = true;
+
+                  if (!isUnderCollateralized) {
+                    vault.undercollateralizedTimestamp = BigNumber.from(
+                      Date.now()
+                    );
+                    return;
+                  }
+
+                  if (
+                    process.env.MONITOR_SYSTEM_SOLVENCY &&
+                    Math.floor(Date.now() / 1000) -
+                      Math.floor(
+                        vault.undercollateralizedTimestamp.toNumber() / 1000
+                      ) >=
+                      60 * 30
+                  ) {
+                    await slackWebhook.send({
+                      text: `\nWarning: Vault liquidatable, but unliquidated for longer than 30 minutes.\n\nvaultOwner: ${vaultOwnerAddress}\nvaultId ${vaultId.toString()}\nestimated time undercollateralized: ${
+                        (Math.floor(Date.now() / 1000) -
+                          Math.floor(
+                            vault.undercollateralizedTimestamp.toNumber() / 1000
+                          )) /
+                        60
+                      } minutes`,
+                    });
+                  }
 
                   if (!roundId.eq(vault.roundId)) {
                     const [, oldRoundIdRecalculatedAuctionPrice] =
@@ -106,6 +133,8 @@ export default async function fetchLiquidatableVaults(
             );
 
             if (!vaultPresent) {
+              if (!isUnderCollateralized) return;
+
               liquidatableVaults[vaultOwnerAddress].push({
                 collateralAssetAddress,
                 latestAuctionPrice: currentRoundIdCalculatedAuctionPrice,
@@ -113,6 +142,7 @@ export default async function fetchLiquidatableVaults(
                 roundId,
                 shortAmount,
                 shortOtokenAddress,
+                undercollateralizedTimestamp: BigNumber.from(Date.now()),
                 vaultId,
               });
 
@@ -125,6 +155,8 @@ export default async function fetchLiquidatableVaults(
               liquidatableVaults
             );
           } else {
+            if (!isUnderCollateralized) return;
+
             liquidatableVaults[vaultOwnerAddress] = [
               {
                 collateralAssetAddress,
@@ -133,6 +165,7 @@ export default async function fetchLiquidatableVaults(
                 roundId,
                 shortAmount,
                 shortOtokenAddress,
+                undercollateralizedTimestamp: BigNumber.from(Date.now()),
                 vaultId,
               },
             ];

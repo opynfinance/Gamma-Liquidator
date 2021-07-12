@@ -7,6 +7,7 @@ export interface ILiquidatableVault {
   roundId: BigNumber;
   shortAmount: BigNumber;
   shortOtokenAddress: string;
+  undercollateralizedTimestamp: BigNumber;
   vaultId: BigNumber;
 }
 
