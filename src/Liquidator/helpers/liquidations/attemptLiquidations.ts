@@ -3,6 +3,7 @@ import { BigNumber } from "ethers";
 import liquidateVault from "./liquidateVault";
 import prepareCallCollateral from "./prepareCallCollateral";
 import setLiquidationVaultNonce from "./setLiquidationVaultNonce";
+import slackWebhook from "./slackWebhook";
 import {
   calculateLiquidationTransactionCost,
   fetchCollateralAssetDecimals,
@@ -164,11 +165,28 @@ export default async function attemptLiquidations(
               vaultOwnerAddress: liquidatableVaultOwner,
             });
           }
+
+          if (
+            process.env.MONITOR_SYSTEM_SOLVENCY &&
+            vault.latestAuctionPrice.toNumber() /
+              10 ** collateralAssetDecimals <
+              estimatedLiquidationTransactionCost
+          ) {
+            await slackWebhook.send({
+              text: `\nWarning: Vault liquidatable, but not profitable to liquidate.\n\nvaultOwner: ${liquidatableVaultOwner}\nvaultId: ${vault.vaultId.toString()}\nvault latestAuctionPrice (denominated in USD): $${
+                vault.latestAuctionPrice.toNumber() /
+                10 ** collateralAssetDecimals
+              }\nestimated vault collateral value (denominated in USD): $${
+                vault.latestAuctionPrice.toNumber() /
+                10 ** collateralAssetDecimals
+              }\nestimated liquidation transaction cost (gas cost, denominated in USD): $${estimatedLiquidationTransactionCost}`,
+            });
+          }
         }
 
         // call option
         if (
-          (((vault.latestAuctionPrice.toString() as any) /
+          ((vault.latestAuctionPrice.toNumber() /
             10 ** collateralAssetDecimals) *
             vault.latestUnderlyingAssetPrice.toNumber()) /
             10 ** 8 >
@@ -187,6 +205,31 @@ export default async function attemptLiquidations(
             vaultOwnerAddress: liquidatableVaultOwner,
           });
         }
+
+        if (
+          process.env.MONITOR_SYSTEM_SOLVENCY &&
+          ((vault.latestAuctionPrice.toNumber() /
+            10 ** collateralAssetDecimals) *
+            vault.latestUnderlyingAssetPrice.toNumber()) /
+            10 ** 8 <
+            estimatedLiquidationTransactionCost
+        ) {
+          await slackWebhook.send({
+            text: `\nWarning: Vault liquidatable, but not profitable to liquidate.\n\nvaultOwner: ${liquidatableVaultOwner}\nvaultId: ${vault.vaultId.toString()}\nvault latestAuctionPrice (denominated in collateral asset): ${
+              vault.latestAuctionPrice.toNumber() /
+              10 ** collateralAssetDecimals
+            }\nlatestUnderlyingAssetPrice: $${
+              vault.latestUnderlyingAssetPrice.toNumber() / 10 ** 8
+            }\nestimated vault collateral value (denominated in USD): $${
+              ((vault.latestAuctionPrice.toNumber() /
+                10 ** collateralAssetDecimals) *
+                vault.latestUnderlyingAssetPrice.toNumber()) /
+              10 ** 8
+            } \nestimated liquidation transaction cost (gas cost, denominated in USD): $${estimatedLiquidationTransactionCost}`,
+          });
+        }
+
+        return await setLatestLiquidatorVaultNonce(Liquidator);
       } catch (error) {
         Logger.error({
           alert: "Critical error during liquidation attempt",
