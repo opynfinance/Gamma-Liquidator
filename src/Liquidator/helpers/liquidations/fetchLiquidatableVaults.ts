@@ -107,9 +107,9 @@ export default async function fetchLiquidatableVaults(
 
             if (!vaultPresent) {
               liquidatableVaults[vaultOwnerAddress].push({
+                collateralAssetAddress,
                 latestAuctionPrice: currentRoundIdCalculatedAuctionPrice,
                 latestUnderlyingAssetPrice: answer,
-                collateralAssetAddress,
                 roundId,
                 shortAmount,
                 shortOtokenAddress,
@@ -127,9 +127,9 @@ export default async function fetchLiquidatableVaults(
           } else {
             liquidatableVaults[vaultOwnerAddress] = [
               {
+                collateralAssetAddress,
                 latestAuctionPrice: currentRoundIdCalculatedAuctionPrice,
                 latestUnderlyingAssetPrice: answer,
-                collateralAssetAddress,
                 roundId,
                 shortAmount,
                 shortOtokenAddress,
