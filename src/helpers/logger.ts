@@ -54,15 +54,20 @@ if (process.env.SLACK_WEBHOOK) {
         delete info.level;
         let filteredInfo = info;
 
-        if ((info.status && info.status === 503) || info.status === 504) {
+        if (
+          info.error &&
+          info.error.code &&
+          info.error.code === "SERVER_ERROR"
+        ) {
           const { message, ...rest } = filteredInfo;
           filteredInfo = { at: filteredInfo.at, message };
           filteredInfo = {
+            ...rest,
             error: "Infura server error. Check https://status.infura.io/.",
           };
         }
 
-        const stringifiedInfo = JSON.stringify(info, null, " ");
+        const stringifiedInfo = JSON.stringify(filteredInfo, null, " ");
         const formattedInfo = stringifiedInfo.replace(/["{}]/g, "");
         return { text: formattedInfo };
       },
