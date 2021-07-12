@@ -1,9 +1,9 @@
-import { IncomingWebhook } from "@slack/webhook";
 import { BigNumber } from "ethers";
 
 import liquidateVault from "./liquidateVault";
 import prepareCallCollateral from "./prepareCallCollateral";
 import setLiquidationVaultNonce from "./setLiquidationVaultNonce";
+import slackWebhook from "./slackWebhook";
 import {
   calculateLiquidationTransactionCost,
   fetchCollateralAssetDecimals,
@@ -16,8 +16,6 @@ import {
 import { checkCollateralAssetBalance } from "../balances";
 import Liquidator from "../../index";
 import { Logger } from "../../../helpers";
-
-const slackWebhook = new IncomingWebhook(process.env.SLACK_WEBHOOK as string);
 
 export default async function attemptLiquidations(
   liquidatableVaultOwners: string[],
