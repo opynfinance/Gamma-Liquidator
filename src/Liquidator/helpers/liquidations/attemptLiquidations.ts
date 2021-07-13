@@ -45,6 +45,7 @@ export default async function attemptLiquidations(
           vault.collateralAssetAddress
         );
 
+        vault.collateralAmount = BigNumber.from(vault.collateralAmount);
         vault.latestAuctionPrice = BigNumber.from(vault.latestAuctionPrice);
         vault.latestUnderlyingAssetPrice = BigNumber.from(
           vault.latestUnderlyingAssetPrice
@@ -152,6 +153,17 @@ export default async function attemptLiquidations(
             Number(process.env.MINIMUM_LIQUIDATION_PRICE)
           );
 
+        const estimatedTotalCostToLiquidateInUSD =
+          ((deribitBestAskPrice +
+            Math.max(
+              Number(process.env.DERIBIT_PRICE_MULTIPLIER) *
+                deribitBestAskPrice,
+              Number(process.env.MINIMUM_LIQUIDATION_PRICE)
+            )) *
+            vault.shortAmount.toNumber()) /
+            10 ** 8 +
+          estimatedLiquidationTransactionCost;
+
         if (isPutOption) {
           if (
             vault.latestAuctionPrice.toNumber() /
@@ -166,70 +178,65 @@ export default async function attemptLiquidations(
             });
           }
 
+          if (process.env.MONITOR_SYSTEM_SOLVENCY) {
+            if (
+              estimatedTotalCostToLiquidateInUSD >
+              vault.collateralAmount.toNumber() / 10 ** collateralAssetDecimals
+            ) {
+              await slackWebhook.send({
+                text: `\nWarning: Vault insolvent. Not profitable to liquidate.\n\nvaultOwner: ${liquidatableVaultOwner}\nvaultId: ${vault.vaultId.toString()}\nestimated total cost to liquidate (denominated in USD): $${estimatedTotalCostToLiquidateInUSD}\nvault collateral value (denominated in USD): $${
+                  vault.collateralAmount.toNumber() /
+                  10 ** collateralAssetDecimals
+                }\nput vault: true`,
+              });
+            }
+          }
+
+          return await setLatestLiquidatorVaultNonce(Liquidator);
+        } else {
+          // call option
           if (
-            process.env.MONITOR_SYSTEM_SOLVENCY &&
-            vault.latestAuctionPrice.toNumber() /
-              10 ** collateralAssetDecimals <
-              estimatedLiquidationTransactionCost
+            ((vault.latestAuctionPrice.toNumber() /
+              10 ** collateralAssetDecimals) *
+              vault.latestUnderlyingAssetPrice.toNumber()) /
+              10 ** 8 >
+            estimatedCostToLiquidateInUSD
           ) {
-            await slackWebhook.send({
-              text: `\nWarning: Vault liquidatable, but not profitable to liquidate.\n\nvaultOwner: ${liquidatableVaultOwner}\nvaultId: ${vault.vaultId.toString()}\nvault latestAuctionPrice (denominated in USD): $${
-                vault.latestAuctionPrice.toNumber() /
-                10 ** collateralAssetDecimals
-              }\nestimated vault collateral value (denominated in USD): $${
-                vault.latestAuctionPrice.toNumber() /
-                10 ** collateralAssetDecimals
-              }\nestimated liquidation transaction cost (gas cost, denominated in USD): $${estimatedLiquidationTransactionCost}`,
+            await prepareCallCollateral(Liquidator, {
+              collateralAssetDecimals,
+              collateralAssetNakedMarginRequirement,
+              vaultLatestUnderlyingAssetPrice: vault.latestUnderlyingAssetPrice,
+            });
+
+            return await liquidateVault(Liquidator, {
+              collateralToDeposit: collateralAssetNakedMarginRequirement,
+              liquidatorVaultNonce,
+              vault,
+              vaultOwnerAddress: liquidatableVaultOwner,
             });
           }
-        }
 
-        // call option
-        if (
-          ((vault.latestAuctionPrice.toNumber() /
-            10 ** collateralAssetDecimals) *
-            vault.latestUnderlyingAssetPrice.toNumber()) /
-            10 ** 8 >
-          estimatedCostToLiquidateInUSD
-        ) {
-          await prepareCallCollateral(Liquidator, {
-            collateralAssetDecimals,
-            collateralAssetNakedMarginRequirement,
-            vaultLatestUnderlyingAssetPrice: vault.latestUnderlyingAssetPrice,
-          });
-
-          return await liquidateVault(Liquidator, {
-            collateralToDeposit: collateralAssetNakedMarginRequirement,
-            liquidatorVaultNonce,
-            vault,
-            vaultOwnerAddress: liquidatableVaultOwner,
-          });
-        }
-
-        if (
-          process.env.MONITOR_SYSTEM_SOLVENCY &&
-          ((vault.latestAuctionPrice.toNumber() /
-            10 ** collateralAssetDecimals) *
-            vault.latestUnderlyingAssetPrice.toNumber()) /
-            10 ** 8 <
-            estimatedLiquidationTransactionCost
-        ) {
-          await slackWebhook.send({
-            text: `\nWarning: Vault liquidatable, but not profitable to liquidate.\n\nvaultOwner: ${liquidatableVaultOwner}\nvaultId: ${vault.vaultId.toString()}\nvault latestAuctionPrice (denominated in collateral asset): ${
-              vault.latestAuctionPrice.toNumber() /
-              10 ** collateralAssetDecimals
-            }\nlatestUnderlyingAssetPrice: $${
-              vault.latestUnderlyingAssetPrice.toNumber() / 10 ** 8
-            }\nestimated vault collateral value (denominated in USD): $${
-              ((vault.latestAuctionPrice.toNumber() /
+          if (process.env.MONITOR_SYSTEM_SOLVENCY) {
+            if (
+              estimatedTotalCostToLiquidateInUSD >
+              ((vault.collateralAmount.toNumber() /
                 10 ** collateralAssetDecimals) *
                 vault.latestUnderlyingAssetPrice.toNumber()) /
-              10 ** 8
-            } \nestimated liquidation transaction cost (gas cost, denominated in USD): $${estimatedLiquidationTransactionCost}`,
-          });
-        }
+                10 ** 8
+            ) {
+              await slackWebhook.send({
+                text: `\nWarning: Vault insolvent. Not profitable to liquidate.\n\nvaultOwner: ${liquidatableVaultOwner}\nvaultId: ${vault.vaultId.toString()}\nestimated total cost to liquidate (denominated in USD): $${estimatedTotalCostToLiquidateInUSD}\nvault collateral value (denominated in USD): $${
+                  ((vault.collateralAmount.toNumber() /
+                    10 ** collateralAssetDecimals) *
+                    vault.latestUnderlyingAssetPrice.toNumber()) /
+                  10 ** 8
+                }\nput vault: false`,
+              });
+            }
+          }
 
-        return await setLatestLiquidatorVaultNonce(Liquidator);
+          return await setLatestLiquidatorVaultNonce(Liquidator);
+        }
       } catch (error) {
         Logger.error({
           alert: "Critical error during liquidation attempt",

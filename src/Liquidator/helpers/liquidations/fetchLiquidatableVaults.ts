@@ -29,6 +29,8 @@ export default async function fetchLiquidatableVaults(
             // here we check if the vault is no longer short
             return;
 
+          // currently only one collateral asset per vault
+          const collateralAmount = vaultDetails.collateralAmounts[0];
           // currently only one collateralAsset address per vault
           const collateralAssetAddress = vaultDetails.collateralAssets[0];
           // currently only one short position per vault
@@ -60,6 +62,7 @@ export default async function fetchLiquidatableVaults(
             let vaultPresent = false;
             await Promise.all(
               liquidatableVaults[vaultOwnerAddress].map(async (vault) => {
+                vault.collateralAmount = BigNumber.from(vault.collateralAmount);
                 vault.latestAuctionPrice = BigNumber.from(
                   vault.latestAuctionPrice
                 );
@@ -136,6 +139,7 @@ export default async function fetchLiquidatableVaults(
               if (!isUnderCollateralized) return;
 
               liquidatableVaults[vaultOwnerAddress].push({
+                collateralAmount,
                 collateralAssetAddress,
                 latestAuctionPrice: currentRoundIdCalculatedAuctionPrice,
                 latestUnderlyingAssetPrice: answer,
@@ -159,6 +163,7 @@ export default async function fetchLiquidatableVaults(
 
             liquidatableVaults[vaultOwnerAddress] = [
               {
+                collateralAmount,
                 collateralAssetAddress,
                 latestAuctionPrice: currentRoundIdCalculatedAuctionPrice,
                 latestUnderlyingAssetPrice: answer,
