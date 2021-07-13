@@ -68,6 +68,10 @@ export default async function attemptLiquidations(
             (deribitBestAskPrice *
               vault.latestUnderlyingAssetPrice.toNumber()) /
             10 ** 8;
+
+          if (deribitBestAskPrice === 0) {
+            optionExistsOnDeribit = false;
+          }
         } catch (error) {
           if (error.message.includes("best_ask_price")) {
             optionExistsOnDeribit = false;
