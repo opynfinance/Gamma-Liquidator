@@ -54,7 +54,7 @@ export default async function attemptLiquidations(
         vault.shortAmount = BigNumber.from(vault.shortAmount);
         vault.vaultId = BigNumber.from(vault.vaultId);
 
-        let aggressiveLiquidationMode = false,
+        let optionExistsOnDeribit = true,
           deribitBestAskPrice = 0;
 
         try {
@@ -70,7 +70,7 @@ export default async function attemptLiquidations(
             10 ** 8;
         } catch (error) {
           if (error.message.includes("best_ask_price")) {
-            aggressiveLiquidationMode = true;
+            optionExistsOnDeribit = false;
           } else {
             Logger.error({
               alert: "Critical error when fetching Deribit best ask price",
@@ -111,29 +111,41 @@ export default async function attemptLiquidations(
           vault
         );
 
-        if (aggressiveLiquidationMode) {
-          if (isPutOption) {
-            return await liquidateVault(Liquidator, {
-              collateralToDeposit: collateralAssetNakedMarginRequirement,
-              liquidatorVaultNonce,
-              vault,
-              vaultOwnerAddress: liquidatableVaultOwner,
-            });
-          } else {
-            // call option
-            await prepareCallCollateral(Liquidator, {
-              collateralAssetDecimals,
-              collateralAssetNakedMarginRequirement,
-              vaultLatestUnderlyingAssetPrice: vault.latestUnderlyingAssetPrice,
-            });
+        if (!optionExistsOnDeribit) {
+          if (
+            vault.latestAuctionPrice
+              .mul(vault.shortAmount)
+              .div(vault.collateralAmount)
+              .toNumber() /
+              1e8 >
+            Number(process.env.MINIMUM_COLLATERAL_TO_LIQUIDATE_FOR)
+          ) {
+            if (isPutOption) {
+              return await liquidateVault(Liquidator, {
+                collateralToDeposit: collateralAssetNakedMarginRequirement,
+                liquidatorVaultNonce,
+                vault,
+                vaultOwnerAddress: liquidatableVaultOwner,
+              });
+            } else {
+              // call option
+              await prepareCallCollateral(Liquidator, {
+                collateralAssetDecimals,
+                collateralAssetNakedMarginRequirement,
+                vaultLatestUnderlyingAssetPrice:
+                  vault.latestUnderlyingAssetPrice,
+              });
 
-            return await liquidateVault(Liquidator, {
-              collateralToDeposit: collateralAssetNakedMarginRequirement,
-              liquidatorVaultNonce,
-              vault,
-              vaultOwnerAddress: liquidatableVaultOwner,
-            });
+              return await liquidateVault(Liquidator, {
+                collateralToDeposit: collateralAssetNakedMarginRequirement,
+                liquidatorVaultNonce,
+                vault,
+                vaultOwnerAddress: liquidatableVaultOwner,
+              });
+            }
           }
+
+          return;
         }
 
         const estimatedLiquidationTransactionCost =
