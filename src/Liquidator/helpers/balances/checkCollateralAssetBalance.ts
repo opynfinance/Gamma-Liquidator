@@ -5,7 +5,7 @@ import Liquidator from "../..";
 import { liquidatorAccountAddress, Logger, provider } from "../../../helpers";
 
 export default async function checkCollateralAssetBalance(
-  collateralAssetNakedMarginRequirement: BigNumber,
+  collateralAssetMarginRequirement: BigNumber,
   liquidatableVaultOwner: string,
   {
     collateralAssetAddress,
@@ -22,9 +22,7 @@ export default async function checkCollateralAssetBalance(
     await collateralAssetContract.balanceOf(liquidatorAccountAddress);
 
   if (
-    liquidatorAccountCollateralAssetBalance.lt(
-      collateralAssetNakedMarginRequirement
-    )
+    liquidatorAccountCollateralAssetBalance.lt(collateralAssetMarginRequirement)
   ) {
     const collateralAssetDecimals = await collateralAssetContract.decimals();
 
@@ -33,8 +31,8 @@ export default async function checkCollateralAssetBalance(
       message:
         "Liquidator account collateral asset balance less than liquidation collateral asset naked margin requirement",
       collateralAssetAddress,
-      collateralAssetNakedMarginRequirement: utils.formatUnits(
-        collateralAssetNakedMarginRequirement,
+      collateralAssetMarginRequirement: utils.formatUnits(
+        collateralAssetMarginRequirement,
         collateralAssetDecimals
       ),
       liquidatorAccountAddress,
