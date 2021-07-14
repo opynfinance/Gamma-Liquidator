@@ -32,14 +32,8 @@ export default async function attemptLiquidations(
           vault.shortOtokenAddress
         );
 
-        const [
-          ,
-          underlyingAssetAddress,
-          strikeAssetAddress,
-          strikePrice,
-          expiryTimestamp,
-          isPutOption,
-        ] = await fetchShortOtokenDetails(vault.shortOtokenAddress);
+        const [, , , , expiryTimestamp, isPutOption] =
+          await fetchShortOtokenDetails(vault.shortOtokenAddress);
 
         const collateralAssetDecimals: any = await fetchCollateralAssetDecimals(
           vault.collateralAssetAddress
@@ -89,21 +83,21 @@ export default async function attemptLiquidations(
           }
         }
 
-        const collateralAssetNakedMarginRequirement: any =
-          (await marginCalculatorContract.getNakedMarginRequired(
-            underlyingAssetAddress,
-            strikeAssetAddress,
-            vault.collateralAssetAddress,
-            vault.shortAmount,
-            strikePrice,
-            vault.latestUnderlyingAssetPrice,
-            expiryTimestamp,
-            collateralAssetDecimals,
-            isPutOption
-          )) * 2;
+        const [, collateralAssetMarginRequirement]: any =
+          await marginCalculatorContract.getMarginRequired(
+            {
+              collateralAmounts: [vault.collateralAmount],
+              collateralAssets: [vault.collateralAssetAddress],
+              longAmounts: [],
+              longOtokens: [],
+              shortAmounts: [vault.shortAmount],
+              shortOtokens: [vault.shortOtokenAddress],
+            },
+            0
+          );
 
         await checkCollateralAssetBalance(
-          collateralAssetNakedMarginRequirement,
+          collateralAssetMarginRequirement,
           liquidatableVaultOwner,
           vault
         );
@@ -126,7 +120,7 @@ export default async function attemptLiquidations(
           ) {
             if (isPutOption) {
               return await liquidateVault(Liquidator, {
-                collateralToDeposit: collateralAssetNakedMarginRequirement,
+                collateralToDeposit: collateralAssetMarginRequirement,
                 liquidatorVaultNonce,
                 vault,
                 vaultOwnerAddress: liquidatableVaultOwner,
@@ -135,13 +129,13 @@ export default async function attemptLiquidations(
               // call option
               await prepareCallCollateral(Liquidator, {
                 collateralAssetDecimals,
-                collateralAssetNakedMarginRequirement,
+                collateralAssetMarginRequirement,
                 vaultLatestUnderlyingAssetPrice:
                   vault.latestUnderlyingAssetPrice,
               });
 
               return await liquidateVault(Liquidator, {
-                collateralToDeposit: collateralAssetNakedMarginRequirement,
+                collateralToDeposit: collateralAssetMarginRequirement,
                 liquidatorVaultNonce,
                 vault,
                 vaultOwnerAddress: liquidatableVaultOwner,
@@ -154,7 +148,7 @@ export default async function attemptLiquidations(
 
         const estimatedLiquidationTransactionCost =
           await calculateLiquidationTransactionCost({
-            collateralToDeposit: collateralAssetNakedMarginRequirement,
+            collateralToDeposit: collateralAssetMarginRequirement,
             gasPriceStore: Liquidator.gasPriceStore,
             liquidatorVaultNonce,
             vault,
@@ -187,7 +181,7 @@ export default async function attemptLiquidations(
             estimatedCostToLiquidateInUSD
           ) {
             return await liquidateVault(Liquidator, {
-              collateralToDeposit: collateralAssetNakedMarginRequirement,
+              collateralToDeposit: collateralAssetMarginRequirement,
               liquidatorVaultNonce,
               vault,
               vaultOwnerAddress: liquidatableVaultOwner,
@@ -220,12 +214,12 @@ export default async function attemptLiquidations(
           ) {
             await prepareCallCollateral(Liquidator, {
               collateralAssetDecimals,
-              collateralAssetNakedMarginRequirement,
+              collateralAssetMarginRequirement,
               vaultLatestUnderlyingAssetPrice: vault.latestUnderlyingAssetPrice,
             });
 
             return await liquidateVault(Liquidator, {
-              collateralToDeposit: collateralAssetNakedMarginRequirement,
+              collateralToDeposit: collateralAssetMarginRequirement,
               liquidatorVaultNonce,
               vault,
               vaultOwnerAddress: liquidatableVaultOwner,

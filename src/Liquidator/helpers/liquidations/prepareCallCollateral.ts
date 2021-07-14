@@ -14,7 +14,7 @@ export default async function prepareCallCollateral(
   Liquidator: Liquidator,
   {
     collateralAssetDecimals,
-    collateralAssetNakedMarginRequirement: collateralAmountNeededToPurchase,
+    collateralAssetMarginRequirement: collateralAmountNeededToPurchase,
     vaultLatestUnderlyingPrice,
   }: Record<string, BigNumber>
 ): Promise<void> {
