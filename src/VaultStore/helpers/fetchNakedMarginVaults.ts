@@ -22,7 +22,7 @@ export default async function fetchNakedMarginVaults(): Promise<INakedMarginVaul
   const nakedMarginVaultQuery = JSON.stringify({
     query: `
       {
-        vaults(where: { owner_not: "${liquidatorAccountAddress}" type: 1 }) {
+        vaults(where: { owner_not: "${liquidatorAccountAddress.toLowerCase()}" type: 1 }) {
           owner {
             address: id
             }

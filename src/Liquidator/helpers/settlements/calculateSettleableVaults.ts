@@ -7,13 +7,13 @@ export default function calculateSettleableVaults(
   updatedTimestamp: BigNumber
 ): Liquidator["vaultStore"]["settleableVaults"] {
   const settlementVaults = vaultStore.getSettlementVaults();
-  const settledShortOtokens = Object.keys(settlementVaults);
+  const settlementVaultNonces = Object.keys(settlementVaults);
   const settleableVaults = vaultStore.getSettleableVaults();
 
-  for (const settledShortOtoken of settledShortOtokens) {
-    const settlementVault = settlementVaults[settledShortOtoken];
-    const settlementVaultNonce = Object.keys(settlementVault)[0];
-    const settlementDetails = settlementVault[settlementVaultNonce];
+  for (const settlementVaultNonce of settlementVaultNonces) {
+    const settlementVault = settlementVaults[settlementVaultNonce];
+    const shortOtokenAddress = Object.keys(settlementVault)[0];
+    const settlementDetails = settlementVault[shortOtokenAddress];
 
     if (
       updatedTimestamp.gt(settlementDetails.expiryTimestamp) &&

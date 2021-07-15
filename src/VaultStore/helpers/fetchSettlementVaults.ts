@@ -22,7 +22,7 @@ export default async function fetchSettlementVaults(): Promise<ISettlementVaults
   const settlementVaultQuery = JSON.stringify({
     query: `
       {
-        vaults(where: { owner: "${liquidatorAccountAddress}" shortOToken_not: null type: 1 }) {
+        vaults(where: { owner: "${liquidatorAccountAddress.toLowerCase()}" shortOToken_not: null shortAmount_gt: "0" type: 1 }) {
           shortAmount
           shortOToken {
             address: id
@@ -58,8 +58,8 @@ export default async function fetchSettlementVaults(): Promise<ISettlementVaults
       ) => {
         return {
           ...settlementVaults,
-          [address]: {
-            [vaultId]: {
+          [vaultId]: {
+            [address]: {
               expiryTimestamp: BigNumber.from(expiryTimestamp),
               shortAmount: BigNumber.from(shortAmount),
             },
