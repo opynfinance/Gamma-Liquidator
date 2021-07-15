@@ -1,6 +1,10 @@
 export { checkAssetBalances } from "./balances";
 export { default as checkAssetAllowances } from "./checkAssetAllowances";
-export { fetchDeribitBestAskPrice } from "./deribit";
+export {
+  fetchDeribitBestAskPrice,
+  fetchDeribitDelta,
+  fetchDeribitMarkPrice,
+} from "./deribit";
 export {
   attemptLiquidations,
   calculateLiquidationTransactionCost,
