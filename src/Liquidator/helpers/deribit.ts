@@ -28,6 +28,26 @@ export async function fetchDeribitBestAskPrice({
   ).result.best_ask_price;
 }
 
+export async function fetchDeribitDelta({
+  expiryDate,
+  optionType,
+  strikePrice,
+  underlyingAsset,
+}: Record<string, string>): Promise<number> {
+  return (
+    await (
+      await fetch(
+        generateDeribitUrl({
+          expiryDate,
+          optionType,
+          strikePrice,
+          underlyingAsset,
+        })
+      )
+    ).json()
+  ).result.greeks.delta;
+}
+
 export async function fetchDeribitETHIndexPrice(): Promise<number> {
   return (
     await (
@@ -36,4 +56,24 @@ export async function fetchDeribitETHIndexPrice(): Promise<number> {
       )
     ).json()
   ).result.index_price;
+}
+
+export async function fetchDeribitMarkPrice({
+  expiryDate,
+  optionType,
+  strikePrice,
+  underlyingAsset,
+}: Record<string, string>): Promise<number> {
+  return (
+    await (
+      await fetch(
+        generateDeribitUrl({
+          expiryDate,
+          optionType,
+          strikePrice,
+          underlyingAsset,
+        })
+      )
+    ).json()
+  ).result.mark_price;
 }

@@ -8,6 +8,8 @@ import {
   calculateLiquidationTransactionCost,
   fetchCollateralAssetDecimals,
   fetchDeribitBestAskPrice,
+  fetchDeribitDelta,
+  fetchDeribitMarkPrice,
   fetchShortOtokenDetails,
   fetchShortOtokenInstrumentInfo,
   marginCalculatorContract,
@@ -49,11 +51,11 @@ export default async function attemptLiquidations(
         vault.vaultId = BigNumber.from(vault.vaultId);
 
         let optionExistsOnDeribit = true,
-          deribitBestAskPrice = 0;
+          calculatedDeribitPrice = 0;
 
         try {
           // returned in underlying
-          deribitBestAskPrice = await fetchDeribitBestAskPrice({
+          let deribitBestAskPrice = await fetchDeribitBestAskPrice({
             ...shortOtokenInstrumentInfo,
             underlyingAsset,
           });
@@ -63,9 +65,41 @@ export default async function attemptLiquidations(
               vault.latestUnderlyingAssetPrice.toNumber()) /
             10 ** 8;
 
+          // returned in underlying
+          const deribitDelta = await fetchDeribitDelta({
+            ...shortOtokenInstrumentInfo,
+            underlyingAsset,
+          });
+
+          const calculatedMaxSpread =
+            Number(process.env.DERIBIT_MAX_SPREAD_MULTIPLIER) *
+            Math.max(
+              Number(process.env.DERIBIT_MIN_SPREAD),
+              Number(process.env.DERIBIT_MAX_SPREAD) * deribitDelta
+            );
+
+          // returned in underlying
+          const deribitMarkPrice = await fetchDeribitMarkPrice({
+            ...shortOtokenInstrumentInfo,
+            underlyingAsset,
+          });
+
+          let calculatedMarkPrice =
+            deribitMarkPrice * (calculatedMaxSpread / 2);
+
+          calculatedMarkPrice =
+            (calculatedMarkPrice *
+              vault.latestUnderlyingAssetPrice.toNumber()) /
+            10 ** 8;
+
           if (deribitBestAskPrice === 0) {
-            optionExistsOnDeribit = false;
+            deribitBestAskPrice = calculatedMarkPrice;
           }
+
+          calculatedDeribitPrice = Math.min(
+            calculatedMarkPrice,
+            deribitBestAskPrice
+          );
         } catch (error) {
           if (error.message.includes("best_ask_price")) {
             optionExistsOnDeribit = false;
@@ -156,18 +190,19 @@ export default async function attemptLiquidations(
           });
 
         const estimatedCostToLiquidateInUSD =
-          deribitBestAskPrice +
+          calculatedDeribitPrice +
           estimatedLiquidationTransactionCost +
           Math.max(
-            Number(process.env.DERIBIT_PRICE_MULTIPLIER) * deribitBestAskPrice,
+            Number(process.env.DERIBIT_PRICE_MULTIPLIER) *
+              calculatedDeribitPrice,
             Number(process.env.MINIMUM_LIQUIDATION_PRICE)
           );
 
         const estimatedTotalCostToLiquidateInUSD =
-          ((deribitBestAskPrice +
+          ((calculatedDeribitPrice +
             Math.max(
               Number(process.env.DERIBIT_PRICE_MULTIPLIER) *
-                deribitBestAskPrice,
+                calculatedDeribitPrice,
               Number(process.env.MINIMUM_LIQUIDATION_PRICE)
             )) *
             vault.shortAmount.toNumber()) /
