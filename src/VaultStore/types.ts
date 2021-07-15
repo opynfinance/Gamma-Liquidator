@@ -30,9 +30,9 @@ export interface ISettlementDetails {
 }
 
 export interface ISettlementVaults {
-  [shortOtokenAddress: string]: ISettlementVault;
+  [settlementVaultNonce: string]: ISettlementVault;
 }
 
 export interface ISettlementVault {
-  [settlementVaultNonce: string]: ISettlementDetails;
+  [shortOtokenAddress: string]: ISettlementDetails;
 }

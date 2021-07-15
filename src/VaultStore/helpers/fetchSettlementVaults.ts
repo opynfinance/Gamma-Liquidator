@@ -58,8 +58,8 @@ export default async function fetchSettlementVaults(): Promise<ISettlementVaults
       ) => {
         return {
           ...settlementVaults,
-          [address]: {
-            [vaultId]: {
+          [vaultId]: {
+            [address]: {
               expiryTimestamp: BigNumber.from(expiryTimestamp),
               shortAmount: BigNumber.from(shortAmount),
             },
