@@ -189,15 +189,6 @@ export default async function attemptLiquidations(
             vaultOwnerAddress: liquidatableVaultOwner,
           });
 
-        const estimatedCostToLiquidateInUSD =
-          calculatedDeribitPrice +
-          estimatedLiquidationTransactionCost +
-          Math.max(
-            Number(process.env.DERIBIT_PRICE_MULTIPLIER) *
-              calculatedDeribitPrice,
-            Number(process.env.MINIMUM_LIQUIDATION_PRICE)
-          );
-
         const estimatedTotalCostToLiquidateInUSD =
           ((calculatedDeribitPrice +
             Math.max(
@@ -211,9 +202,11 @@ export default async function attemptLiquidations(
 
         if (isPutOption) {
           if (
-            vault.latestAuctionPrice.toNumber() /
-              10 ** collateralAssetDecimals >
-            estimatedCostToLiquidateInUSD
+            ((vault.latestAuctionPrice.toNumber() /
+              10 ** collateralAssetDecimals) *
+              vault.shortAmount.toNumber()) /
+              10 ** 8 >
+            estimatedTotalCostToLiquidateInUSD
           ) {
             return await liquidateVault(Liquidator, {
               collateralToDeposit: collateralAssetMarginRequirement,
@@ -241,11 +234,13 @@ export default async function attemptLiquidations(
         } else {
           // call option
           if (
-            ((vault.latestAuctionPrice.toNumber() /
+            ((((vault.latestAuctionPrice.toNumber() /
               10 ** collateralAssetDecimals) *
+              vault.shortAmount.toNumber()) /
+              10 ** 8) *
               vault.latestUnderlyingAssetPrice.toNumber()) /
               10 ** 8 >
-            estimatedCostToLiquidateInUSD
+            estimatedTotalCostToLiquidateInUSD
           ) {
             await prepareCallCollateral(Liquidator, {
               collateralAssetDecimals,
