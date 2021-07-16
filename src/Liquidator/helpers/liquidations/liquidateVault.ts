@@ -1,5 +1,4 @@
 import { generateMintAndLiquidateActions } from "../";
-import { updateSettlementStore } from "../settlements";
 import Liquidator from "../..";
 import { IMintAndLiquidateArgs } from "../../types";
 import { gammaControllerProxyContract, Logger } from "../../../helpers";
@@ -54,6 +53,4 @@ export default async function liquidateVault(
   ].filter((storedVault) => !storedVault.vaultId.eq(vault.vaultId));
 
   await Liquidator.vaultStore.writeLiquidatableVaultsToDisk(liquidatableVaults);
-
-  return updateSettlementStore(Liquidator, liquidatorVaultNonce, vault);
 }
