@@ -24,7 +24,6 @@ export default async function attemptLiquidations(
   liquidatableVaults: Liquidator["vaultStore"]["liquidatableVaults"],
   Liquidator: Liquidator
 ): Promise<void> {
-  const settlementVaults = Liquidator.vaultStore.getSettlementVaults();
   const underlyingAsset = Liquidator.priceFeedStore.getUnderlyingAsset();
 
   for await (const liquidatableVaultOwner of liquidatableVaultOwners) {
@@ -136,12 +135,7 @@ export default async function attemptLiquidations(
           vault
         );
 
-        const liquidatorVaultNonce = await setLiquidationVaultNonce(
-          expiryTimestamp,
-          Liquidator,
-          settlementVaults,
-          vault
-        );
+        const liquidatorVaultNonce = await setLiquidationVaultNonce(Liquidator);
 
         if (!optionExistsOnDeribit) {
           if (
