@@ -155,7 +155,7 @@ export default class Liquidator {
 
     try {
       this._subscribeToNewBlocks();
-      this._subscribeToChainlinkTimestampUpdate();
+      this._subscribeToSettlementVaultsUpdate();
     } catch (error) {
       Logger.error({
         at: "Liquidator#_subscribe",
@@ -166,22 +166,22 @@ export default class Liquidator {
     }
   };
 
-  _subscribeToChainlinkTimestampUpdate = async (): Promise<void> => {
-    process.on(
-      "chainlinkTimestampUpdate",
-      async (updatedTimestamp: BigNumber) => {
-        try {
-          await this._attemptSettlements(updatedTimestamp);
-        } catch (error) {
-          Logger.error({
-            at: "Liquidator#_subscribeToChainlinkTimestampUpdate",
-            message: error.message,
-            updatedTimestamp: updatedTimestamp.toString(),
-            error,
-          });
-        }
+  _subscribeToSettlementVaultsUpdate = async (): Promise<void> => {
+    process.on("settlementVaultsUpdate", async () => {
+      const updatedTimestamp =
+        this.priceFeedStore.getLatestRoundData().updatedAt;
+
+      try {
+        await this._attemptSettlements(updatedTimestamp);
+      } catch (error) {
+        Logger.error({
+          at: "Liquidator#_subscribeToSettlementVaultsUpdate",
+          message: error.message,
+          updatedTimestamp: updatedTimestamp.toString(),
+          error,
+        });
       }
-    );
+    });
   };
 
   _subscribeToNewBlocks = async (): Promise<void> => {
