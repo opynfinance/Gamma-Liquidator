@@ -83,7 +83,7 @@ export default class VaultStore {
 
       Logger.info({
         at: "VaultStore#_fetchSettlementVaults",
-        message: "Settlement vault store initialized",
+        message: "Settlement vault store updated",
         numberOfSettlementVaults: Object.values(this.settlementVaults).flat()
           .length,
       });
@@ -122,6 +122,7 @@ export default class VaultStore {
 
     try {
       this._subscribeToOpenedNakedMarginVaultEvents();
+      this._subscribeToFetchSettlementVaultTimer();
     } catch (error) {
       Logger.error({
         at: "VaultStore#_subscribe",
@@ -132,6 +133,14 @@ export default class VaultStore {
       });
       this._subscribe();
     }
+  };
+
+  _subscribeToFetchSettlementVaultTimer = async (): Promise<void> => {
+    setInterval(async () => {
+      await this._fetchSettlementVaults();
+
+      (process.emit as NodeJS.EventEmitter["emit"])("settlementVaultsUpdate");
+    }, 86400000); // 24 hours
   };
 
   _subscribeToOpenedNakedMarginVaultEvents = async (): Promise<void> => {
