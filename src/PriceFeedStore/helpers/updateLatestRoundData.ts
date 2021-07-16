@@ -15,11 +15,6 @@ export default async function updateLatestRoundData(
     updatedAt,
   });
 
-  (process.emit as NodeJS.EventEmitter["emit"])(
-    "chainlinkTimestampUpdate",
-    updatedAt
-  );
-
   Logger.info({
     at: "PriceFeedStore#_subscribeToAnswerUpdatedEvents",
     message: "Price feed store updated",
