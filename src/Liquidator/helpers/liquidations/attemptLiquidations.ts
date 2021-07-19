@@ -27,7 +27,7 @@ export default async function attemptLiquidations(
   const underlyingAsset = Liquidator.priceFeedStore.getUnderlyingAsset();
 
   for await (const liquidatableVaultOwner of liquidatableVaultOwners) {
-    liquidatableVaults[liquidatableVaultOwner].map(async (vault) => {
+    for await (const vault of liquidatableVaults[liquidatableVaultOwner]) {
       try {
         const shortOtokenInstrumentInfo = await fetchShortOtokenInstrumentInfo(
           vault.shortOtokenAddress
@@ -297,6 +297,6 @@ export default async function attemptLiquidations(
 
         return await setLatestLiquidatorVaultNonce(Liquidator);
       }
-    });
+    }
   }
 }
