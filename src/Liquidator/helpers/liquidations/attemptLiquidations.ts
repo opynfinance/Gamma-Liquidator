@@ -10,7 +10,6 @@ import {
   fetchDeribitBestAskPrice,
   fetchDeribitDelta,
   fetchDeribitMarkPrice,
-  fetchShortOtokenDetails,
   fetchShortOtokenInstrumentInfo,
   marginCalculatorContract,
   setLatestLiquidatorVaultNonce,

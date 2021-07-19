@@ -14,7 +14,6 @@ export {
 } from "./liquidations";
 export {
   fetchCollateralAssetDecimals,
-  fetchShortOtokenDetails,
   fetchShortOtokenInstrumentInfo,
 } from "./oTokenDetails";
 export { default as setLatestLiquidatorVaultNonce } from "./setLatestLiquidatorVaultNonce";
