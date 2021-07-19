@@ -16,18 +16,6 @@ export async function fetchCollateralAssetDecimals(
   return collateralAssetContract.decimals();
 }
 
-export async function fetchShortOtokenDetails(
-  shortOtokenAddress: string
-): Promise<any> {
-  const shortOtokenContract = new ethers.Contract(
-    shortOtokenAddress,
-    oTokenABI,
-    provider
-  );
-
-  return shortOtokenContract.getOtokenDetails();
-}
-
 export async function fetchShortOtokenInstrumentInfo(
   shortOtokenAddress: string
 ): Promise<any> {

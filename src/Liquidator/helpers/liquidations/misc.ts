@@ -18,7 +18,7 @@ export const generateMintAndLiquidateActions = ({
   liquidatorVaultNonce,
   vault,
   vaultOwnerAddress,
-}: IMintAndLiquidateArgs) => [
+}: IMintAndLiquidateArgs): any => [
   {
     actionType: ActionType.OpenVault,
     owner: liquidatorAccountAddress,

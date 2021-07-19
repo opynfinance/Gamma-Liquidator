@@ -10,7 +10,6 @@ import {
   fetchDeribitBestAskPrice,
   fetchDeribitDelta,
   fetchDeribitMarkPrice,
-  fetchShortOtokenDetails,
   fetchShortOtokenInstrumentInfo,
   marginCalculatorContract,
   setLatestLiquidatorVaultNonce,
@@ -27,14 +26,13 @@ export default async function attemptLiquidations(
   const underlyingAsset = Liquidator.priceFeedStore.getUnderlyingAsset();
 
   for await (const liquidatableVaultOwner of liquidatableVaultOwners) {
-    liquidatableVaults[liquidatableVaultOwner].map(async (vault) => {
+    for await (const vault of liquidatableVaults[liquidatableVaultOwner]) {
       try {
         const shortOtokenInstrumentInfo = await fetchShortOtokenInstrumentInfo(
           vault.shortOtokenAddress
         );
 
-        const [, , , , expiryTimestamp, isPutOption] =
-          await fetchShortOtokenDetails(vault.shortOtokenAddress);
+        const isPutOption = shortOtokenInstrumentInfo.optionType === "P";
 
         const collateralAssetDecimals: any = await fetchCollateralAssetDecimals(
           vault.collateralAssetAddress
@@ -116,7 +114,7 @@ export default async function attemptLiquidations(
           }
         }
 
-        const [, collateralAssetMarginRequirement]: any =
+        let [, collateralAssetMarginRequirement]: any =
           await marginCalculatorContract.getMarginRequired(
             {
               collateralAmounts: [vault.collateralAmount],
@@ -129,8 +127,13 @@ export default async function attemptLiquidations(
             0
           );
 
+        collateralAssetMarginRequirement =
+          (collateralAssetMarginRequirement / 1e27) *
+          10 ** collateralAssetDecimals;
+
         await checkCollateralAssetBalance(
           collateralAssetMarginRequirement,
+          collateralAssetDecimals,
           liquidatableVaultOwner,
           vault
         );
@@ -292,6 +295,6 @@ export default async function attemptLiquidations(
 
         return await setLatestLiquidatorVaultNonce(Liquidator);
       }
-    });
+    }
   }
 }
