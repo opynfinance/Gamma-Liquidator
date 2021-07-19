@@ -131,6 +131,7 @@ export default async function attemptLiquidations(
 
         await checkCollateralAssetBalance(
           collateralAssetMarginRequirement,
+          collateralAssetDecimals,
           liquidatableVaultOwner,
           vault
         );

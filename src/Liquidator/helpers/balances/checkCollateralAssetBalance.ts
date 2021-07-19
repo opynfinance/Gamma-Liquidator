@@ -5,7 +5,8 @@ import Liquidator from "../..";
 import { liquidatorAccountAddress, Logger, provider } from "../../../helpers";
 
 export default async function checkCollateralAssetBalance(
-  collateralAssetMarginRequirement: BigNumber,
+  collateralAssetMarginRequirement: number,
+  collateralAssetDecimals: BigNumber,
   liquidatableVaultOwner: string,
   {
     collateralAssetAddress,
@@ -24,8 +25,6 @@ export default async function checkCollateralAssetBalance(
   if (
     liquidatorAccountCollateralAssetBalance.lt(collateralAssetMarginRequirement)
   ) {
-    const collateralAssetDecimals = await collateralAssetContract.decimals();
-
     Logger.error({
       at: "Liquidator#checkCollateralAssetBalance",
       message:
