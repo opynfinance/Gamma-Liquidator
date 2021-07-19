@@ -17,7 +17,7 @@ export default async function operateTransaction(
     await gammaControllerProxyContract.provider.waitForTransaction(
       transaction.hash,
       undefined,
-      60000 // 60 seconds
+      Number(process.env.EXPIRED_TRANSACTION_TIMEOUT) // default 60 seconds
     );
 
     return;
