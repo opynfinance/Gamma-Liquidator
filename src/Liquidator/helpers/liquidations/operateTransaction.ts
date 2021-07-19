@@ -17,7 +17,7 @@ export default async function operateTransaction(
     await gammaControllerProxyContract.provider.waitForTransaction(
       transaction.hash,
       undefined,
-      60000 // 60 seconds
+      Number(process.env.EXPIRED_TRANSACTION_TIMEOUT) // default 60 seconds
     );
 
     return;
@@ -26,7 +26,8 @@ export default async function operateTransaction(
     await operateTransaction(
       transactionParams,
       gasPriceStore,
-      (gasPriceStore.getLastCalculatedGasPrice() as any) * 1.1
+      (gasPriceStore.getLastCalculatedGasPrice() as any) *
+        Number(process.env.EXPIRED_TRANSACTION_GAS_PRICE_MULTIPLIER) // default 1.1x
     );
   }
 }

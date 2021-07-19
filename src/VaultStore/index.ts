@@ -140,7 +140,7 @@ export default class VaultStore {
       await this._fetchSettlementVaults();
 
       (process.emit as NodeJS.EventEmitter["emit"])("settlementVaultsUpdate");
-    }, 86400000); // 24 hours
+    }, Number(process.env.SETTLEMENT_FREQUENCY)); // default 24 hours
   };
 
   _subscribeToOpenedNakedMarginVaultEvents = async (): Promise<void> => {
