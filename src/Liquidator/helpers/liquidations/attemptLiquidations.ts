@@ -116,7 +116,7 @@ export default async function attemptLiquidations(
           }
         }
 
-        const [, collateralAssetMarginRequirement]: any =
+        let [, collateralAssetMarginRequirement]: any =
           await marginCalculatorContract.getMarginRequired(
             {
               collateralAmounts: [vault.collateralAmount],
@@ -128,6 +128,10 @@ export default async function attemptLiquidations(
             },
             0
           );
+
+        collateralAssetMarginRequirement =
+          (collateralAssetMarginRequirement / 1e27) *
+          10 ** collateralAssetDecimals;
 
         await checkCollateralAssetBalance(
           collateralAssetMarginRequirement,
