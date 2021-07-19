@@ -1,7 +1,8 @@
+import operateTransaction from "./operateTransaction";
 import { generateMintAndLiquidateActions } from "../";
 import Liquidator from "../..";
 import { IMintAndLiquidateArgs } from "../../types";
-import { gammaControllerProxyContract, Logger } from "../../../helpers";
+import { Logger } from "../../../helpers";
 
 export default async function liquidateVault(
   Liquidator: Liquidator,
@@ -11,7 +12,7 @@ export default async function liquidateVault(
     vault,
     vaultOwnerAddress,
   }: IMintAndLiquidateArgs
-): Promise<any> {
+): Promise<void> {
   const mintAndLiquidationActions = generateMintAndLiquidateActions({
     collateralToDeposit,
     liquidatorVaultNonce,
@@ -20,14 +21,11 @@ export default async function liquidateVault(
   });
 
   try {
-    const transaction = await gammaControllerProxyContract.operate(
+    await operateTransaction(
       mintAndLiquidationActions,
-      {
-        gasPrice: Liquidator.gasPriceStore.getLastCalculatedGasPrice(),
-      }
+      Liquidator.gasPriceStore,
+      Liquidator.gasPriceStore.getLastCalculatedGasPrice().toNumber()
     );
-
-    await transaction.wait(5);
   } catch (error) {
     Logger.error({
       alert: "Critical error during liquidation attempt",
@@ -37,6 +35,8 @@ export default async function liquidateVault(
       roundId: vault.roundId.toString(),
       vaultId: vault.vaultId.toString(),
     });
+
+    return;
   }
 
   Logger.info({
