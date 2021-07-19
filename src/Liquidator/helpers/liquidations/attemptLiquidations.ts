@@ -33,8 +33,7 @@ export default async function attemptLiquidations(
           vault.shortOtokenAddress
         );
 
-        const [, , , , expiryTimestamp, isPutOption] =
-          await fetchShortOtokenDetails(vault.shortOtokenAddress);
+        const isPutOption = shortOtokenInstrumentInfo.optionType === "P";
 
         const collateralAssetDecimals: any = await fetchCollateralAssetDecimals(
           vault.collateralAssetAddress
