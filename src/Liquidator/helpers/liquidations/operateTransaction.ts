@@ -26,7 +26,8 @@ export default async function operateTransaction(
     await operateTransaction(
       transactionParams,
       gasPriceStore,
-      (gasPriceStore.getLastCalculatedGasPrice() as any) * 1.1
+      (gasPriceStore.getLastCalculatedGasPrice() as any) *
+        Number(process.env.EXPIRED_TRANSACTION_GAS_PRICE_MULTIPLIER) // default 1.1x
     );
   }
 }
