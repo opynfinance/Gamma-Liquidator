@@ -14,7 +14,7 @@ export default async function checkStrikePriceAssetBalance(): Promise<void> {
 
   if (
     strikePriceAssetBalance.lt(
-      BigNumber.from(process.env.BOT_MINIMUM_STRIKE_PRICE_ASSET_BALANCE)
+      BigNumber.from(process.env.MINIMUM_STRIKE_PRICE_ASSET_BALANCE)
     )
   ) {
     const strikePriceAssetDecimals = await strikePriceAssetContract.decimals();
@@ -23,9 +23,9 @@ export default async function checkStrikePriceAssetBalance(): Promise<void> {
       Logger.error({
         at: "Liquidator#checkStrikePriceAssetBalance",
         message:
-          "Collateral custodian strike price asset balance less than BOT_MINIMUM_STRIKE_PRICE_ASSET_BALANCE",
-        BOT_MINIMUM_STRIKE_PRICE_ASSET_BALANCE: utils.formatUnits(
-          process.env.BOT_MINIMUM_STRIKE_PRICE_ASSET_BALANCE as string,
+          "Collateral custodian strike price asset balance less than MINIMUM_STRIKE_PRICE_ASSET_BALANCE",
+        MINIMUM_STRIKE_PRICE_ASSET_BALANCE: utils.formatUnits(
+          process.env.MINIMUM_STRIKE_PRICE_ASSET_BALANCE as string,
           strikePriceAssetDecimals
         ),
         collateralCustodianAddress,
@@ -35,7 +35,7 @@ export default async function checkStrikePriceAssetBalance(): Promise<void> {
         ),
         strikePriceAssetAddress: process.env.STRIKE_PRICE_ASSET_ADDRESS,
         error: Error(
-          "Collateral custodian strike price asset balance less than BOT_MINIMUM_STRIKE_PRICE_ASSET_BALANCE."
+          "Collateral custodian strike price asset balance less than MINIMUM_STRIKE_PRICE_ASSET_BALANCE."
         ),
       });
 
@@ -45,9 +45,9 @@ export default async function checkStrikePriceAssetBalance(): Promise<void> {
     Logger.error({
       at: "Liquidator#checkStrikePriceAssetBalance",
       message:
-        "Liquidator account strike price asset balance less than BOT_MINIMUM_STRIKE_PRICE_ASSET_BALANCE",
-      BOT_MINIMUM_STRIKE_PRICE_ASSET_BALANCE: utils.formatUnits(
-        process.env.BOT_MINIMUM_STRIKE_PRICE_ASSET_BALANCE as string,
+        "Liquidator account strike price asset balance less than MINIMUM_STRIKE_PRICE_ASSET_BALANCE",
+      MINIMUM_STRIKE_PRICE_ASSET_BALANCE: utils.formatUnits(
+        process.env.MINIMUM_STRIKE_PRICE_ASSET_BALANCE as string,
         strikePriceAssetDecimals
       ),
       liquidatorAccountAddress,
@@ -57,7 +57,7 @@ export default async function checkStrikePriceAssetBalance(): Promise<void> {
       ),
       strikePriceAssetAddress: process.env.STRIKE_PRICE_ASSET_ADDRESS,
       error: Error(
-        "Liquidator account strike price asset balance less than BOT_MINIMUM_STRIKE_PRICE_ASSET_BALANCE."
+        "Liquidator account strike price asset balance less than MINIMUM_STRIKE_PRICE_ASSET_BALANCE."
       ),
     });
   }

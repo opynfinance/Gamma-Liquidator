@@ -14,7 +14,7 @@ export default async function checkUnderlyingAssetBalance(): Promise<void> {
 
   if (
     underlyingAssetBalance.lt(
-      BigNumber.from(process.env.BOT_MINIMUM_UNDERLYING_ASSET_BALANCE)
+      BigNumber.from(process.env.MINIMUM_UNDERLYING_ASSET_BALANCE)
     )
   ) {
     const underlyingAssetDecimals = await underlyingAssetContract.decimals();
@@ -23,9 +23,9 @@ export default async function checkUnderlyingAssetBalance(): Promise<void> {
       Logger.error({
         at: "Liquidator#checkUnderlyingAssetBalance",
         message:
-          "Collateral custodian underlying asset balance less than BOT_MINIMUM_UNDERLYING_ASSET_BALANCE",
-        BOT_MINIMUM_UNDERYLING_ASSET_BALANCE: utils.formatUnits(
-          process.env.BOT_MINIMUM_UNDERLYING_ASSET_BALANCE as string,
+          "Collateral custodian underlying asset balance less than MINIMUM_UNDERLYING_ASSET_BALANCE",
+        MINIMUM_UNDERYLING_ASSET_BALANCE: utils.formatUnits(
+          process.env.MINIMUM_UNDERLYING_ASSET_BALANCE as string,
           underlyingAssetDecimals
         ),
         collateralCustodianAddress,
@@ -35,7 +35,7 @@ export default async function checkUnderlyingAssetBalance(): Promise<void> {
         ),
         underlyingAssetAddress: process.env.UNDERLYING_ASSET_ADDRESS,
         error: Error(
-          "Collateral custodian underlying asset balance less than BOT_MINIMUM_UNDERLYING_ASSET_BALANCE."
+          "Collateral custodian underlying asset balance less than MINIMUM_UNDERLYING_ASSET_BALANCE."
         ),
       });
 
@@ -45,9 +45,9 @@ export default async function checkUnderlyingAssetBalance(): Promise<void> {
     Logger.error({
       at: "Liquidator#checkUnderlyingAssetBalance",
       message:
-        "Liquidator account underlying asset balance less than BOT_MINIMUM_UNDERLYING_ASSET_BALANCE",
-      BOT_MINIMUM_UNDERYLING_ASSET_BALANCE: utils.formatUnits(
-        process.env.BOT_MINIMUM_UNDERLYING_ASSET_BALANCE as string,
+        "Liquidator account underlying asset balance less than MINIMUM_UNDERLYING_ASSET_BALANCE",
+      MINIMUM_UNDERYLING_ASSET_BALANCE: utils.formatUnits(
+        process.env.MINIMUM_UNDERLYING_ASSET_BALANCE as string,
         underlyingAssetDecimals
       ),
       liquidatorAccountAddress,
@@ -57,7 +57,7 @@ export default async function checkUnderlyingAssetBalance(): Promise<void> {
       ),
       underlyingAssetAddress: process.env.UNDERLYING_ASSET_ADDRESS,
       error: Error(
-        "Liquidator account underlying asset balance less than BOT_MINIMUM_UNDERLYING_ASSET_BALANCE."
+        "Liquidator account underlying asset balance less than MINIMUM_UNDERLYING_ASSET_BALANCE."
       ),
     });
   }
