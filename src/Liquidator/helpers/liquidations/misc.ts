@@ -7,7 +7,6 @@ import { fetchDeribitETHIndexPrice } from "../deribit";
 import { IMintAndLiquidateArgs } from "../../types";
 import GasPriceStore from "../../../GasPriceStore";
 import {
-  collateralCustodianAddress,
   gammaControllerProxyContract,
   liquidatorAccountAddress,
   provider,
@@ -52,7 +51,7 @@ export const generateMintAndLiquidateActions = ({
   {
     actionType: ActionType.DepositCollateral,
     owner: liquidatorAccountAddress,
-    secondAddress: collateralCustodianAddress,
+    secondAddress: liquidatorAccountAddress,
     asset: vault.collateralAssetAddress,
     vaultId: liquidatorVaultNonce.toString(),
     amount: collateralToDeposit.toString(),
