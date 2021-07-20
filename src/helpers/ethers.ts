@@ -1,9 +1,7 @@
-import { abi as erc20ABI } from "@studydefi/money-legos/erc20";
 import { ethers } from "ethers";
 import { existsSync, readFileSync } from "fs";
 
-import chainlinkAggregatorABI from "./chainlinkAggregatorABI";
-import gammaControllerABI from "./gammaControllerABI";
+import { chainlinkAggregatorABI, erc20ABI, gammaControllerABI } from "./abis";
 import Logger from "./logger";
 
 if (!process.env.BOT_PRIVATE_KEY) {
