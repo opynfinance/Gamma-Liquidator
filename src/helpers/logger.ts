@@ -54,17 +54,22 @@ if (process.env.SLACK_WEBHOOK) {
         delete info.level;
         let filteredInfo = info;
 
-        if (
-          info.error &&
-          info.error.code &&
-          info.error.code === "SERVER_ERROR"
-        ) {
-          const { message, ...rest } = filteredInfo;
-          filteredInfo = { at: filteredInfo.at, message };
-          filteredInfo = {
-            ...rest,
-            error: "Infura server error. Check https://status.infura.io/.",
-          };
+        if (info.error && info.error.code) {
+          if (
+            info.error.code === "SERVER_ERROR" ||
+            info.error.code === "TIMEOUT"
+          ) {
+            const { message, ...rest } = filteredInfo;
+            filteredInfo = { at: filteredInfo.at, message };
+            filteredInfo = {
+              ...rest,
+              error: `Infura ${
+                info.error.code === `SERVER_ERROR`
+                  ? `server error`
+                  : `request timeout`
+              }. Check https://status.infura.io/.`,
+            };
+          }
         }
 
         const stringifiedInfo = JSON.stringify(filteredInfo, null, " ");
