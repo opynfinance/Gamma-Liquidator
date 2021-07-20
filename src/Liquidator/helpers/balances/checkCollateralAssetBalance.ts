@@ -1,8 +1,12 @@
-import { abi as erc20ABI } from "@studydefi/money-legos/erc20";
 import { BigNumber, ethers, utils } from "ethers";
 
 import Liquidator from "../..";
-import { liquidatorAccountAddress, Logger, provider } from "../../../helpers";
+import {
+  erc20ABI,
+  liquidatorAccountAddress,
+  Logger,
+  provider,
+} from "../../../helpers";
 
 export default async function checkCollateralAssetBalance(
   collateralAssetMarginRequirement: number,
