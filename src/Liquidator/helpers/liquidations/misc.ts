@@ -7,7 +7,6 @@ import { fetchDeribitETHIndexPrice } from "../deribit";
 import { IMintAndLiquidateArgs } from "../../types";
 import GasPriceStore from "../../../GasPriceStore";
 import {
-  collateralCustodianAddress,
   gammaControllerProxyContract,
   liquidatorAccountAddress,
   provider,
@@ -52,7 +51,7 @@ export const generateMintAndLiquidateActions = ({
   {
     actionType: ActionType.DepositCollateral,
     owner: liquidatorAccountAddress,
-    secondAddress: collateralCustodianAddress,
+    secondAddress: liquidatorAccountAddress,
     asset: vault.collateralAssetAddress,
     vaultId: liquidatorVaultNonce.toString(),
     amount: collateralToDeposit.toString(),
@@ -76,11 +75,13 @@ export async function calculateLiquidationTransactionCost({
   });
 
   return (
-    (((
-      await gammaControllerProxyContract.estimateGas.operate(
-        mintAndLiquidationActions
-      )
-    ).toNumber() *
+    (((process.env.COLLATERAL_CUSTODIAN_ADDRESS
+      ? 624875 // temp super hack for internal purposes
+      : (
+          await gammaControllerProxyContract.estimateGas.operate(
+            mintAndLiquidationActions
+          )
+        ).toNumber()) *
       gasPriceStore.getLastCalculatedGasPrice().toNumber()) /
       10 ** 18) * // Ether has 18 decimals, gas is calculated in wei
     (await fetchDeribitETHIndexPrice())

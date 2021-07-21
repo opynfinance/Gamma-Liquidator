@@ -1,38 +1,63 @@
 import { BigNumber, utils } from "ethers";
 
 import {
+  collateralCustodianAddress,
   liquidatorAccountAddress,
   Logger,
   underlyingAssetContract,
 } from "../../../helpers";
 
 export default async function checkUnderlyingAssetBalance(): Promise<void> {
-  const liquidatorAccountUnderlyingAssetBalance =
-    await underlyingAssetContract.balanceOf(liquidatorAccountAddress);
+  const underlyingAssetBalance = await underlyingAssetContract.balanceOf(
+    collateralCustodianAddress
+  );
 
   if (
-    liquidatorAccountUnderlyingAssetBalance.lt(
-      BigNumber.from(process.env.BOT_MINIMUM_UNDERLYING_ASSET_BALANCE)
+    underlyingAssetBalance.lt(
+      BigNumber.from(process.env.MINIMUM_UNDERLYING_ASSET_BALANCE)
     )
   ) {
     const underlyingAssetDecimals = await underlyingAssetContract.decimals();
 
+    if (collateralCustodianAddress !== liquidatorAccountAddress) {
+      Logger.error({
+        at: "Liquidator#checkUnderlyingAssetBalance",
+        message:
+          "Collateral custodian underlying asset balance less than MINIMUM_UNDERLYING_ASSET_BALANCE",
+        MINIMUM_UNDERYLING_ASSET_BALANCE: utils.formatUnits(
+          process.env.MINIMUM_UNDERLYING_ASSET_BALANCE as string,
+          underlyingAssetDecimals
+        ),
+        collateralCustodianAddress,
+        collateralCustodianBalance: utils.formatUnits(
+          underlyingAssetBalance,
+          underlyingAssetDecimals
+        ),
+        underlyingAssetAddress: process.env.UNDERLYING_ASSET_ADDRESS,
+        error: Error(
+          "Collateral custodian underlying asset balance less than MINIMUM_UNDERLYING_ASSET_BALANCE."
+        ),
+      });
+
+      return;
+    }
+
     Logger.error({
       at: "Liquidator#checkUnderlyingAssetBalance",
       message:
-        "Liquidator account underlying asset balance less than BOT_MINIMUM_UNDERLYING_ASSET_BALANCE",
-      BOT_MINIMUM_UNDERYLING_ASSET_BALANCE: utils.formatUnits(
-        process.env.BOT_MINIMUM_UNDERLYING_ASSET_BALANCE as string,
+        "Liquidator account underlying asset balance less than MINIMUM_UNDERLYING_ASSET_BALANCE",
+      MINIMUM_UNDERYLING_ASSET_BALANCE: utils.formatUnits(
+        process.env.MINIMUM_UNDERLYING_ASSET_BALANCE as string,
         underlyingAssetDecimals
       ),
       liquidatorAccountAddress,
       liquidatorAccountBalance: utils.formatUnits(
-        liquidatorAccountUnderlyingAssetBalance,
+        underlyingAssetBalance,
         underlyingAssetDecimals
       ),
       underlyingAssetAddress: process.env.UNDERLYING_ASSET_ADDRESS,
       error: Error(
-        "Liquidator account underyling asset balance less than BOT_MINIMUM_UNDERLYING_ASSET_BALANCE."
+        "Liquidator account underlying asset balance less than MINIMUM_UNDERLYING_ASSET_BALANCE."
       ),
     });
   }

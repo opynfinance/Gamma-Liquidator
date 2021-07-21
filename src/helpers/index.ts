@@ -1,3 +1,4 @@
+export { erc20ABI } from "./abis";
 export {
   chainlinkAggregatorProxyContract,
   collateralCustodianAddress,

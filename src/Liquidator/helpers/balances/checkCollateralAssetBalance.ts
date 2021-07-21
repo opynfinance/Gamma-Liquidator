@@ -1,8 +1,13 @@
-import { abi as erc20ABI } from "@studydefi/money-legos/erc20";
 import { BigNumber, ethers, utils } from "ethers";
 
 import Liquidator from "../..";
-import { liquidatorAccountAddress, Logger, provider } from "../../../helpers";
+import {
+  collateralCustodianAddress,
+  erc20ABI,
+  liquidatorAccountAddress,
+  Logger,
+  provider,
+} from "../../../helpers";
 
 export default async function checkCollateralAssetBalance(
   collateralAssetMarginRequirement: number,
@@ -19,12 +24,36 @@ export default async function checkCollateralAssetBalance(
     provider
   );
 
-  const liquidatorAccountCollateralAssetBalance =
-    await collateralAssetContract.balanceOf(liquidatorAccountAddress);
+  const collateralAssetBalance = await collateralAssetContract.balanceOf(
+    collateralCustodianAddress
+  );
 
-  if (
-    liquidatorAccountCollateralAssetBalance.lt(collateralAssetMarginRequirement)
-  ) {
+  if (collateralAssetBalance.lt(collateralAssetMarginRequirement)) {
+    if (collateralCustodianAddress !== liquidatorAccountAddress) {
+      Logger.error({
+        at: "Liquidator#checkCollateralAssetBalance",
+        message:
+          "Collateral custodian collateral asset balance less than liquidation collateral asset naked margin requirement",
+        collateralAssetAddress,
+        collateralAssetMarginRequirement: utils.formatUnits(
+          collateralAssetMarginRequirement,
+          collateralAssetDecimals
+        ),
+        collateralCustodianAddress,
+        collateralCustodianBalance: utils.formatUnits(
+          collateralAssetBalance,
+          collateralAssetDecimals
+        ),
+        liquidatableVaultOwner,
+        vaultId: vaultId.toString(),
+        error: Error(
+          "Collateral custodian collateral asset balance less than liquidation collateral asset naked margin requirement."
+        ),
+      });
+
+      return;
+    }
+
     Logger.error({
       at: "Liquidator#checkCollateralAssetBalance",
       message:
@@ -36,7 +65,7 @@ export default async function checkCollateralAssetBalance(
       ),
       liquidatorAccountAddress,
       liquidatorAccountBalance: utils.formatUnits(
-        liquidatorAccountCollateralAssetBalance,
+        collateralAssetBalance,
         collateralAssetDecimals
       ),
       liquidatableVaultOwner,
