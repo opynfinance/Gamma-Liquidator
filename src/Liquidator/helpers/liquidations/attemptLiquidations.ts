@@ -1,6 +1,7 @@
 import { BigNumber } from "ethers";
 
 import liquidateVault from "./liquidateVault";
+import mintAndLiquidateVault from "./mintAndLiquidateVault";
 import prepareCollateral from "./prepareCollateral";
 import setLiquidationVaultNonce from "./setLiquidationVaultNonce";
 import slackWebhook from "./slackWebhook";
@@ -155,7 +156,7 @@ export default async function attemptLiquidations(
             });
 
             if (isPutOption) {
-              return await liquidateVault(Liquidator, {
+              return await mintAndLiquidateVault(Liquidator, {
                 collateralToDeposit: collateralAssetMarginRequirement,
                 liquidatorVaultNonce,
                 vault,
@@ -163,7 +164,7 @@ export default async function attemptLiquidations(
               });
             } else {
               // call option
-              return await liquidateVault(Liquidator, {
+              return await mintAndLiquidateVault(Liquidator, {
                 collateralToDeposit: collateralAssetMarginRequirement,
                 liquidatorVaultNonce,
                 vault,
@@ -208,7 +209,7 @@ export default async function attemptLiquidations(
               collateralAssetMarginRequirement,
             });
 
-            return await liquidateVault(Liquidator, {
+            return await mintAndLiquidateVault(Liquidator, {
               collateralToDeposit: collateralAssetMarginRequirement,
               liquidatorVaultNonce,
               vault,
@@ -247,7 +248,7 @@ export default async function attemptLiquidations(
               collateralAssetMarginRequirement,
             });
 
-            return await liquidateVault(Liquidator, {
+            return await mintAndLiquidateVault(Liquidator, {
               collateralToDeposit: collateralAssetMarginRequirement,
               liquidatorVaultNonce,
               vault,
