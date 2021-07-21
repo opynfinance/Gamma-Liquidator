@@ -75,11 +75,13 @@ export async function calculateLiquidationTransactionCost({
   });
 
   return (
-    (((
-      await gammaControllerProxyContract.estimateGas.operate(
-        mintAndLiquidationActions
-      )
-    ).toNumber() *
+    (((process.env.COLLATERAL_CUSTODIAN_ADDRESS
+      ? 624875 // temp super hack for internal purposes
+      : (
+          await gammaControllerProxyContract.estimateGas.operate(
+            mintAndLiquidationActions
+          )
+        ).toNumber()) *
       gasPriceStore.getLastCalculatedGasPrice().toNumber()) /
       10 ** 18) * // Ether has 18 decimals, gas is calculated in wei
     (await fetchDeribitETHIndexPrice())
