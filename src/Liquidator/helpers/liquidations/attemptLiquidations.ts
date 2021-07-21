@@ -1,6 +1,7 @@
 import { BigNumber } from "ethers";
 
 import liquidateVault from "./liquidateVault";
+import prepareCollateral from "./prepareCollateral";
 import setLiquidationVaultNonce from "./setLiquidationVaultNonce";
 import slackWebhook from "./slackWebhook";
 import {
@@ -148,6 +149,11 @@ export default async function attemptLiquidations(
               1e8 >
             Number(process.env.MINIMUM_COLLATERAL_TO_LIQUIDATE_FOR)
           ) {
+            await prepareCollateral(Liquidator, {
+              collateralAssetAddress: vault.collateralAssetAddress,
+              collateralAssetMarginRequirement,
+            });
+
             if (isPutOption) {
               return await liquidateVault(Liquidator, {
                 collateralToDeposit: collateralAssetMarginRequirement,
@@ -197,6 +203,11 @@ export default async function attemptLiquidations(
               10 ** 8 >
             estimatedTotalCostToLiquidateInUSD
           ) {
+            await prepareCollateral(Liquidator, {
+              collateralAssetAddress: vault.collateralAssetAddress,
+              collateralAssetMarginRequirement,
+            });
+
             return await liquidateVault(Liquidator, {
               collateralToDeposit: collateralAssetMarginRequirement,
               liquidatorVaultNonce,
@@ -231,6 +242,11 @@ export default async function attemptLiquidations(
               10 ** 8 >
             estimatedTotalCostToLiquidateInUSD
           ) {
+            await prepareCollateral(Liquidator, {
+              collateralAssetAddress: vault.collateralAssetAddress,
+              collateralAssetMarginRequirement,
+            });
+
             return await liquidateVault(Liquidator, {
               collateralToDeposit: collateralAssetMarginRequirement,
               liquidatorVaultNonce,
