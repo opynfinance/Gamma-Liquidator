@@ -8,6 +8,7 @@ export {
 export {
   attemptLiquidations,
   calculateLiquidationTransactionCost,
+  generateLiquidateActions,
   generateMintAndLiquidateActions,
   marginCalculatorContract,
   fetchLiquidatableVaults,

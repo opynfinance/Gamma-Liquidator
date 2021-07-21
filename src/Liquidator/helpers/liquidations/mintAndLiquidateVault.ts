@@ -1,28 +1,35 @@
 import operateTransaction from "./operateTransaction";
-import { generateLiquidateActions } from "../";
+import { generateMintAndLiquidateActions } from "../";
 import Liquidator from "../..";
-import { ILiquidateArgs } from "../../types";
+import { IMintAndLiquidateArgs } from "../../types";
 import { Logger } from "../../../helpers";
 
-export default async function liquidateVault(
+export default async function mintAndLiquidateVault(
   Liquidator: Liquidator,
-  { vault, vaultOwnerAddress }: ILiquidateArgs
+  {
+    collateralToDeposit,
+    liquidatorVaultNonce,
+    vault,
+    vaultOwnerAddress,
+  }: IMintAndLiquidateArgs
 ): Promise<void> {
-  const liquidationActions = generateLiquidateActions({
+  const mintAndLiquidationActions = generateMintAndLiquidateActions({
+    collateralToDeposit,
+    liquidatorVaultNonce,
     vault,
     vaultOwnerAddress,
   });
 
   try {
     await operateTransaction(
-      liquidationActions,
+      mintAndLiquidationActions,
       Liquidator.gasPriceStore,
       Liquidator.gasPriceStore.getLastCalculatedGasPrice().toNumber()
     );
   } catch (error) {
     Logger.error({
       alert: "Critical error during liquidation attempt",
-      at: "Liquidator#liquidateVault",
+      at: "Liquidator#mintAndLiquidateVault",
       message: error.message,
       liquidatableVaultOwner: vaultOwnerAddress,
       roundId: vault.roundId.toString(),
@@ -33,7 +40,7 @@ export default async function liquidateVault(
   }
 
   Logger.info({
-    at: "Liquidator#liquidateVault",
+    at: "Liquidator#mintAndLiquidateVault",
     message: "Vault liquidated",
     liquidatedVaultOwnerAddress: vaultOwnerAddress,
     vaultId: vault.vaultId.toString(),

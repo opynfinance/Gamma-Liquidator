@@ -1,9 +1,11 @@
 import { BigNumber } from "ethers";
 
 import liquidateVault from "./liquidateVault";
+import mintAndLiquidateVault from "./mintAndLiquidateVault";
 import prepareCollateral from "./prepareCollateral";
 import setLiquidationVaultNonce from "./setLiquidationVaultNonce";
 import slackWebhook from "./slackWebhook";
+import transferOtokens from "./transferOtokens";
 import {
   calculateLiquidationTransactionCost,
   fetchCollateralAssetDecimals,
@@ -14,9 +16,13 @@ import {
   marginCalculatorContract,
   setLatestLiquidatorVaultNonce,
 } from "../";
-import { checkCollateralAssetBalance } from "../balances";
+import { checkCollateralAssetBalance, checkOtokenBalance } from "../balances";
 import Liquidator from "../../index";
-import { Logger } from "../../../helpers";
+import {
+  collateralCustodianAddress,
+  liquidatorAccountAddress,
+  Logger,
+} from "../../../helpers";
 
 export default async function attemptLiquidations(
   liquidatableVaultOwners: string[],
@@ -155,7 +161,7 @@ export default async function attemptLiquidations(
             });
 
             if (isPutOption) {
-              return await liquidateVault(Liquidator, {
+              return await mintAndLiquidateVault(Liquidator, {
                 collateralToDeposit: collateralAssetMarginRequirement,
                 liquidatorVaultNonce,
                 vault,
@@ -163,7 +169,7 @@ export default async function attemptLiquidations(
               });
             } else {
               // call option
-              return await liquidateVault(Liquidator, {
+              return await mintAndLiquidateVault(Liquidator, {
                 collateralToDeposit: collateralAssetMarginRequirement,
                 liquidatorVaultNonce,
                 vault,
@@ -203,12 +209,23 @@ export default async function attemptLiquidations(
               10 ** 8 >
             estimatedTotalCostToLiquidateInUSD
           ) {
+            if (collateralCustodianAddress !== liquidatorAccountAddress) {
+              if (await checkOtokenBalance(vault)) {
+                await transferOtokens(Liquidator, vault);
+
+                return await liquidateVault(Liquidator, {
+                  vault,
+                  vaultOwnerAddress: liquidatableVaultOwner,
+                });
+              }
+            }
+
             await prepareCollateral(Liquidator, {
               collateralAssetAddress: vault.collateralAssetAddress,
               collateralAssetMarginRequirement,
             });
 
-            return await liquidateVault(Liquidator, {
+            return await mintAndLiquidateVault(Liquidator, {
               collateralToDeposit: collateralAssetMarginRequirement,
               liquidatorVaultNonce,
               vault,
@@ -242,12 +259,23 @@ export default async function attemptLiquidations(
               10 ** 8 >
             estimatedTotalCostToLiquidateInUSD
           ) {
+            if (collateralCustodianAddress !== liquidatorAccountAddress) {
+              if (await checkOtokenBalance(vault)) {
+                await transferOtokens(Liquidator, vault);
+
+                return await liquidateVault(Liquidator, {
+                  vault,
+                  vaultOwnerAddress: liquidatableVaultOwner,
+                });
+              }
+            }
+
             await prepareCollateral(Liquidator, {
               collateralAssetAddress: vault.collateralAssetAddress,
               collateralAssetMarginRequirement,
             });
 
-            return await liquidateVault(Liquidator, {
+            return await mintAndLiquidateVault(Liquidator, {
               collateralToDeposit: collateralAssetMarginRequirement,
               liquidatorVaultNonce,
               vault,

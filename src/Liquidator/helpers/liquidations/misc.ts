@@ -4,7 +4,7 @@ import { ZERO_ADDRESS } from "../";
 import { marginCalculatorABI } from "../abis";
 import { ActionType } from "../actionTypes";
 import { fetchDeribitETHIndexPrice } from "../deribit";
-import { IMintAndLiquidateArgs } from "../../types";
+import { ILiquidateArgs, IMintAndLiquidateArgs } from "../../types";
 import GasPriceStore from "../../../GasPriceStore";
 import {
   gammaControllerProxyContract,
@@ -12,12 +12,28 @@ import {
   provider,
 } from "../../../helpers";
 
+export const generateLiquidateActions = ({
+  vault,
+  vaultOwnerAddress,
+}: ILiquidateArgs): Record<string, string | number>[] => [
+  {
+    actionType: ActionType.Liquidate,
+    owner: vaultOwnerAddress,
+    secondAddress: liquidatorAccountAddress,
+    asset: ZERO_ADDRESS,
+    vaultId: vault.vaultId.toString(),
+    amount: vault.shortAmount.toString(),
+    index: "0",
+    data: ethers.utils.defaultAbiCoder.encode(["uint256"], [vault.roundId]),
+  },
+];
+
 export const generateMintAndLiquidateActions = ({
   collateralToDeposit,
   liquidatorVaultNonce,
   vault,
   vaultOwnerAddress,
-}: IMintAndLiquidateArgs): any => [
+}: IMintAndLiquidateArgs): Record<string, string | number>[] => [
   {
     actionType: ActionType.OpenVault,
     owner: liquidatorAccountAddress,
