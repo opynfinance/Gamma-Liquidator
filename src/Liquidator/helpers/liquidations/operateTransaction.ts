@@ -1,5 +1,9 @@
 import Liquidator from "../..";
-import { gammaControllerProxyContract } from "../../../helpers";
+import {
+  gammaControllerProxyContract,
+  liquidatorAccountAddress,
+  Logger,
+} from "../../../helpers";
 
 export default async function operateTransaction(
   transactionParams: Record<string, any>[],
@@ -22,6 +26,18 @@ export default async function operateTransaction(
 
     return;
   } catch (_error) {
+    Logger.error({
+      at: "Liquidator#operateTransaction",
+      message:
+        "Liquidation transaction timed out, retrying transaction with more gas",
+      failedGasAmount: gasPrice.toString(),
+      liquidatorAccountAddress,
+      newGasAmount:
+        (gasPriceStore.getLastCalculatedGasPrice() as any) *
+        Number(process.env.EXPIRED_TRANSACTION_GAS_PRICE_MULTIPLIER),
+      transactionTimeout: process.env.EXPIRED_TRANSACTION_TIMEOUT,
+    });
+
     // try again
     await operateTransaction(
       transactionParams,
