@@ -1,28 +1,21 @@
 import operateTransaction from "./operateTransaction";
-import { generateMintAndLiquidateActions } from "../";
+import { generateLiquidateActions } from "../";
 import Liquidator from "../..";
-import { IMintAndLiquidateArgs } from "../../types";
+import { ILiquidateArgs } from "../../types";
 import { Logger } from "../../../helpers";
 
 export default async function liquidateVault(
   Liquidator: Liquidator,
-  {
-    collateralToDeposit,
-    liquidatorVaultNonce,
-    vault,
-    vaultOwnerAddress,
-  }: IMintAndLiquidateArgs
+  { vault, vaultOwnerAddress }: ILiquidateArgs
 ): Promise<void> {
-  const mintAndLiquidationActions = generateMintAndLiquidateActions({
-    collateralToDeposit,
-    liquidatorVaultNonce,
+  const liquidationActions = generateLiquidateActions({
     vault,
     vaultOwnerAddress,
   });
 
   try {
     await operateTransaction(
-      mintAndLiquidationActions,
+      liquidationActions,
       Liquidator.gasPriceStore,
       Liquidator.gasPriceStore.getLastCalculatedGasPrice().toNumber()
     );
