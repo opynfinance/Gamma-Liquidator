@@ -28,7 +28,7 @@ export default async function checkCollateralAssetBalance(
     collateralCustodianAddress
   );
 
-  if (collateralAssetBalance.lt(collateralAssetMarginRequirement)) {
+  if (collateralAssetBalance < collateralAssetMarginRequirement) {
     if (collateralCustodianAddress !== liquidatorAccountAddress) {
       Logger.error({
         at: "Liquidator#checkCollateralAssetBalance",
