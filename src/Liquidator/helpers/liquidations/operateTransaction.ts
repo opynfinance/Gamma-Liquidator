@@ -25,7 +25,11 @@ export default async function operateTransaction(
     );
 
     return;
-  } catch (_error) {
+  } catch (error) {
+    if (error.message.includes("cannot estimate gas")) {
+      throw Error(error);
+    }
+
     Logger.error({
       at: "Liquidator#operateTransaction",
       message:
