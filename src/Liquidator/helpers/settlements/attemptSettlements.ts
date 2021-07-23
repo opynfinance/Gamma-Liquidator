@@ -1,6 +1,10 @@
 import settleVaults from "./settleVaults";
 import Liquidator from "../../";
-import { Logger } from "../../../helpers";
+import {
+  collateralCustodianAddress,
+  liquidatorAccountAddress,
+  Logger,
+} from "../../../helpers";
 
 export default async function attemptSettlements(
   settleableVaults: Liquidator["vaultStore"]["settleableVaults"]
@@ -16,5 +20,15 @@ export default async function attemptSettlements(
       shortAmounts: Object.values(settleableVaults).join(", "),
       error,
     });
+
+    return;
   }
+
+  Logger.info({
+    at: "Liquidator#mintAndLiquidateVault",
+    message: "Vaults settled",
+    liquidatorAccountAddress,
+    numberOfSettledVaults: Object.values(settleableVaults).flat().length,
+    settledCollateralRecipient: collateralCustodianAddress,
+  });
 }
