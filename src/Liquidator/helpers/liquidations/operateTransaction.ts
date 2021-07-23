@@ -25,16 +25,21 @@ export default async function operateTransaction(
     );
 
     return;
-  } catch (_error) {
+  } catch (error) {
+    if (error.message.includes("cannot estimate gas")) {
+      throw Error(error);
+    }
+
     Logger.error({
       at: "Liquidator#operateTransaction",
       message:
         "Liquidation transaction timed out, retrying transaction with more gas",
       failedGasAmount: gasPrice.toString(),
       liquidatorAccountAddress,
-      newGasAmount:
+      newGasAmount: Math.floor(
         (gasPriceStore.getLastCalculatedGasPrice() as any) *
-        Number(process.env.EXPIRED_TRANSACTION_GAS_PRICE_MULTIPLIER),
+          Number(process.env.EXPIRED_TRANSACTION_GAS_PRICE_MULTIPLIER)
+      ),
       transactionTimeout: process.env.EXPIRED_TRANSACTION_TIMEOUT,
     });
 
@@ -42,8 +47,10 @@ export default async function operateTransaction(
     await operateTransaction(
       transactionParams,
       gasPriceStore,
-      (gasPriceStore.getLastCalculatedGasPrice() as any) *
-        Number(process.env.EXPIRED_TRANSACTION_GAS_PRICE_MULTIPLIER) // default 1.1x
+      Math.floor(
+        (gasPriceStore.getLastCalculatedGasPrice() as any) *
+          Number(process.env.EXPIRED_TRANSACTION_GAS_PRICE_MULTIPLIER)
+      ) // default 1.1x
     );
   }
 }

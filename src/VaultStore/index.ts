@@ -147,6 +147,8 @@ export default class VaultStore {
     gammaControllerProxyContract.on(
       openedNakedMarginVaultEvents,
       async (vaultOwner, vaultId) => {
+        vaultOwner = vaultOwner.toLowerCase();
+
         this.nakedMarginVaults[vaultOwner]
           ? this.nakedMarginVaults[vaultOwner].push(vaultId)
           : (this.nakedMarginVaults[vaultOwner] = [vaultId]);
