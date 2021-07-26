@@ -17,7 +17,7 @@ export default async function checkCollateralAssetBalance(
     collateralAssetAddress,
     vaultId,
   }: Liquidator["vaultStore"]["liquidatableVaults"][string][number]
-): Promise<void> {
+): Promise<boolean> {
   const collateralAssetContract = new ethers.Contract(
     collateralAssetAddress,
     erc20ABI,
@@ -51,7 +51,7 @@ export default async function checkCollateralAssetBalance(
         ),
       });
 
-      return;
+      return false;
     }
 
     Logger.error({
@@ -74,5 +74,9 @@ export default async function checkCollateralAssetBalance(
         "Liquidator account collateral asset balance less than liquidation collateral asset naked margin requirement."
       ),
     });
+
+    return false;
   }
+
+  return true;
 }
