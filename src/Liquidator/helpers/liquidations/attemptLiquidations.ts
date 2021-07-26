@@ -137,12 +137,13 @@ export default async function attemptLiquidations(
           (collateralAssetMarginRequirement / 1e27) *
           10 ** collateralAssetDecimals;
 
-        await checkCollateralAssetBalance(
-          collateralAssetMarginRequirement,
-          collateralAssetDecimals,
-          liquidatableVaultOwner,
-          vault
-        );
+        const collateralAssetBalanceSufficient =
+          await checkCollateralAssetBalance(
+            collateralAssetMarginRequirement,
+            collateralAssetDecimals,
+            liquidatableVaultOwner,
+            vault
+          );
 
         const liquidatorVaultNonce = await setLiquidationVaultNonce(Liquidator);
 
@@ -155,10 +156,12 @@ export default async function attemptLiquidations(
               1e8 >
             Number(process.env.MINIMUM_COLLATERAL_TO_LIQUIDATE_FOR)
           ) {
-            await prepareCollateral(Liquidator, {
-              collateralAssetAddress: vault.collateralAssetAddress,
-              collateralAssetMarginRequirement,
-            });
+            if (collateralAssetBalanceSufficient) {
+              await prepareCollateral(Liquidator, {
+                collateralAssetAddress: vault.collateralAssetAddress,
+                collateralAssetMarginRequirement,
+              });
+            }
 
             if (isPutOption) {
               return await mintAndLiquidateVault(Liquidator, {
@@ -220,10 +223,12 @@ export default async function attemptLiquidations(
               }
             }
 
-            await prepareCollateral(Liquidator, {
-              collateralAssetAddress: vault.collateralAssetAddress,
-              collateralAssetMarginRequirement,
-            });
+            if (collateralAssetBalanceSufficient) {
+              await prepareCollateral(Liquidator, {
+                collateralAssetAddress: vault.collateralAssetAddress,
+                collateralAssetMarginRequirement,
+              });
+            }
 
             return await mintAndLiquidateVault(Liquidator, {
               collateralToDeposit: collateralAssetMarginRequirement,
@@ -270,10 +275,12 @@ export default async function attemptLiquidations(
               }
             }
 
-            await prepareCollateral(Liquidator, {
-              collateralAssetAddress: vault.collateralAssetAddress,
-              collateralAssetMarginRequirement,
-            });
+            if (collateralAssetBalanceSufficient) {
+              await prepareCollateral(Liquidator, {
+                collateralAssetAddress: vault.collateralAssetAddress,
+                collateralAssetMarginRequirement,
+              });
+            }
 
             return await mintAndLiquidateVault(Liquidator, {
               collateralToDeposit: collateralAssetMarginRequirement,
