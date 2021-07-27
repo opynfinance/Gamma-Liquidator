@@ -35,13 +35,11 @@ export default async function checkCallSystemSolvency(
       10
   ) {
     await slackWebhook.send({
-      text: `\nWarning: Dust amount too low. Estimated gas cost to liquidate is greater than a tenth of the vault collateral amount.\n\nvaultOwner: ${liquidatableVaultOwner}\nvaultId: ${vault.vaultId.toString()}\nestimated gas cost to liquidate (denominated in USD): $${estimatedLiquidationTransactionCost}\na tenth of the vault collateral amount (denominated in USD): $${
-        (((((vault.collateralAmount.toString() as any) /
+      text: `\nWarning: Dust amount too low. Estimated gas cost to liquidate is greater than a tenth of the vault collateral amount.\n\nvaultOwner: ${liquidatableVaultOwner}\nvaultId: ${vault.vaultId.toString()}\nestimated gas cost to liquidate (denominated in USD): $${estimatedLiquidationTransactionCost}\nvault collateral value (denominated in USD): $${
+        (((vault.collateralAmount.toString() as any) /
           10 ** collateralAssetDecimals) *
           (vault.latestUnderlyingAssetPrice.toString() as any)) /
-          1e8) *
-          1) /
-        10
+        1e8
       }\nput vault: false`,
     });
   }
