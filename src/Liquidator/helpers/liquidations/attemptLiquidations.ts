@@ -241,11 +241,25 @@ export default async function attemptLiquidations(
           if (process.env.MONITOR_SYSTEM_SOLVENCY) {
             if (
               estimatedTotalCostToLiquidateInUSD >
-              vault.collateralAmount.toNumber() / 10 ** collateralAssetDecimals
+              (vault.collateralAmount.toString() as any) /
+                10 ** collateralAssetDecimals
             ) {
               await slackWebhook.send({
                 text: `\nWarning: Vault insolvent. Not profitable to liquidate.\n\nvaultOwner: ${liquidatableVaultOwner}\nvaultId: ${vault.vaultId.toString()}\nestimated total cost to liquidate (denominated in USD): $${estimatedTotalCostToLiquidateInUSD}\nvault collateral value (denominated in USD): $${
-                  vault.collateralAmount.toNumber() /
+                  (vault.collateralAmount.toString() as any) /
+                  10 ** collateralAssetDecimals
+                }\nput vault: true`,
+              });
+            }
+
+            if (
+              estimatedLiquidationTransactionCost >
+              (vault.latestAuctionPrice.toString() as any) /
+                10 ** collateralAssetDecimals
+            ) {
+              await slackWebhook.send({
+                text: `\nWarning: Dust amount too low. Estimated gas cost to liquidate is greater than the current auction price.\n\nvaultOwner: ${liquidatableVaultOwner}\nvaultId: ${vault.vaultId.toString()}\nestimated gas cost to liquidate (denominated in USD): $${estimatedLiquidationTransactionCost}\nvault auction price (denominated in USD): $${
+                  (vault.latestAuctionPrice.toString() as any) /
                   10 ** collateralAssetDecimals
                 }\nput vault: true`,
               });
@@ -293,17 +307,34 @@ export default async function attemptLiquidations(
           if (process.env.MONITOR_SYSTEM_SOLVENCY) {
             if (
               estimatedTotalCostToLiquidateInUSD >
-              ((vault.collateralAmount.toNumber() /
+              (((vault.collateralAmount.toString() as any) /
                 10 ** collateralAssetDecimals) *
-                vault.latestUnderlyingAssetPrice.toNumber()) /
-                10 ** 8
+                (vault.latestUnderlyingAssetPrice.toString() as any)) /
+                1e8
             ) {
               await slackWebhook.send({
                 text: `\nWarning: Vault insolvent. Not profitable to liquidate.\n\nvaultOwner: ${liquidatableVaultOwner}\nvaultId: ${vault.vaultId.toString()}\nestimated total cost to liquidate (denominated in USD): $${estimatedTotalCostToLiquidateInUSD}\nvault collateral value (denominated in USD): $${
-                  ((vault.collateralAmount.toNumber() /
+                  (((vault.collateralAmount.toString() as any) /
                     10 ** collateralAssetDecimals) *
-                    vault.latestUnderlyingAssetPrice.toNumber()) /
-                  10 ** 8
+                    (vault.latestUnderlyingAssetPrice.toString() as any)) /
+                  1e8
+                }\nput vault: false`,
+              });
+            }
+
+            if (
+              estimatedLiquidationTransactionCost >
+              (((vault.latestAuctionPrice.toString() as any) /
+                10 ** collateralAssetDecimals) *
+                (vault.latestUnderlyingAssetPrice.toString() as any)) /
+                1e8
+            ) {
+              await slackWebhook.send({
+                text: `\nWarning: Dust amount too low. Estimated gas cost to liquidate is greater than the current auction price.\n\nvaultOwner: ${liquidatableVaultOwner}\nvaultId: ${vault.vaultId.toString()}\nestimated gas cost to liquidate (denominated in USD): $${estimatedLiquidationTransactionCost}\nvault auction price (denominated in USD): $${
+                  (((vault.latestAuctionPrice.toString() as any) /
+                    10 ** collateralAssetDecimals) *
+                    (vault.latestUnderlyingAssetPrice.toString() as any)) /
+                  1e8
                 }\nput vault: false`,
               });
             }
