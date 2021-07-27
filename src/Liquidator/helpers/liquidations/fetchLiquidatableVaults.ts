@@ -1,6 +1,7 @@
 import { BigNumber } from "ethers";
 
 import slackWebhook from "./slackWebhook";
+import { checkUnderwaterSystemSolvency } from "../system-monitoring";
 import Liquidator from "../../index";
 import { gammaControllerProxyContract, Logger } from "../../../helpers";
 
@@ -83,18 +84,11 @@ export default async function fetchLiquidatableVaults(
                   }
 
                   if (process.env.MONITOR_SYSTEM_SOLVENCY) {
-                    const vaultTimeUnderwaterInSeconds =
-                      Math.floor(Date.now() / 1000) -
-                      Math.floor(
-                        (vault.undercollateralizedTimestamp.toString() as any) /
-                          1000
-                      );
-
-                    await slackWebhook.send({
-                      text: `\nWarning: Vault liquidatable, but unliquidated for longer than 30 minutes.\n\nvaultOwner: ${vaultOwnerAddress}\nvaultId ${vaultId.toString()}\nestimated time undercollateralized: ${
-                        vaultTimeUnderwaterInSeconds / 60
-                      } minutes`,
-                    });
+                    await checkUnderwaterSystemSolvency(
+                      vault,
+                      vaultId,
+                      vaultOwnerAddress
+                    );
                   }
 
                   if (!roundId.eq(vault.roundId)) {
