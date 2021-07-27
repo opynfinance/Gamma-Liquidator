@@ -4,7 +4,6 @@ import liquidateVault from "./liquidateVault";
 import mintAndLiquidateVault from "./mintAndLiquidateVault";
 import prepareCollateral from "./prepareCollateral";
 import setLiquidationVaultNonce from "./setLiquidationVaultNonce";
-import slackWebhook from "./slackWebhook";
 import transferOtokens from "./transferOtokens";
 import {
   calculateLiquidationTransactionCost,
@@ -17,6 +16,10 @@ import {
   setLatestLiquidatorVaultNonce,
 } from "../";
 import { checkCollateralAssetBalance, checkOtokenBalance } from "../balances";
+import {
+  checkCallSystemSolvency,
+  checkPutSystemSolvency,
+} from "../system-monitoring";
 import Liquidator from "../../index";
 import {
   collateralCustodianAddress,
@@ -239,17 +242,13 @@ export default async function attemptLiquidations(
           }
 
           if (process.env.MONITOR_SYSTEM_SOLVENCY) {
-            if (
-              estimatedTotalCostToLiquidateInUSD >
-              vault.collateralAmount.toNumber() / 10 ** collateralAssetDecimals
-            ) {
-              await slackWebhook.send({
-                text: `\nWarning: Vault insolvent. Not profitable to liquidate.\n\nvaultOwner: ${liquidatableVaultOwner}\nvaultId: ${vault.vaultId.toString()}\nestimated total cost to liquidate (denominated in USD): $${estimatedTotalCostToLiquidateInUSD}\nvault collateral value (denominated in USD): $${
-                  vault.collateralAmount.toNumber() /
-                  10 ** collateralAssetDecimals
-                }\nput vault: true`,
-              });
-            }
+            await checkPutSystemSolvency(
+              collateralAssetDecimals,
+              estimatedLiquidationTransactionCost,
+              estimatedTotalCostToLiquidateInUSD,
+              liquidatableVaultOwner,
+              vault
+            );
           }
 
           return await setLatestLiquidatorVaultNonce(Liquidator);
@@ -291,22 +290,13 @@ export default async function attemptLiquidations(
           }
 
           if (process.env.MONITOR_SYSTEM_SOLVENCY) {
-            if (
-              estimatedTotalCostToLiquidateInUSD >
-              ((vault.collateralAmount.toNumber() /
-                10 ** collateralAssetDecimals) *
-                vault.latestUnderlyingAssetPrice.toNumber()) /
-                10 ** 8
-            ) {
-              await slackWebhook.send({
-                text: `\nWarning: Vault insolvent. Not profitable to liquidate.\n\nvaultOwner: ${liquidatableVaultOwner}\nvaultId: ${vault.vaultId.toString()}\nestimated total cost to liquidate (denominated in USD): $${estimatedTotalCostToLiquidateInUSD}\nvault collateral value (denominated in USD): $${
-                  ((vault.collateralAmount.toNumber() /
-                    10 ** collateralAssetDecimals) *
-                    vault.latestUnderlyingAssetPrice.toNumber()) /
-                  10 ** 8
-                }\nput vault: false`,
-              });
-            }
+            await checkCallSystemSolvency(
+              collateralAssetDecimals,
+              estimatedLiquidationTransactionCost,
+              estimatedTotalCostToLiquidateInUSD,
+              liquidatableVaultOwner,
+              vault
+            );
           }
 
           return await setLatestLiquidatorVaultNonce(Liquidator);
