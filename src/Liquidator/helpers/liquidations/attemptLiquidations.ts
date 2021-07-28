@@ -43,6 +43,10 @@ export default async function attemptLiquidations(
 
         const isPutOption = shortOtokenInstrumentInfo.optionType === "P";
 
+        if (vault.isPutVault === null) {
+          vault.isPutVault = isPutOption;
+        }
+
         const collateralAssetDecimals: any = await fetchCollateralAssetDecimals(
           vault.collateralAssetAddress
         );

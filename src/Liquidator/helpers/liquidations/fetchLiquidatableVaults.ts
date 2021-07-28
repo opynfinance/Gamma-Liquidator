@@ -156,12 +156,8 @@ export default async function fetchLiquidatableVaults(
               {
                 collateralAmount,
                 collateralAssetAddress,
-<<<<<<< HEAD
-                insolvent: false,
-=======
                 insolvencyAmountInUSD: 0,
                 isPutVault: null,
->>>>>>> 32aa23e (refactor: track insolventAmountInUSD rather than insolvency state on liquidatable vaults)
                 latestAuctionPrice: currentRoundIdCalculatedAuctionPrice,
                 latestUnderlyingAssetPrice: answer,
                 roundId,
