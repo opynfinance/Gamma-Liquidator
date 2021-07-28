@@ -1,6 +1,5 @@
 import { BigNumber } from "ethers";
 
-import slackWebhook from "./slackWebhook";
 import { checkUnderwaterSystemSolvency } from "../system-monitoring";
 import Liquidator from "../../index";
 import { gammaControllerProxyContract, Logger } from "../../../helpers";
@@ -131,6 +130,8 @@ export default async function fetchLiquidatableVaults(
               liquidatableVaults[vaultOwnerAddress].push({
                 collateralAmount,
                 collateralAssetAddress,
+                insolvencyAmountInUSD: 0,
+                isPutVault: null,
                 latestAuctionPrice: currentRoundIdCalculatedAuctionPrice,
                 latestUnderlyingAssetPrice: answer,
                 roundId,
@@ -155,6 +156,8 @@ export default async function fetchLiquidatableVaults(
               {
                 collateralAmount,
                 collateralAssetAddress,
+                insolvencyAmountInUSD: 0,
+                isPutVault: null,
                 latestAuctionPrice: currentRoundIdCalculatedAuctionPrice,
                 latestUnderlyingAssetPrice: answer,
                 roundId,

@@ -19,6 +19,7 @@ import { checkCollateralAssetBalance, checkOtokenBalance } from "../balances";
 import {
   checkCallSystemSolvency,
   checkPutSystemSolvency,
+  checkTotalSystemSolvency,
 } from "../system-monitoring";
 import Liquidator from "../../index";
 import {
@@ -43,11 +44,16 @@ export default async function attemptLiquidations(
 
         const isPutOption = shortOtokenInstrumentInfo.optionType === "P";
 
-        const collateralAssetDecimals: any = await fetchCollateralAssetDecimals(
+        if (vault.isPutVault === null) {
+          vault.isPutVault = isPutOption;
+        }
+
+        const collateralAssetDecimals = await fetchCollateralAssetDecimals(
           vault.collateralAssetAddress
         );
 
         vault.collateralAmount = BigNumber.from(vault.collateralAmount);
+        vault.collateralAssetDecimals = collateralAssetDecimals;
         vault.latestAuctionPrice = BigNumber.from(vault.latestAuctionPrice);
         vault.latestUnderlyingAssetPrice = BigNumber.from(
           vault.latestUnderlyingAssetPrice
@@ -68,7 +74,7 @@ export default async function attemptLiquidations(
 
           deribitBestAskPrice =
             (deribitBestAskPrice *
-              vault.latestUnderlyingAssetPrice.toNumber()) /
+              (vault.latestUnderlyingAssetPrice.toString() as any)) /
             10 ** 8;
 
           // returned in underlying
@@ -95,7 +101,7 @@ export default async function attemptLiquidations(
 
           calculatedMarkPrice =
             (calculatedMarkPrice *
-              vault.latestUnderlyingAssetPrice.toNumber()) /
+              (vault.latestUnderlyingAssetPrice.toString() as any)) /
             10 ** 8;
 
           if (deribitBestAskPrice === 0) {
@@ -152,10 +158,10 @@ export default async function attemptLiquidations(
 
         if (!optionExistsOnDeribit) {
           if (
-            vault.latestAuctionPrice
+            (vault.latestAuctionPrice
               .mul(vault.shortAmount)
               .div(vault.collateralAmount)
-              .toNumber() /
+              .toString() as any) /
               1e8 >
             Number(process.env.MINIMUM_COLLATERAL_TO_LIQUIDATE_FOR)
           ) {
@@ -203,15 +209,15 @@ export default async function attemptLiquidations(
                 calculatedDeribitPrice,
               Number(process.env.MINIMUM_LIQUIDATION_PRICE)
             )) *
-            vault.shortAmount.toNumber()) /
+            (vault.shortAmount.toString() as any)) /
             10 ** 8 +
           estimatedLiquidationTransactionCost;
 
         if (isPutOption) {
           if (
-            ((vault.latestAuctionPrice.toNumber() /
+            (((vault.latestAuctionPrice.toString() as any) /
               10 ** collateralAssetDecimals) *
-              vault.shortAmount.toNumber()) /
+              (vault.shortAmount.toString() as any)) /
               10 ** 8 >
             estimatedTotalCostToLiquidateInUSD
           ) {
@@ -243,7 +249,6 @@ export default async function attemptLiquidations(
 
           if (process.env.MONITOR_SYSTEM_SOLVENCY) {
             await checkPutSystemSolvency(
-              collateralAssetDecimals,
               estimatedLiquidationTransactionCost,
               estimatedTotalCostToLiquidateInUSD,
               liquidatableVaultOwner,
@@ -255,11 +260,11 @@ export default async function attemptLiquidations(
         } else {
           // call option
           if (
-            ((((vault.latestAuctionPrice.toNumber() /
+            (((((vault.latestAuctionPrice.toString() as any) /
               10 ** collateralAssetDecimals) *
-              vault.shortAmount.toNumber()) /
+              (vault.shortAmount.toString() as any)) /
               10 ** 8) *
-              vault.latestUnderlyingAssetPrice.toNumber()) /
+              (vault.latestUnderlyingAssetPrice.toString() as any)) /
               10 ** 8 >
             estimatedTotalCostToLiquidateInUSD
           ) {
@@ -291,7 +296,6 @@ export default async function attemptLiquidations(
 
           if (process.env.MONITOR_SYSTEM_SOLVENCY) {
             await checkCallSystemSolvency(
-              collateralAssetDecimals,
               estimatedLiquidationTransactionCost,
               estimatedTotalCostToLiquidateInUSD,
               liquidatableVaultOwner,
@@ -323,5 +327,9 @@ export default async function attemptLiquidations(
         return await setLatestLiquidatorVaultNonce(Liquidator);
       }
     }
+  }
+
+  if (process.env.MONITOR_SYSTEM_SOLVENCY) {
+    await checkTotalSystemSolvency(liquidatableVaults);
   }
 }

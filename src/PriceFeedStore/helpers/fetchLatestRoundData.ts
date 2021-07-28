@@ -13,9 +13,9 @@ export default async function fetchLatestRoundData(
     Logger.info({
       at: "PriceFeedStore#fetchLatestRoundData",
       message: "Price feed store initialized",
-      answer: answer.toNumber(),
+      answer: answer.toString(),
       roundId: roundId.toString(),
-      updatedAt: updatedAt.toNumber(),
+      updatedAt: updatedAt.toString(),
     });
   } catch (error) {
     Logger.error({

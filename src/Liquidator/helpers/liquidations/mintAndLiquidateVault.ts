@@ -24,7 +24,7 @@ export default async function mintAndLiquidateVault(
     await operateTransaction(
       mintAndLiquidationActions,
       Liquidator.gasPriceStore,
-      Liquidator.gasPriceStore.getLastCalculatedGasPrice().toNumber()
+      Liquidator.gasPriceStore.getLastCalculatedGasPrice().toString()
     );
   } catch (error) {
     Logger.error({
