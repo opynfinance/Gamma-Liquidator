@@ -5,7 +5,7 @@ import { erc20ABI, provider } from "../../helpers";
 
 export async function fetchCollateralAssetDecimals(
   collateralAssetAddress: string
-): Promise<BigNumber> {
+): Promise<any | BigNumber> {
   const collateralAssetContract = new ethers.Contract(
     collateralAssetAddress,
     erc20ABI,

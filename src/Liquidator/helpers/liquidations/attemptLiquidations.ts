@@ -47,11 +47,12 @@ export default async function attemptLiquidations(
           vault.isPutVault = isPutOption;
         }
 
-        const collateralAssetDecimals: any = await fetchCollateralAssetDecimals(
+        const collateralAssetDecimals = await fetchCollateralAssetDecimals(
           vault.collateralAssetAddress
         );
 
         vault.collateralAmount = BigNumber.from(vault.collateralAmount);
+        vault.collateralAssetDecimals = collateralAssetDecimals;
         vault.latestAuctionPrice = BigNumber.from(vault.latestAuctionPrice);
         vault.latestUnderlyingAssetPrice = BigNumber.from(
           vault.latestUnderlyingAssetPrice
@@ -247,7 +248,6 @@ export default async function attemptLiquidations(
 
           if (process.env.MONITOR_SYSTEM_SOLVENCY) {
             await checkPutSystemSolvency(
-              collateralAssetDecimals,
               estimatedLiquidationTransactionCost,
               estimatedTotalCostToLiquidateInUSD,
               liquidatableVaultOwner,
@@ -295,7 +295,6 @@ export default async function attemptLiquidations(
 
           if (process.env.MONITOR_SYSTEM_SOLVENCY) {
             await checkCallSystemSolvency(
-              collateralAssetDecimals,
               estimatedLiquidationTransactionCost,
               estimatedTotalCostToLiquidateInUSD,
               liquidatableVaultOwner,
