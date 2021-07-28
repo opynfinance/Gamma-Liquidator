@@ -68,7 +68,7 @@ export default async function attemptLiquidations(
 
           deribitBestAskPrice =
             (deribitBestAskPrice *
-              vault.latestUnderlyingAssetPrice.toNumber()) /
+              (vault.latestUnderlyingAssetPrice.toString() as any)) /
             10 ** 8;
 
           // returned in underlying
@@ -95,7 +95,7 @@ export default async function attemptLiquidations(
 
           calculatedMarkPrice =
             (calculatedMarkPrice *
-              vault.latestUnderlyingAssetPrice.toNumber()) /
+              (vault.latestUnderlyingAssetPrice.toString() as any)) /
             10 ** 8;
 
           if (deribitBestAskPrice === 0) {
@@ -152,10 +152,10 @@ export default async function attemptLiquidations(
 
         if (!optionExistsOnDeribit) {
           if (
-            vault.latestAuctionPrice
+            (vault.latestAuctionPrice
               .mul(vault.shortAmount)
               .div(vault.collateralAmount)
-              .toNumber() /
+              .toString() as any) /
               1e8 >
             Number(process.env.MINIMUM_COLLATERAL_TO_LIQUIDATE_FOR)
           ) {
@@ -203,15 +203,15 @@ export default async function attemptLiquidations(
                 calculatedDeribitPrice,
               Number(process.env.MINIMUM_LIQUIDATION_PRICE)
             )) *
-            vault.shortAmount.toNumber()) /
+            (vault.shortAmount.toString() as any)) /
             10 ** 8 +
           estimatedLiquidationTransactionCost;
 
         if (isPutOption) {
           if (
-            ((vault.latestAuctionPrice.toNumber() /
+            (((vault.latestAuctionPrice.toString() as any) /
               10 ** collateralAssetDecimals) *
-              vault.shortAmount.toNumber()) /
+              (vault.shortAmount.toString() as any)) /
               10 ** 8 >
             estimatedTotalCostToLiquidateInUSD
           ) {
@@ -255,11 +255,11 @@ export default async function attemptLiquidations(
         } else {
           // call option
           if (
-            ((((vault.latestAuctionPrice.toNumber() /
+            (((((vault.latestAuctionPrice.toString() as any) /
               10 ** collateralAssetDecimals) *
-              vault.shortAmount.toNumber()) /
+              (vault.shortAmount.toString() as any)) /
               10 ** 8) *
-              vault.latestUnderlyingAssetPrice.toNumber()) /
+              (vault.latestUnderlyingAssetPrice.toString() as any)) /
               10 ** 8 >
             estimatedTotalCostToLiquidateInUSD
           ) {

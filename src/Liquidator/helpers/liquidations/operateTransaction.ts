@@ -8,7 +8,7 @@ import {
 export default async function operateTransaction(
   transactionParams: Record<string, any>[],
   gasPriceStore: Liquidator["gasPriceStore"],
-  gasPrice: number
+  gasPrice: number | string
 ): Promise<void> {
   try {
     const transaction = await gammaControllerProxyContract.operate(
@@ -48,7 +48,7 @@ export default async function operateTransaction(
       transactionParams,
       gasPriceStore,
       Math.floor(
-        (gasPriceStore.getLastCalculatedGasPrice() as any) *
+        (gasPriceStore.getLastCalculatedGasPrice().toString() as any) *
           Number(process.env.EXPIRED_TRANSACTION_GAS_PRICE_MULTIPLIER)
       ) // default 1.1x
     );

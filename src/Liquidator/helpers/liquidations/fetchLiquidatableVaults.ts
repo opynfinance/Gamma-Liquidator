@@ -1,6 +1,5 @@
 import { BigNumber } from "ethers";
 
-import slackWebhook from "./slackWebhook";
 import { checkUnderwaterSystemSolvency } from "../system-monitoring";
 import Liquidator from "../../index";
 import { gammaControllerProxyContract, Logger } from "../../../helpers";

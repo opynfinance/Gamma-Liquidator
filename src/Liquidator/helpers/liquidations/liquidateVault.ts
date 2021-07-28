@@ -17,7 +17,7 @@ export default async function liquidateVault(
     await operateTransaction(
       liquidationActions,
       Liquidator.gasPriceStore,
-      Liquidator.gasPriceStore.getLastCalculatedGasPrice().toNumber()
+      Liquidator.gasPriceStore.getLastCalculatedGasPrice().toString()
     );
   } catch (error) {
     Logger.error({
