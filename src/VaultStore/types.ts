@@ -3,6 +3,7 @@ import { BigNumber } from "ethers";
 export interface ILiquidatableVault {
   collateralAmount: BigNumber;
   collateralAssetAddress: string;
+  insolvencyAmountInUSD: number;
   latestAuctionPrice: BigNumber;
   latestUnderlyingAssetPrice: BigNumber;
   roundId: BigNumber;
