@@ -1,11 +1,9 @@
-import { BigNumber } from "ethers";
-
 import Liquidator from "../../index";
 import { gammaControllerProxyContract } from "../../../helpers";
 
 export default async function calculateSettleableVaults(
   { vaultStore }: Liquidator,
-  updatedTimestamp: BigNumber
+  timestamp: number
 ): Promise<Liquidator["vaultStore"]["settleableVaults"]> {
   const settlementVaults = vaultStore.getSettlementVaults();
   const settlementVaultNonces = Object.keys(settlementVaults);
@@ -17,7 +15,7 @@ export default async function calculateSettleableVaults(
     const settlementDetails = settlementVault[shortOtokenAddress];
 
     if (
-      updatedTimestamp.gt(settlementDetails.expiryTimestamp) &&
+      timestamp > (settlementDetails.expiryTimestamp as any) &&
       settlementDetails.shortAmount.gt(0) &&
       (await gammaControllerProxyContract.isSettlementAllowed(
         shortOtokenAddress

@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import { existsSync, readFileSync } from "fs";
 
-import { chainlinkAggregatorABI, erc20ABI, gammaControllerABI } from "./abis";
+import { erc20ABI, gammaControllerABI } from "./abis";
 import Logger from "./logger";
 
 if (!process.env.BOT_PRIVATE_KEY) {
@@ -18,12 +18,6 @@ if (!process.env.BOT_PRIVATE_KEY) {
 
 export const provider = new ethers.providers.JsonRpcProvider(
   process.env.ETHEREUM_NODE_URL
-);
-
-export const chainlinkAggregatorProxyContract = new ethers.Contract(
-  process.env.CHAINLINK_PRICE_FEED_ADDRESS as string,
-  chainlinkAggregatorABI,
-  provider
 );
 
 export let gammaControllerProxyContract = new ethers.Contract(

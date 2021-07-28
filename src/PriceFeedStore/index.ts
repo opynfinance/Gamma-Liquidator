@@ -1,45 +1,26 @@
-import { BigNumber } from "ethers";
+import { ethers } from "ethers";
 
 import {
+  chainlinkAggregatorABI,
   fetchLatestRoundData,
-  fetchPriceFeedPair,
   updateLatestRoundData,
 } from "./helpers";
-import { chainlinkAggregatorProxyContract, Logger } from "../helpers";
-
-export interface ILatestRoundData {
-  answer: BigNumber;
-  roundId: BigNumber;
-  updatedAt: BigNumber;
-}
+import { ILatestRoundData } from "./types";
+import { Logger, provider } from "../helpers";
 
 export default class PriceFeedStore {
   public latestRoundData: ILatestRoundData;
-  public underlyingAsset: string;
 
   constructor() {
-    this.latestRoundData = {
-      answer: BigNumber.from(0),
-      roundId: BigNumber.from(0),
-      updatedAt: BigNumber.from(0),
-    };
-    this.underlyingAsset = "";
+    this.latestRoundData = {};
   }
 
   public getLatestRoundData(): ILatestRoundData {
     return this.latestRoundData;
   }
 
-  public getUnderlyingAsset(): string {
-    return this.underlyingAsset;
-  }
-
-  public setLatestRoundData(nextLatestRoundData: ILatestRoundData): void {
-    this.latestRoundData = nextLatestRoundData;
-  }
-
-  public setUnderlyingAsset(underlyingAsset: string): void {
-    this.underlyingAsset = underlyingAsset;
+  public setLatestRoundData(latestRoundData: ILatestRoundData): void {
+    this.latestRoundData = { ...this.latestRoundData, ...latestRoundData };
   }
 
   start = (): void => {
@@ -52,12 +33,12 @@ export default class PriceFeedStore {
 
   _subscribe = async (): Promise<void> => {
     await fetchLatestRoundData(this);
-    await fetchPriceFeedPair(this);
 
     Logger.info({
       at: "PriceFeedStore#_subscribe",
-      message: "Subscribing to Chainlink Price Feed...",
-      address: chainlinkAggregatorProxyContract.address,
+      message: "Subscribing to Chainlink Price Feeds...",
+      numberOfChainlinkPriceFeeds: Object.keys(this.getLatestRoundData())
+        .length,
     });
 
     try {
@@ -66,8 +47,6 @@ export default class PriceFeedStore {
       Logger.error({
         at: "PriceFeedStore#_subscribe",
         message: error.message,
-        chainlinkAggregatorProxyContractAddress:
-          chainlinkAggregatorProxyContract.address,
         error,
       });
       this._subscribe();
@@ -75,18 +54,29 @@ export default class PriceFeedStore {
   };
 
   _subscribeToAnswerUpdatedEvents = async (): Promise<void> => {
-    const chainlinkAggregatorContract = chainlinkAggregatorProxyContract.attach(
-      await chainlinkAggregatorProxyContract.aggregator()
-    );
+    const chainlinkPriceFeedAddresses = Object.keys(this.getLatestRoundData());
 
-    chainlinkAggregatorContract.on(
-      "AnswerUpdated",
-      (answerPrice, _roundId, updatedTimestamp) => {
-        updateLatestRoundData(this, {
-          answer: answerPrice,
-          updatedAt: updatedTimestamp,
-        });
-      }
-    );
+    for (const chainlinkPriceFeedAddress of chainlinkPriceFeedAddresses) {
+      const chainlinkAggregatorProxyContract = new ethers.Contract(
+        chainlinkPriceFeedAddress,
+        chainlinkAggregatorABI,
+        provider
+      );
+
+      const chainlinkAggregatorContract =
+        chainlinkAggregatorProxyContract.attach(
+          await chainlinkAggregatorProxyContract.aggregator()
+        );
+
+      chainlinkAggregatorContract.on(
+        "AnswerUpdated",
+        (answerPrice, _roundId, updatedTimestamp) => {
+          updateLatestRoundData(this, chainlinkAggregatorProxyContract, {
+            answer: answerPrice,
+            updatedAt: updatedTimestamp,
+          });
+        }
+      );
+    }
   };
 }
