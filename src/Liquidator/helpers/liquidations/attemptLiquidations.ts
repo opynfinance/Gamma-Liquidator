@@ -19,6 +19,7 @@ import { checkCollateralAssetBalance, checkOtokenBalance } from "../balances";
 import {
   checkCallSystemSolvency,
   checkPutSystemSolvency,
+  checkTotalSystemSolvency,
 } from "../system-monitoring";
 import Liquidator from "../../index";
 import {
@@ -326,5 +327,9 @@ export default async function attemptLiquidations(
         return await setLatestLiquidatorVaultNonce(Liquidator);
       }
     }
+  }
+
+  if (process.env.MONITOR_SYSTEM_SOLVENCY) {
+    await checkTotalSystemSolvency(liquidatableVaults);
   }
 }
