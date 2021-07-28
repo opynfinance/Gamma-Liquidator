@@ -68,3 +68,5 @@ export async function loadLiquidatorAccount(): Promise<void> {
     address: liquidatorAddress,
   });
 }
+
+export const networkInfo = provider.getNetwork();

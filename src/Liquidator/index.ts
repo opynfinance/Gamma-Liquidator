@@ -12,7 +12,7 @@ import {
 import GasPriceStore from "../GasPriceStore";
 import PriceFeedStore from "../PriceFeedStore";
 import VaultStore from "../VaultStore";
-import { Logger, provider } from "../helpers";
+import { Logger, networkInfo, provider } from "../helpers";
 
 export default class Liquidator {
   public activeLiquidationState: boolean;
@@ -150,7 +150,7 @@ export default class Liquidator {
     Logger.info({
       at: "Liquidator#_subscribe",
       message: "Subscribing to new blocks...",
-      network: (await provider.getNetwork()).name,
+      network: (await networkInfo).name,
     });
 
     try {

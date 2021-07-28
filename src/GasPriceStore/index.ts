@@ -1,7 +1,7 @@
 import { BigNumber } from "ethers";
 
 import { calculateInitialGasPrice, calculateNextGasPrice } from "./helpers";
-import { Logger, provider } from "../helpers";
+import { Logger, networkInfo, provider } from "../helpers";
 
 export default class GasPriceStore {
   public lastCalculatedGasPrice: BigNumber;
@@ -32,7 +32,7 @@ export default class GasPriceStore {
     Logger.info({
       at: "GasPriceStore#_subscribe",
       message: "Subscribing to new blocks...",
-      network: (await provider.getNetwork()).name,
+      network: (await networkInfo).name,
     });
 
     try {

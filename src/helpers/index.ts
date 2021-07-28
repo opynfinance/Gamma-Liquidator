@@ -6,6 +6,7 @@ export {
   liquidatorAccount,
   liquidatorAccountAddress,
   loadLiquidatorAccount,
+  networkInfo,
   provider,
   strikePriceAssetContract,
   underlyingAssetContract,
