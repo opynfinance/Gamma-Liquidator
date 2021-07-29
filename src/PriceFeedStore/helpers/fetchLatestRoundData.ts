@@ -43,6 +43,15 @@ export default async function fetchLatestRoundData(
           updatedAt,
         },
       });
+
+      Logger.info({
+        at: "PriceFeedStore#fetchLatestRoundData",
+        message: "Price feed store updated",
+        chainlinkPriceFeedAddress: chainlinkAggregatorProxyContract.address,
+        answer: answer.toString(),
+        roundId: roundId.toString(),
+        updatedAt: updatedAt.toString(),
+      });
     }
 
     Logger.info({
