@@ -1,11 +1,8 @@
 import { ethers } from "ethers";
 
+import { erc20ABI } from "../abis";
 import Liquidator from "../..";
-import {
-  collateralCustodianAddress,
-  erc20ABI,
-  provider,
-} from "../../../helpers";
+import { collateralCustodianAddress, provider } from "../../../helpers";
 
 export default async function checkOtokenBalance({
   shortOtokenAddress,
