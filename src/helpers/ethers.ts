@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import { existsSync, readFileSync } from "fs";
 
-import { erc20ABI, gammaControllerABI } from "./abis";
+import { gammaControllerABI } from "./abis";
 import Logger from "./logger";
 
 if (!process.env.BOT_PRIVATE_KEY) {
@@ -23,18 +23,6 @@ export const provider = new ethers.providers.JsonRpcProvider(
 export let gammaControllerProxyContract = new ethers.Contract(
   process.env.GAMMA_CONTROLLER_ADDRESS as string,
   gammaControllerABI,
-  provider
-);
-
-export const strikePriceAssetContract = new ethers.Contract(
-  process.env.STRIKE_PRICE_ASSET_ADDRESS as string,
-  erc20ABI,
-  provider
-);
-
-export const underlyingAssetContract = new ethers.Contract(
-  process.env.UNDERLYING_ASSET_ADDRESS as string,
-  erc20ABI,
   provider
 );
 

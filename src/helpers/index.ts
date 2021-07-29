@@ -7,8 +7,6 @@ export {
   loadLiquidatorAccount,
   networkInfo,
   provider,
-  strikePriceAssetContract,
-  underlyingAssetContract,
 } from "./ethers";
 export { default as Logger } from "./logger";
 export { default as supportedChainlinkPriceFeeds } from "./supportedChainlinkPriceFeeds";
