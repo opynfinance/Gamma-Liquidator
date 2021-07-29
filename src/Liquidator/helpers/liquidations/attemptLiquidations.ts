@@ -33,8 +33,6 @@ export default async function attemptLiquidations(
   liquidatableVaults: Liquidator["vaultStore"]["liquidatableVaults"],
   Liquidator: Liquidator
 ): Promise<void> {
-  const underlyingAsset = Liquidator.priceFeedStore.getUnderlyingAsset();
-
   for await (const liquidatableVaultOwner of liquidatableVaultOwners) {
     for await (const vault of liquidatableVaults[liquidatableVaultOwner]) {
       try {
@@ -69,7 +67,7 @@ export default async function attemptLiquidations(
           // returned in underlying
           let deribitBestAskPrice = await fetchDeribitBestAskPrice({
             ...shortOtokenInstrumentInfo,
-            underlyingAsset,
+            underlyingAsset: vault.underlyingAsset,
           });
 
           deribitBestAskPrice =
@@ -80,7 +78,7 @@ export default async function attemptLiquidations(
           // returned in underlying
           const deribitDelta = await fetchDeribitDelta({
             ...shortOtokenInstrumentInfo,
-            underlyingAsset,
+            underlyingAsset: vault.underlyingAsset,
           });
 
           const calculatedMaxSpread =
@@ -93,7 +91,7 @@ export default async function attemptLiquidations(
           // returned in underlying
           const deribitMarkPrice = await fetchDeribitMarkPrice({
             ...shortOtokenInstrumentInfo,
-            underlyingAsset,
+            underlyingAsset: vault.underlyingAsset,
           });
 
           let calculatedMarkPrice =
@@ -121,7 +119,7 @@ export default async function attemptLiquidations(
               at: "Liquidator#attemptLiquidations",
               message: error.message,
               ...shortOtokenInstrumentInfo,
-              underlyingAsset,
+              underlyingAsset: vault.underlyingAsset,
               error,
             });
 

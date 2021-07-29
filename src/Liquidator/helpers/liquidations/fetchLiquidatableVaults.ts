@@ -1,5 +1,6 @@
 import { BigNumber } from "ethers";
 
+import parseUnderlyingAssetPriceFeedContractAddress from "./parseUnderlyingAssetPriceFeedContractAddress";
 import { checkUnderwaterSystemSolvency } from "../system-monitoring";
 import Liquidator from "../../index";
 import { gammaControllerProxyContract, Logger } from "../../../helpers";
@@ -38,8 +39,15 @@ export default async function fetchLiquidatableVaults(
           // currently only one shortOtoken address per vault
           const shortOtokenAddress = vaultDetails.shortOtokens[0];
 
+          const { underlyingAssetPriceFeedContractAddress, underlyingAsset } =
+            await parseUnderlyingAssetPriceFeedContractAddress(
+              shortOtokenAddress
+            );
+
           const { answer, roundId } =
-            Liquidator.priceFeedStore.getLatestRoundData();
+            Liquidator.priceFeedStore.getLatestRoundData()[
+              underlyingAssetPriceFeedContractAddress
+            ];
 
           let isUnderCollateralized = false,
             currentRoundIdCalculatedAuctionPrice = BigNumber.from(0);
@@ -138,6 +146,7 @@ export default async function fetchLiquidatableVaults(
                 shortAmount,
                 shortOtokenAddress,
                 undercollateralizedTimestamp: BigNumber.from(Date.now()),
+                underlyingAsset,
                 vaultId,
               });
 
@@ -164,6 +173,7 @@ export default async function fetchLiquidatableVaults(
                 shortAmount,
                 shortOtokenAddress,
                 undercollateralizedTimestamp: BigNumber.from(Date.now()),
+                underlyingAsset,
                 vaultId,
               },
             ];

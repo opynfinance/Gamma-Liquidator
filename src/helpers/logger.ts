@@ -4,7 +4,7 @@ import Transport from "winston-transport";
 import Sentry from "winston-transport-sentry-node";
 
 class StackTransport extends Transport {
-  log(info: any, callback: any) {
+  log(info: Record<string, any>, callback: () => void) {
     setImmediate(() => {
       if (info && info.error) {
         console.error(info.error.stack);

@@ -12,7 +12,7 @@ import {
 import GasPriceStore from "../GasPriceStore";
 import PriceFeedStore from "../PriceFeedStore";
 import VaultStore from "../VaultStore";
-import { Logger, provider } from "../helpers";
+import { Logger, networkInfo, provider } from "../helpers";
 
 export default class Liquidator {
   public activeLiquidationState: boolean;
@@ -104,12 +104,9 @@ export default class Liquidator {
     this.setActiveLiquidationState(false);
   };
 
-  _attemptSettlements = async (updatedTimestamp: BigNumber): Promise<void> => {
+  _attemptSettlements = async (timestamp: number): Promise<void> => {
     try {
-      const settleableVaults = await calculateSettleableVaults(
-        this,
-        updatedTimestamp
-      );
+      const settleableVaults = await calculateSettleableVaults(this, timestamp);
 
       if (Object.keys(settleableVaults).length === 0) {
         Logger.info({
@@ -143,14 +140,12 @@ export default class Liquidator {
     await checkAssetBalances();
     await setLatestLiquidatorVaultNonce(this);
     await this._attemptLiquidations();
-    await this._attemptSettlements(
-      this.priceFeedStore.getLatestRoundData().updatedAt
-    );
+    await this._attemptSettlements(Date.now());
 
     Logger.info({
       at: "Liquidator#_subscribe",
       message: "Subscribing to new blocks...",
-      network: (await provider.getNetwork()).name,
+      network: (await networkInfo).name,
     });
 
     try {
@@ -168,16 +163,15 @@ export default class Liquidator {
 
   _subscribeToSettlementVaultsUpdate = async (): Promise<void> => {
     process.on("settlementVaultsUpdate", async () => {
-      const updatedTimestamp =
-        this.priceFeedStore.getLatestRoundData().updatedAt;
+      const timestamp = Date.now();
 
       try {
-        await this._attemptSettlements(updatedTimestamp);
+        await this._attemptSettlements(timestamp);
       } catch (error) {
         Logger.error({
           at: "Liquidator#_subscribeToSettlementVaultsUpdate",
           message: error.message,
-          updatedTimestamp: updatedTimestamp.toString(),
+          timestamp,
           error,
         });
       }

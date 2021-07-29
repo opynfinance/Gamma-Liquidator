@@ -3,10 +3,10 @@ import fetch from "node-fetch";
 
 import supportedNetworkSubgraphs from "./supportedNetworkSubgraphs";
 import { INakedMarginVaults } from "../types";
-import { liquidatorAccountAddress, Logger, provider } from "../../helpers";
+import { liquidatorAccountAddress, Logger, networkInfo } from "../../helpers";
 
 export default async function fetchNakedMarginVaults(): Promise<INakedMarginVaults> {
-  const networkChainId = (await provider.getNetwork()).chainId.toString();
+  const networkChainId = (await networkInfo).chainId.toString();
 
   const subgraphUrl = supportedNetworkSubgraphs[networkChainId];
 
