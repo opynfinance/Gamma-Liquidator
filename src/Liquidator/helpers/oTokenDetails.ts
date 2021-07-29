@@ -1,7 +1,7 @@
 import { BigNumber, ethers } from "ethers";
 
-import { oTokenABI } from "./abis";
-import { erc20ABI, provider } from "../../helpers";
+import { erc20ABI, oTokenABI } from "./abis";
+import { provider } from "../../helpers";
 
 export async function fetchCollateralAssetDecimals(
   collateralAssetAddress: string

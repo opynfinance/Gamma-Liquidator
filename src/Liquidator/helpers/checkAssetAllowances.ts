@@ -1,9 +1,9 @@
 import { ethers } from "ethers";
 
+import { erc20ABI } from "./abis";
 import supportedLiquidationAssets from "./supportedLiquidationAssets";
 import {
   collateralCustodianAddress,
-  erc20ABI,
   liquidatorAccountAddress,
   Logger,
   networkInfo,

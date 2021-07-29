@@ -1,4 +1,3 @@
-export { erc20ABI } from "./abis";
 export {
   collateralCustodianAddress,
   gammaControllerProxyContract,
