@@ -1,100 +1,118 @@
+import { ethers } from "ethers";
+
+import supportedLiquidationAssets from "./supportedLiquidationAssets";
 import {
   collateralCustodianAddress,
+  erc20ABI,
   liquidatorAccountAddress,
   Logger,
-  strikePriceAssetContract,
-  underlyingAssetContract,
+  networkInfo,
+  provider,
 } from "../../helpers";
 
 export default async function checkAssetAllowances(): Promise<void> {
-  const underlyingAssetMarginPoolAllowance =
-    await underlyingAssetContract.allowance(
-      liquidatorAccountAddress,
-      process.env.MARGIN_POOL_ADDRESS
+  const networkChainId = (await networkInfo).chainId.toString();
+
+  const { strikePriceAssets, underlyingAssets } =
+    supportedLiquidationAssets[networkChainId];
+
+  for (const underlyingAssetAddress of underlyingAssets) {
+    const underlyingAssetContract = new ethers.Contract(
+      underlyingAssetAddress,
+      erc20ABI,
+      provider
     );
 
-  if (underlyingAssetMarginPoolAllowance.lte(0)) {
-    Logger.error({
-      at: "Liquidator#checkAssetAllowances",
-      message: "Underlying asset margin pool allowance less than or equal to 0",
-      liquidatorAccountAddress,
-      marginPoolAddress: process.env.MARGIN_POOL_ADDRESS,
-      underlyingAssetAddress: process.env.UNDERLYING_ASSET_ADDRESS,
-      error: Error(
-        "Underlying asset margin pool allowance less than or equal to 0."
-      ),
-    });
-
-    return;
-  }
-
-  const strikePriceAssetMarginPoolAllowance =
-    await strikePriceAssetContract.allowance(
-      liquidatorAccountAddress,
-      process.env.MARGIN_POOL_ADDRESS
-    );
-
-  if (strikePriceAssetMarginPoolAllowance.lte(0)) {
-    Logger.error({
-      at: "Liquidator#checkAssetAllowances",
-      message:
-        "Strike price asset margin pool allowance less than or equal to 0",
-      liquidatorAccountAddress,
-      marginPoolAddress: process.env.MARGIN_POOL_ADDRESS,
-      strikePriceAssetAddress: process.env.STRIKE_PRICE_ASSET_ADDRESS,
-      error: Error(
-        "Strike price asset margin pool allowance less than or equal to 0."
-      ),
-    });
-
-    return;
-  }
-
-  if (collateralCustodianAddress !== liquidatorAccountAddress) {
-    const underlyingAssetLiquidatorAccountAllowance =
+    const underlyingAssetMarginPoolAllowance =
       await underlyingAssetContract.allowance(
-        collateralCustodianAddress,
-        liquidatorAccountAddress
+        liquidatorAccountAddress,
+        process.env.MARGIN_POOL_ADDRESS
       );
 
-    if (underlyingAssetLiquidatorAccountAllowance.lte(0)) {
+    if (underlyingAssetMarginPoolAllowance.lte(0)) {
       Logger.error({
         at: "Liquidator#checkAssetAllowances",
         message:
-          "Underlying asset liquidator account allowance less than or equal to 0",
-        collateralCustodianAddress,
+          "Underlying asset margin pool allowance less than or equal to 0",
         liquidatorAccountAddress,
-        underlyingAssetAddress: process.env.UNDERLYING_ASSET_ADDRESS,
+        marginPoolAddress: process.env.MARGIN_POOL_ADDRESS,
+        underlyingAssetAddress,
         error: Error(
-          "Underlying asset liquidator account allowance less than or equal to 0."
+          "Underlying asset margin pool allowance less than or equal to 0."
         ),
       });
-
-      return;
     }
 
-    const strikePriceAssetLiquidatorAccountAllowance =
-      await strikePriceAssetContract.allowance(
-        collateralCustodianAddress,
-        liquidatorAccountAddress
-      );
+    if (collateralCustodianAddress !== liquidatorAccountAddress) {
+      const underlyingAssetLiquidatorAccountAllowance =
+        await underlyingAssetContract.allowance(
+          collateralCustodianAddress,
+          liquidatorAccountAddress
+        );
 
-    if (strikePriceAssetLiquidatorAccountAllowance.lte(0)) {
-      Logger.error({
-        at: "Liquidator#checkAssetAllowances",
-        message:
-          "Strike price asset liquidator account allowance less than or equal to 0",
-        collateralCustodianAddress,
-        liquidatorAccountAddress,
-        strikePriceAssetAddress: process.env.STRIKE_PRICE_ASSET_ADDRESS,
-        error: Error(
-          "Strike price asset liquidator account allowance less than or equal to 0."
-        ),
-      });
-
-      return;
+      if (underlyingAssetLiquidatorAccountAllowance.lte(0)) {
+        Logger.error({
+          at: "Liquidator#checkAssetAllowances",
+          message:
+            "Underlying asset liquidator account allowance less than or equal to 0",
+          collateralCustodianAddress,
+          liquidatorAccountAddress,
+          underlyingAssetAddress,
+          error: Error(
+            "Underlying asset liquidator account allowance less than or equal to 0."
+          ),
+        });
+      }
     }
   }
 
-  return;
+  for (const strikePriceAssetAddress of strikePriceAssets) {
+    const strikePriceAssetContract = new ethers.Contract(
+      strikePriceAssetAddress,
+      erc20ABI,
+      provider
+    );
+
+    const strikePriceAssetMarginPoolAllowance =
+      await strikePriceAssetContract.allowance(
+        liquidatorAccountAddress,
+        process.env.MARGIN_POOL_ADDRESS
+      );
+
+    if (strikePriceAssetMarginPoolAllowance.lte(0)) {
+      Logger.error({
+        at: "Liquidator#checkAssetAllowances",
+        message:
+          "Strike price asset margin pool allowance less than or equal to 0",
+        liquidatorAccountAddress,
+        marginPoolAddress: process.env.MARGIN_POOL_ADDRESS,
+        strikePriceAssetAddress,
+        error: Error(
+          "Strike price asset margin pool allowance less than or equal to 0."
+        ),
+      });
+    }
+
+    if (collateralCustodianAddress !== liquidatorAccountAddress) {
+      const strikePriceAssetLiquidatorAccountAllowance =
+        await strikePriceAssetContract.allowance(
+          collateralCustodianAddress,
+          liquidatorAccountAddress
+        );
+
+      if (strikePriceAssetLiquidatorAccountAllowance.lte(0)) {
+        Logger.error({
+          at: "Liquidator#checkAssetAllowances",
+          message:
+            "Strike price asset liquidator account allowance less than or equal to 0",
+          collateralCustodianAddress,
+          liquidatorAccountAddress,
+          strikePriceAssetAddress,
+          error: Error(
+            "Strike price asset liquidator account allowance less than or equal to 0."
+          ),
+        });
+      }
+    }
+  }
 }
