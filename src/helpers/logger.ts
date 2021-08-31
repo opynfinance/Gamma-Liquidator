@@ -54,7 +54,7 @@ if (process.env.SLACK_WEBHOOK) {
         delete info.level;
         let filteredInfo = info;
 
-        if (info.error && info.error.code) {
+        if (info.error) {
           if (
             info.error.code === "SERVER_ERROR" ||
             info.error.code === "TIMEOUT"
@@ -69,6 +69,8 @@ if (process.env.SLACK_WEBHOOK) {
                   : `request timeout`
               }. Check https://status.infura.io/.`,
             };
+          } else {
+            delete filteredInfo.error;
           }
         }
 
