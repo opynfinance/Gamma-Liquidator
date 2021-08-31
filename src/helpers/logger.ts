@@ -106,7 +106,16 @@ if (process.env.SLACK_WEBHOOK) {
 if (process.env.SENTRY_DSN) {
   transports.push(
     new Sentry({
-      sentry: { dsn: process.env.SENTRY_DSN },
+      sentry: {
+        dsn: process.env.SENTRY_DSN,
+        ignoreErrors: [
+          "502",
+          "503",
+          "504",
+          "bad response",
+          "Request failed with status code 400",
+        ],
+      },
       level: "error",
     })
   );
