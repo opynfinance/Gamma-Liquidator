@@ -64,24 +64,27 @@ if (process.env.SLACK_WEBHOOK) {
           ) {
             infuraCounter[0]++;
 
-            if (
-              infuraCounter[0] > 50 &&
-              Math.floor(Date.now() / 1000) - infuraCounter[1] < 300
-            ) {
-              const { message, ...rest } = filteredInfo;
-              filteredInfo = { at: filteredInfo.at, message };
-              filteredInfo = {
-                ...rest,
-                error: `Infura ${
-                  info.error.code === `SERVER_ERROR`
-                    ? `server error`
-                    : `request timeout`
-                }. Check https://status.infura.io/.`,
-              };
+            if (Math.floor(Date.now() / 1000) - infuraCounter[1] < 60) {
+              if (infuraCounter[0] > 50) {
+                const { message, ...rest } = filteredInfo;
+                filteredInfo = { at: filteredInfo.at, message };
+                filteredInfo = {
+                  ...rest,
+                  error: `Infura ${
+                    info.error.code === `SERVER_ERROR`
+                      ? `server error`
+                      : `request timeout`
+                  }. Check https://status.infura.io/.`,
+                };
 
+                // reset counter
+                infuraCounter[0] = 0;
+              } else {
+                filteredInfo = {};
+              }
+            } else {
               // reset counter
               infuraCounter[0] = 0;
-            } else {
               filteredInfo = {};
             }
           } else {
