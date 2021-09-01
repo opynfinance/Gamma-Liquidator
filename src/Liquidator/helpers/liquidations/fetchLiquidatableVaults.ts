@@ -12,10 +12,9 @@ export default async function fetchLiquidatableVaults(
   const vaultOwnerAddresses = Object.keys(nakedMarginVaults);
 
   for (const vaultOwnerAddress of vaultOwnerAddresses) {
-    await Promise.all(
-      nakedMarginVaults[vaultOwnerAddress].map(async (vaultId) => {
-        // sleep for 2000 microseconds between each vault
-        await new Promise((r) => setTimeout(r, 2000));
+    await nakedMarginVaults[vaultOwnerAddress].reduce(
+      async (previousPromise, vaultId) => {
+        await previousPromise;
 
         try {
           const [vaultDetails] =
@@ -194,7 +193,8 @@ export default async function fetchLiquidatableVaults(
             error,
           });
         }
-      })
+      },
+      Promise.resolve()
     );
   }
 }
