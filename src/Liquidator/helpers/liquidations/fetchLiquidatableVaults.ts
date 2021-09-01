@@ -14,6 +14,9 @@ export default async function fetchLiquidatableVaults(
   for (const vaultOwnerAddress of vaultOwnerAddresses) {
     await Promise.all(
       nakedMarginVaults[vaultOwnerAddress].map(async (vaultId) => {
+        // sleep for 2000 microseconds between each vault
+        await new Promise((r) => setTimeout(r, 2000));
+
         try {
           const [vaultDetails] =
             await gammaControllerProxyContract.getVaultWithDetails(
