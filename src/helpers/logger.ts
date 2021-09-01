@@ -112,10 +112,10 @@ if (process.env.SENTRY_DSN) {
       sentry: {
         dsn: process.env.SENTRY_DSN,
         ignoreErrors: [
-          "502",
-          "503",
-          "504",
-          "bad response",
+          /502/,
+          /503/,
+          /504/,
+          /bad response/,
           "Request failed with status code 400",
         ],
       },
