@@ -2,7 +2,7 @@ import operateTransaction from "./operateTransaction";
 import { generateMintAndLiquidateActions } from "../";
 import Liquidator from "../..";
 import { IMintAndLiquidateArgs } from "../../types";
-import { Logger } from "../../../helpers";
+import { Logger, triggerPagerDutyNotification } from "../../../helpers";
 
 export default async function mintAndLiquidateVault(
   Liquidator: Liquidator,
@@ -27,14 +27,20 @@ export default async function mintAndLiquidateVault(
       Liquidator.gasPriceStore.getLastCalculatedGasPrice().toString()
     );
   } catch (error) {
+    const alert = "Critical error during liquidation attempt";
+
     Logger.error({
-      alert: "Critical error during liquidation attempt",
+      alert,
       at: "Liquidator#mintAndLiquidateVault",
       message: error.message,
       liquidatableVaultOwner: vaultOwnerAddress,
       roundId: vault.roundId.toString(),
       vaultId: vault.vaultId.toString(),
     });
+
+    if (process.env.PAGERDUTY_ROUTING_KEY) {
+      await triggerPagerDutyNotification(`${alert}: ${error.message}`);
+    }
 
     return;
   }

@@ -7,6 +7,7 @@ import {
   liquidatorAccount,
   liquidatorAccountAddress,
   Logger,
+  triggerPagerDutyNotification,
 } from "../../../helpers";
 
 export default async function prepareCollateral(
@@ -39,8 +40,10 @@ export default async function prepareCollateral(
 
       return;
     } catch (error) {
+      const alert = "Critical error during collateral transferFrom attempt";
+
       Logger.error({
-        alert: "Critical error during collateral transferFrom attempt",
+        alert,
         at: "Liquidator#prepareCollateral",
         message: error.message,
         collateralAmountToTransfer: collateralAssetMarginRequirement.toString(),
@@ -49,6 +52,10 @@ export default async function prepareCollateral(
         liquidatorAccountAddress,
         error,
       });
+
+      if (process.env.PAGERDUTY_ROUTING_KEY) {
+        await triggerPagerDutyNotification(`${alert}: ${error.message}`);
+      }
 
       return;
     }

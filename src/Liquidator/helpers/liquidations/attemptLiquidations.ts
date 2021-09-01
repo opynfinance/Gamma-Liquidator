@@ -26,6 +26,7 @@ import {
   collateralCustodianAddress,
   liquidatorAccountAddress,
   Logger,
+  triggerPagerDutyNotification,
 } from "../../../helpers";
 
 export default async function attemptLiquidations(
@@ -304,8 +305,10 @@ export default async function attemptLiquidations(
           return await setLatestLiquidatorVaultNonce(Liquidator);
         }
       } catch (error) {
+        const alert = "Critical error during liquidation attempt";
+
         Logger.error({
-          alert: "Critical error during liquidation attempt",
+          alert,
           at: "Liquidator#attemptLiquidations",
           message: error.message,
           liquidatableVaultOwner,
@@ -321,6 +324,10 @@ export default async function attemptLiquidations(
           },
           error,
         });
+
+        if (process.env.PAGERDUTY_ROUTING_KEY) {
+          await triggerPagerDutyNotification(`${alert}: ${error.message}`);
+        }
 
         return await setLatestLiquidatorVaultNonce(Liquidator);
       }

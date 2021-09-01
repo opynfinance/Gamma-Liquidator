@@ -5,6 +5,7 @@ import {
   networkInfo,
   provider,
   supportedChainlinkPriceFeeds,
+  triggerPagerDutyNotification,
 } from "../../../helpers";
 
 export default async function parseUnderlyingAssetPriceFeedContractAddress(
@@ -28,7 +29,11 @@ export default async function parseUnderlyingAssetPriceFeedContractAddress(
     };
   }
 
-  throw Error(
-    `Unexpected finding —— oToken being parsed is not whitelisted!\n\noToken contract address: ${shortOtokenAddress}`
-  );
+  const message = `Unexpected finding —— oToken being parsed is not whitelisted!\n\noToken contract address: ${shortOtokenAddress}`;
+
+  if (process.env.PAGERDUTY_ROUTING_KEY) {
+    await triggerPagerDutyNotification(message);
+  }
+
+  throw Error(message);
 }

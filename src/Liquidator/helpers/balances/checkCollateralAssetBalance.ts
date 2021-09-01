@@ -7,6 +7,7 @@ import {
   liquidatorAccountAddress,
   Logger,
   provider,
+  triggerPagerDutyNotification,
 } from "../../../helpers";
 
 export default async function checkCollateralAssetBalance(
@@ -30,10 +31,12 @@ export default async function checkCollateralAssetBalance(
 
   if (collateralAssetBalance < collateralAssetMarginRequirement) {
     if (collateralCustodianAddress !== liquidatorAccountAddress) {
+      const message =
+        "Collateral custodian collateral asset balance less than liquidation collateral asset naked margin requirement";
+
       Logger.error({
         at: "Liquidator#checkCollateralAssetBalance",
-        message:
-          "Collateral custodian collateral asset balance less than liquidation collateral asset naked margin requirement",
+        message,
         collateralAssetAddress,
         collateralAssetMarginRequirement: utils.formatUnits(
           collateralAssetMarginRequirement,
@@ -51,13 +54,19 @@ export default async function checkCollateralAssetBalance(
         ),
       });
 
+      if (process.env.PAGERDUTY_ROUTING_KEY) {
+        await triggerPagerDutyNotification(message);
+      }
+
       return false;
     }
 
+    const message =
+      "Liquidator account collateral asset balance less than liquidation collateral asset naked margin requirement.";
+
     Logger.error({
       at: "Liquidator#checkCollateralAssetBalance",
-      message:
-        "Liquidator account collateral asset balance less than liquidation collateral asset naked margin requirement",
+      message,
       collateralAssetAddress,
       collateralAssetMarginRequirement: utils.formatUnits(
         collateralAssetMarginRequirement,
@@ -74,6 +83,10 @@ export default async function checkCollateralAssetBalance(
         "Liquidator account collateral asset balance less than liquidation collateral asset naked margin requirement."
       ),
     });
+
+    if (process.env.PAGERDUTY_ROUTING_KEY) {
+      await triggerPagerDutyNotification(message);
+    }
 
     return false;
   }
