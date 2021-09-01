@@ -7,6 +7,7 @@ import {
   liquidatorAccount,
   liquidatorAccountAddress,
   Logger,
+  triggerPagerDutyNotification,
 } from "../../../helpers";
 
 export default async function transferOtokens(
@@ -38,8 +39,10 @@ export default async function transferOtokens(
 
     return;
   } catch (error) {
+    const alert = "Critical error during oToken transferFrom attempt";
+
     Logger.error({
-      alert: "Critical error during oToken transferFrom attempt",
+      alert,
       at: "Liquidator#transferOtokens",
       message: error.message,
       collateralCustodianAddress,
@@ -48,6 +51,10 @@ export default async function transferOtokens(
       shortOtokenAddress,
       error,
     });
+
+    if (process.env.PAGERDUTY_ROUTING_KEY) {
+      await triggerPagerDutyNotification(`${alert}: ${error.message}`);
+    }
 
     return;
   }

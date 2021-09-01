@@ -47,9 +47,6 @@ if (process.env.LOGS === "true") {
 }
 
 if (process.env.SLACK_WEBHOOK) {
-  // tuple, [0] is the number of server error/timeout issues, [1] is timestamp in seconds
-  const infuraCounter = [0, Math.floor(Date.now() / 1000)];
-
   transports.push(
     new SlackHook({
       level: "error",
@@ -62,39 +59,10 @@ if (process.env.SLACK_WEBHOOK) {
             info.error.code === "SERVER_ERROR" ||
             info.error.code === "TIMEOUT"
           ) {
-            infuraCounter[0]++;
-
-            if (Math.floor(Date.now() / 1000) - infuraCounter[1] < 60) {
-              if (infuraCounter[0] > 50) {
-                const { message, ...rest } = filteredInfo;
-                filteredInfo = { at: filteredInfo.at, message };
-                filteredInfo = {
-                  ...rest,
-                  error: `Infura ${
-                    info.error.code === `SERVER_ERROR`
-                      ? `server error`
-                      : `request timeout`
-                  }. Check https://status.infura.io/.`,
-                };
-
-                // reset counter
-                infuraCounter[0] = 0;
-              } else {
-                filteredInfo = {};
-              }
-            } else {
-              // reset counter
-              infuraCounter[0] = 0;
-              filteredInfo = {};
-            }
+            filteredInfo = {};
           } else {
-            // reset counter
-            infuraCounter[0] = 0;
             delete filteredInfo.error;
           }
-
-          // reset timestamp
-          infuraCounter[1] = Math.floor(Date.now() / 1000);
         }
 
         const stringifiedInfo = JSON.stringify(filteredInfo, null, " ");

@@ -4,6 +4,7 @@ import {
   liquidatorAccount,
   liquidatorAccountAddress,
   Logger,
+  triggerPagerDutyNotification,
 } from "../../../helpers";
 
 export default async function checkEtherBalance(): Promise<void> {
@@ -14,9 +15,12 @@ export default async function checkEtherBalance(): Promise<void> {
       BigNumber.from(process.env.BOT_MINIMUM_ETHER_BALANCE)
     )
   ) {
+    const message =
+      "Liquidator account balance less than BOT_MINIMUM_ETHER_BALANCE";
+
     Logger.error({
       at: "Liquidator#checkEtherBalance",
-      message: "Liquidator account balance less than BOT_MINIMUM_ETHER_BALANCE",
+      message,
       BOT_MINIMUM_ETHER_BALANCE: utils.formatUnits(
         process.env.BOT_MINIMUM_ETHER_BALANCE as string
       ),
@@ -26,5 +30,11 @@ export default async function checkEtherBalance(): Promise<void> {
         "Liquidator account balance less than BOT_MINIMUM_ETHER_BALANCE."
       ),
     });
+
+    if (process.env.PAGERDUTY_ROUTING_KEY) {
+      await triggerPagerDutyNotification(message);
+    }
+
+    return;
   }
 }

@@ -3,7 +3,12 @@ import fetch from "node-fetch";
 
 import supportedNetworkSubgraphs from "./supportedNetworkSubgraphs";
 import { INakedMarginVaults } from "../types";
-import { liquidatorAccountAddress, Logger, networkInfo } from "../../helpers";
+import {
+  liquidatorAccountAddress,
+  Logger,
+  networkInfo,
+  triggerPagerDutyNotification,
+} from "../../helpers";
 
 export default async function fetchNakedMarginVaults(): Promise<INakedMarginVaults> {
   const networkChainId = (await networkInfo).chainId.toString();
@@ -11,11 +16,18 @@ export default async function fetchNakedMarginVaults(): Promise<INakedMarginVaul
   const subgraphUrl = supportedNetworkSubgraphs[networkChainId];
 
   if (!subgraphUrl) {
+    const message = "Warning: No subgraph for detected Ethereum network";
+
     Logger.error({
       at: "VaultStore#fetchNakedMarginVaults",
-      message: "Warning: No subgraph for detected Ethereum network",
+      message,
       supportedNetworkSubgraphChainIds: Object.keys(supportedNetworkSubgraphs),
     });
+
+    if (process.env.PAGERDUTY_ROUTING_KEY) {
+      await triggerPagerDutyNotification(message);
+    }
+
     return {};
   }
 

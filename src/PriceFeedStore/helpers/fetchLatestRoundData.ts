@@ -7,6 +7,7 @@ import {
   networkInfo,
   provider,
   supportedChainlinkPriceFeeds,
+  triggerPagerDutyNotification,
 } from "../../helpers";
 
 export default async function fetchLatestRoundData(
@@ -28,9 +29,13 @@ export default async function fetchLatestRoundData(
         chainlinkPriceFeed !==
         (await chainlinkAggregatorProxyContract.description())
       ) {
-        throw Error(
-          `Supported Chainlink Price Feed for ${chainlinkPriceFeed} does not match the description at ${chainlinkPriceFeeds[chainlinkPriceFeed]}.`
-        );
+        const message = `Supported Chainlink Price Feed for ${chainlinkPriceFeed} does not match the description at ${chainlinkPriceFeeds[chainlinkPriceFeed]}.`;
+
+        if (process.env.PAGERDUTY_ROUTING_KEY) {
+          await triggerPagerDutyNotification(message);
+        }
+
+        throw Error(message);
       }
 
       const { answer, roundId, updatedAt } =

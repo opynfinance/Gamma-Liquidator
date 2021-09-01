@@ -8,6 +8,7 @@ import {
   Logger,
   networkInfo,
   provider,
+  triggerPagerDutyNotification,
 } from "../../../helpers";
 
 export default async function checkStrikePriceAssetBalance(): Promise<void> {
@@ -35,10 +36,12 @@ export default async function checkStrikePriceAssetBalance(): Promise<void> {
         await strikePriceAssetContract.decimals();
 
       if (collateralCustodianAddress !== liquidatorAccountAddress) {
+        const message =
+          "Collateral custodian strike price asset balance less than MINIMUM_STRIKE_PRICE_ASSET_BALANCE";
+
         Logger.error({
           at: "Liquidator#checkStrikePriceAssetBalance",
-          message:
-            "Collateral custodian strike price asset balance less than MINIMUM_STRIKE_PRICE_ASSET_BALANCE",
+          message,
           MINIMUM_STRIKE_PRICE_ASSET_BALANCE: utils.formatUnits(
             process.env.MINIMUM_STRIKE_PRICE_ASSET_BALANCE as string,
             strikePriceAssetDecimals
@@ -54,13 +57,19 @@ export default async function checkStrikePriceAssetBalance(): Promise<void> {
           ),
         });
 
+        if (process.env.PAGERDUTY_ROUTING_KEY) {
+          await triggerPagerDutyNotification(message);
+        }
+
         continue;
       }
 
+      const message =
+        "Liquidator account strike price asset balance less than MINIMUM_STRIKE_PRICE_ASSET_BALANCE";
+
       Logger.error({
         at: "Liquidator#checkStrikePriceAssetBalance",
-        message:
-          "Liquidator account strike price asset balance less than MINIMUM_STRIKE_PRICE_ASSET_BALANCE",
+        message,
         MINIMUM_STRIKE_PRICE_ASSET_BALANCE: utils.formatUnits(
           process.env.MINIMUM_STRIKE_PRICE_ASSET_BALANCE as string,
           strikePriceAssetDecimals
@@ -75,6 +84,12 @@ export default async function checkStrikePriceAssetBalance(): Promise<void> {
           "Liquidator account strike price asset balance less than MINIMUM_STRIKE_PRICE_ASSET_BALANCE."
         ),
       });
+
+      if (process.env.PAGERDUTY_ROUTING_KEY) {
+        await triggerPagerDutyNotification(message);
+      }
+
+      return;
     }
   }
 }

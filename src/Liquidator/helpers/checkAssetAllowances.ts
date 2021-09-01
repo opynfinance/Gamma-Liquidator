@@ -8,6 +8,7 @@ import {
   Logger,
   networkInfo,
   provider,
+  triggerPagerDutyNotification,
 } from "../../helpers";
 
 export default async function checkAssetAllowances(): Promise<void> {
@@ -30,10 +31,12 @@ export default async function checkAssetAllowances(): Promise<void> {
       );
 
     if (underlyingAssetMarginPoolAllowance.lte(0)) {
+      const message =
+        "Underlying asset margin pool allowance less than or equal to 0";
+
       Logger.error({
         at: "Liquidator#checkAssetAllowances",
-        message:
-          "Underlying asset margin pool allowance less than or equal to 0",
+        message,
         liquidatorAccountAddress,
         marginPoolAddress: process.env.MARGIN_POOL_ADDRESS,
         underlyingAssetAddress,
@@ -41,6 +44,10 @@ export default async function checkAssetAllowances(): Promise<void> {
           "Underlying asset margin pool allowance less than or equal to 0."
         ),
       });
+
+      if (process.env.PAGERDUTY_ROUTING_KEY) {
+        await triggerPagerDutyNotification(message);
+      }
     }
 
     if (collateralCustodianAddress !== liquidatorAccountAddress) {
@@ -51,10 +58,12 @@ export default async function checkAssetAllowances(): Promise<void> {
         );
 
       if (underlyingAssetLiquidatorAccountAllowance.lte(0)) {
+        const message =
+          "Underlying asset liquidator account allowance less than or equal to 0";
+
         Logger.error({
           at: "Liquidator#checkAssetAllowances",
-          message:
-            "Underlying asset liquidator account allowance less than or equal to 0",
+          message,
           collateralCustodianAddress,
           liquidatorAccountAddress,
           underlyingAssetAddress,
@@ -62,6 +71,10 @@ export default async function checkAssetAllowances(): Promise<void> {
             "Underlying asset liquidator account allowance less than or equal to 0."
           ),
         });
+
+        if (process.env.PAGERDUTY_ROUTING_KEY) {
+          await triggerPagerDutyNotification(message);
+        }
       }
     }
   }
@@ -80,10 +93,12 @@ export default async function checkAssetAllowances(): Promise<void> {
       );
 
     if (strikePriceAssetMarginPoolAllowance.lte(0)) {
+      const message =
+        "Strike price asset margin pool allowance less than or equal to 0";
+
       Logger.error({
         at: "Liquidator#checkAssetAllowances",
-        message:
-          "Strike price asset margin pool allowance less than or equal to 0",
+        message,
         liquidatorAccountAddress,
         marginPoolAddress: process.env.MARGIN_POOL_ADDRESS,
         strikePriceAssetAddress,
@@ -91,6 +106,10 @@ export default async function checkAssetAllowances(): Promise<void> {
           "Strike price asset margin pool allowance less than or equal to 0."
         ),
       });
+
+      if (process.env.PAGERDUTY_ROUTING_KEY) {
+        await triggerPagerDutyNotification(message);
+      }
     }
 
     if (collateralCustodianAddress !== liquidatorAccountAddress) {
@@ -101,10 +120,12 @@ export default async function checkAssetAllowances(): Promise<void> {
         );
 
       if (strikePriceAssetLiquidatorAccountAllowance.lte(0)) {
+        const message =
+          "Strike price asset liquidator account allowance less than or equal to 0";
+
         Logger.error({
           at: "Liquidator#checkAssetAllowances",
-          message:
-            "Strike price asset liquidator account allowance less than or equal to 0",
+          message,
           collateralCustodianAddress,
           liquidatorAccountAddress,
           strikePriceAssetAddress,
@@ -112,6 +133,10 @@ export default async function checkAssetAllowances(): Promise<void> {
             "Strike price asset liquidator account allowance less than or equal to 0."
           ),
         });
+
+        if (process.env.PAGERDUTY_ROUTING_KEY) {
+          await triggerPagerDutyNotification(message);
+        }
       }
     }
   }

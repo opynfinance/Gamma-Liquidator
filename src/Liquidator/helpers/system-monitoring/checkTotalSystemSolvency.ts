@@ -1,5 +1,6 @@
 import slackWebhook from "../liquidations/slackWebhook";
 import Liquidator from "../..";
+import { triggerPagerDutyNotification } from "../../../helpers";
 
 export default async function checkTotalSystemSolvency(
   liquidatableVaults: Liquidator["vaultStore"]["liquidatableVaults"]
@@ -15,9 +16,13 @@ export default async function checkTotalSystemSolvency(
       totalInsolvencyInUSD = totalInsolvencyInUSD + vault.insolvencyAmountInUSD;
     });
 
+    const message = `\nWarning: Total system insolvency (denominated in USD): $${totalInsolvencyInUSD}`;
+
     await slackWebhook.send({
-      text: `\nWarning: Total system insolvency (denominated in USD): $${totalInsolvencyInUSD}`,
+      text: message,
     });
+
+    await triggerPagerDutyNotification(message);
   }
 
   return;

@@ -8,6 +8,7 @@ import {
   Logger,
   networkInfo,
   provider,
+  triggerPagerDutyNotification,
 } from "../../../helpers";
 
 export default async function checkUnderlyingAssetBalance(): Promise<void> {
@@ -34,10 +35,12 @@ export default async function checkUnderlyingAssetBalance(): Promise<void> {
       const underlyingAssetDecimals = await underlyingAssetContract.decimals();
 
       if (collateralCustodianAddress !== liquidatorAccountAddress) {
+        const message =
+          "Collateral custodian underlying asset balance less than MINIMUM_UNDERLYING_ASSET_BALANCE";
+
         Logger.error({
           at: "Liquidator#checkUnderlyingAssetBalance",
-          message:
-            "Collateral custodian underlying asset balance less than MINIMUM_UNDERLYING_ASSET_BALANCE",
+          message,
           MINIMUM_UNDERYLING_ASSET_BALANCE: utils.formatUnits(
             process.env.MINIMUM_UNDERLYING_ASSET_BALANCE as string,
             underlyingAssetDecimals
@@ -53,13 +56,19 @@ export default async function checkUnderlyingAssetBalance(): Promise<void> {
           ),
         });
 
+        if (process.env.PAGERDUTY_ROUTING_KEY) {
+          await triggerPagerDutyNotification(message);
+        }
+
         continue;
       }
 
+      const message =
+        "Liquidator account underlying asset balance less than MINIMUM_UNDERLYING_ASSET_BALANCE";
+
       Logger.error({
         at: "Liquidator#checkUnderlyingAssetBalance",
-        message:
-          "Liquidator account underlying asset balance less than MINIMUM_UNDERLYING_ASSET_BALANCE",
+        message,
         MINIMUM_UNDERYLING_ASSET_BALANCE: utils.formatUnits(
           process.env.MINIMUM_UNDERLYING_ASSET_BALANCE as string,
           underlyingAssetDecimals
@@ -74,6 +83,12 @@ export default async function checkUnderlyingAssetBalance(): Promise<void> {
           "Liquidator account underlying asset balance less than MINIMUM_UNDERLYING_ASSET_BALANCE."
         ),
       });
+
+      if (process.env.PAGERDUTY_ROUTING_KEY) {
+        await triggerPagerDutyNotification(message);
+      }
+
+      return;
     }
   }
 }
