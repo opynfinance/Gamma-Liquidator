@@ -1,4 +1,4 @@
-import calculateGasPriceFromGasNow from "./calculateGasPriceFromGasNow";
+import calculateGasPriceFromEthGasStation from "./calculateGasPriceFromEthGasStation";
 import calculateGasPriceFromNetwork from "./calculateGasPriceFromNetwork";
 import GasPriceStore from "../";
 import { Logger } from "../../helpers";
@@ -8,7 +8,7 @@ export default async function calculateInitialGasPrice(
 ): Promise<void> {
   try {
     GasPriceStore.setLastCalculatedGasPrice(
-      await calculateGasPriceFromGasNow()
+      await calculateGasPriceFromEthGasStation()
     );
   } catch (error) {
     Logger.error({

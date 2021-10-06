@@ -1,4 +1,4 @@
-import calculateGasPriceFromGasNow from "./calculateGasPriceFromGasNow";
+import calculateGasPriceFromEthGasStation from "./calculateGasPriceFromEthGasStation";
 import calculateGasPriceFromNetwork from "./calculateGasPriceFromNetwork";
 import GasPriceStore from "../";
 import { Logger } from "../../helpers";
@@ -9,7 +9,7 @@ export default async function calculateNextGasPrice(
   let nextCalculatedGasPrice;
   try {
     // Calculate gasPrice from gasnow.org
-    nextCalculatedGasPrice = await calculateGasPriceFromGasNow();
+    nextCalculatedGasPrice = await calculateGasPriceFromEthGasStation();
   } catch (error) {
     Logger.info({
       at: "GasPriceStore#calculateNextGasPrice",
