@@ -15,7 +15,6 @@ export default class GasPriceStore {
   }
 
   public setLastCalculatedGasPrice(nextCalculatedGasPrice: BigNumber): void {
-    console.log(nextCalculatedGasPrice.toString())
     this.lastCalculatedGasPrice = nextCalculatedGasPrice;
   }
 
