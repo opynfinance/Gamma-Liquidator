@@ -8,7 +8,7 @@ export default async function calculateNextGasPrice(
 ): Promise<void> {
   let nextCalculatedGasPrice;
   try {
-    // Calculate gasPrice from gasnow.org
+    // Calculate gasPrice from ethgassation.info
     nextCalculatedGasPrice = await calculateGasPriceFromEthGasStation();
   } catch (error) {
     Logger.info({
@@ -24,7 +24,7 @@ export default async function calculateNextGasPrice(
       Logger.error({
         alert: "Critical error when fetching and calculating latest gas price",
         at: "GasPriceStore#calculateNextGasPrice",
-        context: "gasnow.org API and on-chain gasPrice call failed",
+        context: "ethgasstation.info API and on-chain gasPrice call failed",
         message: error.message,
         error,
       });
