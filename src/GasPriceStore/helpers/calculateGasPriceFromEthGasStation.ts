@@ -10,5 +10,4 @@ export default async function calculateGasPriceFromEthGasStation(): Promise<BigN
     .mul(
       Math.round(Number(process.env.ETH_GASSTATION_GAS_PRICE_MULTIPLIER) * 100000000)
     )
-    .div(100000000);
 }
