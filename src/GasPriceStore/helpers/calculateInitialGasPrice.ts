@@ -1,4 +1,4 @@
-import calculateGasPriceFromGasNow from "./calculateGasPriceFromGasNow";
+import calculateGasPriceFromEthGasStation from "./calculateGasPriceFromEthGasStation";
 import calculateGasPriceFromNetwork from "./calculateGasPriceFromNetwork";
 import GasPriceStore from "../";
 import { Logger } from "../../helpers";
@@ -8,7 +8,7 @@ export default async function calculateInitialGasPrice(
 ): Promise<void> {
   try {
     GasPriceStore.setLastCalculatedGasPrice(
-      await calculateGasPriceFromGasNow()
+      await calculateGasPriceFromEthGasStation()
     );
   } catch (error) {
     Logger.error({
@@ -25,7 +25,7 @@ export default async function calculateInitialGasPrice(
       Logger.error({
         alert: "Critical error when fetching and calculating initial gas price",
         at: "GasPriceStore#calculateInitialGasPrice",
-        context: "gasnow.org API and on-chain gasPrice call failed",
+        context: "ethgasstation.info API and on-chain gasPrice call failed",
         message: error.message,
         error,
       });
